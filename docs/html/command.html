@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Command line &mdash; cellpose 0.7.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Cellpose API Guide" href="api.html" />
+    <link rel="prev" title="In a notebook" href="notebook.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cellpose
+          
+
+          
+            
+            <img src="_static/favicon.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Basics:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Training</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="notebook.html">In a notebook</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Command line</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#input-settings">Input settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#run-settings">Run settings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#command-line-examples">Command line examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#options">Options</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Cellpose API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cellpose</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Command line</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/command.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="api.html" class="btn btn-neutral float-right" title="Cellpose API Guide" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="notebook.html" class="btn btn-neutral float-left" title="In a notebook" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="command-line">
+<h1>Command line<a class="headerlink" href="#command-line" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="input-settings">
+<h2>Input settings<a class="headerlink" href="#input-settings" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>dir: (string)</dt><dd><p>directory of images</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>img_filter: (string)</dt><dd><p>(optional) ending of filenames (excluding extension) for processing</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="run-settings">
+<h2>Run settings<a class="headerlink" href="#run-settings" title="Permalink to this headline">¶</a></h2>
+<p>These are the same <span class="xref std std-ref">settings</span>, but set up for the command line, e.g.
+<cite>channels = [chan, chan2]</cite>.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="simple">
+<dt>chan: (int)</dt><dd><p>0 = grayscale; 1 = red; 2 = green; 3 = blue</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>chan2: (int)</dt><dd><p>(optional); 0 = None (will be set to zero); 1 = red; 2 = green; 3 = blue</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>pretrained_model: (string)</dt><dd><p>cyto = cytoplasm; nuclei = nucleus</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>diameter: (float)</dt><dd><p>average diameter of objects in image, if 0 cellpose will estimate for each image, default is 30</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>use_gpu: (bool)</dt><dd><p>run network on GPU</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>save_png: FLAG</dt><dd><p>save masks as png and outlines as text file for ImageJ</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>save_tif: FLAG</dt><dd><p>save masks as tif and outlines as text file for ImageJ</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>fast_mode: FLAG</dt><dd><p>make code run faster by turning off augmentations and 4 network averaging</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>all_channels: FLAG</dt><dd><p>run cellpose on all image channels (use for custom models ONLY)</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>no_npy: FLAG</dt><dd><p>turn off saving of _seg.npy file</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>batch_size: (int, optional 8)</dt><dd><p>batch size to run tiles of size 224 x 224</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="command-line-examples">
+<h2>Command line examples<a class="headerlink" href="#command-line-examples" title="Permalink to this headline">¶</a></h2>
+<p>Run <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">cellpose</span></code> and specify parameters as below. For instance
+to run on a folder with images where cytoplasm is green and nucleus is
+blue and save the output as a png (using default diameter 30):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cellpose</span> <span class="o">--</span><span class="nb">dir</span> <span class="o">~/</span><span class="n">images_cyto</span><span class="o">/</span><span class="n">test</span><span class="o">/</span> <span class="o">--</span><span class="n">pretrained_model</span> <span class="n">cyto</span> <span class="o">--</span><span class="n">chan</span> <span class="mi">2</span> <span class="o">--</span><span class="n">chan2</span> <span class="mi">3</span> <span class="o">--</span><span class="n">save_png</span>
+</pre></div>
+</div>
+<p>You can specify the diameter for all the images or set to 0 if you want
+the algorithm to estimate it on an image by image basis. Here is how to
+run on nuclear data (grayscale) where the diameter is automatically
+estimated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cellpose</span> <span class="o">--</span><span class="nb">dir</span> <span class="o">~/</span><span class="n">images_nuclei</span><span class="o">/</span><span class="n">test</span><span class="o">/</span> <span class="o">--</span><span class="n">pretrained_model</span> <span class="n">nuclei</span> <span class="o">--</span><span class="n">diameter</span> <span class="mf">0.</span> <span class="o">--</span><span class="n">save_png</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The path given to <code class="docutils literal notranslate"><span class="pre">--dir</span></code> must be an absolute path.</p>
+</div>
+</div>
+<div class="section" id="options">
+<h2>Options<a class="headerlink" href="#options" title="Permalink to this headline">¶</a></h2>
+<p>You can run the help string and see all the options:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">usage</span><span class="p">:</span> <span class="n">__main__</span><span class="o">.</span><span class="n">py</span> <span class="p">[</span><span class="o">-</span><span class="n">h</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">check_mkl</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">mkldnn</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">train</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="nb">dir</span> <span class="n">DIR</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">img_filter</span> <span class="n">IMG_FILTER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">use_gpu</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">do_3D</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">pretrained_model</span> <span class="n">PRETRAINED_MODEL</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">chan</span> <span class="n">CHAN</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">chan2</span> <span class="n">CHAN2</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">all_channels</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">diameter</span> <span class="n">DIAMETER</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">flow_threshold</span> <span class="n">FLOW_THRESHOLD</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">cellprob_threshold</span> <span class="n">CELLPROB_THRESHOLD</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">save_png</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">save_tif</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">fast_mode</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">no_npy</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">mask_filter</span> <span class="n">MASK_FILTER</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">test_dir</span> <span class="n">TEST_DIR</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">learning_rate</span> <span class="n">LEARNING_RATE</span><span class="p">]</span> <span class="p">[</span><span class="o">--</span><span class="n">n_epochs</span> <span class="n">N_EPOCHS</span><span class="p">]</span>
+               <span class="p">[</span><span class="o">--</span><span class="n">batch_size</span> <span class="n">BATCH_SIZE</span><span class="p">]</span>
+
+<span class="n">cellpose</span> <span class="n">parameters</span>
+
+<span class="n">optional</span> <span class="n">arguments</span><span class="p">:</span>
+<span class="o">-</span><span class="n">h</span><span class="p">,</span> <span class="o">--</span><span class="n">help</span>            <span class="n">show</span> <span class="n">this</span> <span class="n">help</span> <span class="n">message</span> <span class="ow">and</span> <span class="n">exit</span>
+<span class="o">--</span><span class="n">check_mkl</span>           <span class="n">check</span> <span class="k">if</span> <span class="n">mkl</span> <span class="n">working</span>
+<span class="o">--</span><span class="n">mkldnn</span>              <span class="n">force</span> <span class="n">MXNET_SUBGRAPH_BACKEND</span> <span class="o">=</span> <span class="s2">&quot;MKLDNN&quot;</span>
+<span class="o">--</span><span class="n">train</span>               <span class="n">train</span> <span class="n">network</span> <span class="n">using</span> <span class="n">images</span> <span class="ow">in</span> <span class="nb">dir</span> <span class="p">(</span><span class="ow">not</span> <span class="n">yet</span>
+                        <span class="n">implemented</span><span class="p">)</span>
+<span class="o">--</span><span class="nb">dir</span> <span class="n">DIR</span>             <span class="n">folder</span> <span class="n">containing</span> <span class="n">data</span> <span class="n">to</span> <span class="n">run</span> <span class="ow">or</span> <span class="n">train</span> <span class="n">on</span>
+<span class="o">--</span><span class="n">img_filter</span> <span class="n">IMG_FILTER</span>
+                        <span class="n">end</span> <span class="n">string</span> <span class="k">for</span> <span class="n">images</span> <span class="n">to</span> <span class="n">run</span> <span class="n">on</span>
+<span class="o">--</span><span class="n">use_gpu</span>             <span class="n">use</span> <span class="n">gpu</span> <span class="k">if</span> <span class="n">mxnet</span> <span class="k">with</span> <span class="n">cuda</span> <span class="n">installed</span>
+<span class="o">--</span><span class="n">do_3D</span>               <span class="n">process</span> <span class="n">images</span> <span class="k">as</span> <span class="mi">3</span><span class="n">D</span> <span class="n">stacks</span> <span class="n">of</span> <span class="n">images</span> <span class="p">(</span><span class="n">nplanes</span> <span class="n">x</span> <span class="n">nchan</span>
+                        <span class="n">x</span> <span class="n">Ly</span> <span class="n">x</span> <span class="n">Lx</span>
+<span class="o">--</span><span class="n">pretrained_model</span> <span class="n">PRETRAINED_MODEL</span>
+                        <span class="n">model</span> <span class="n">to</span> <span class="n">use</span>
+<span class="o">--</span><span class="n">chan</span> <span class="n">CHAN</span>           <span class="n">channel</span> <span class="n">to</span> <span class="n">segment</span><span class="p">;</span> <span class="mi">0</span><span class="p">:</span> <span class="n">GRAY</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">RED</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="n">BLUE</span>
+<span class="o">--</span><span class="n">chan2</span> <span class="n">CHAN2</span>         <span class="n">nuclear</span> <span class="n">channel</span> <span class="p">(</span><span class="k">if</span> <span class="n">cyto</span><span class="p">,</span> <span class="n">optional</span><span class="p">);</span> <span class="mi">0</span><span class="p">:</span> <span class="n">NONE</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="n">RED</span><span class="p">,</span>
+                        <span class="mi">2</span><span class="p">:</span> <span class="n">GREEN</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="n">BLUE</span>
+<span class="o">--</span><span class="n">all_channels</span>        <span class="n">use</span> <span class="nb">all</span> <span class="n">channels</span> <span class="ow">in</span> <span class="n">image</span> <span class="k">if</span> <span class="n">using</span> <span class="n">own</span> <span class="n">model</span> <span class="ow">and</span>
+                        <span class="n">images</span> <span class="k">with</span> <span class="n">special</span> <span class="n">channels</span>
+<span class="o">--</span><span class="n">diameter</span> <span class="n">DIAMETER</span>   <span class="n">cell</span> <span class="n">diameter</span><span class="p">,</span> <span class="k">if</span> <span class="mi">0</span> <span class="n">cellpose</span> <span class="n">will</span> <span class="n">estimate</span> <span class="k">for</span> <span class="n">each</span>
+                        <span class="n">image</span>
+<span class="o">--</span><span class="n">flow_threshold</span> <span class="n">FLOW_THRESHOLD</span>
+                        <span class="n">flow</span> <span class="n">error</span> <span class="n">threshold</span><span class="p">,</span> <span class="mi">0</span> <span class="n">turns</span> <span class="n">off</span> <span class="n">this</span> <span class="n">optional</span> <span class="n">QC</span>
+                        <span class="n">step</span>
+<span class="o">--</span><span class="n">cellprob_threshold</span> <span class="n">CELLPROB_THRESHOLD</span>
+                        <span class="n">cell</span> <span class="n">probability</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">centered</span> <span class="n">at</span> <span class="mf">0.0</span>
+<span class="o">--</span><span class="n">save_png</span>            <span class="n">save</span> <span class="n">masks</span> <span class="k">as</span> <span class="n">png</span> <span class="ow">and</span> <span class="n">outlines</span> <span class="k">as</span> <span class="n">text</span> <span class="n">file</span> <span class="k">for</span> <span class="n">ImageJ</span>
+<span class="o">--</span><span class="n">save_tif</span>            <span class="n">save</span> <span class="n">masks</span> <span class="k">as</span> <span class="n">tif</span> <span class="ow">and</span> <span class="n">outlines</span> <span class="k">as</span> <span class="n">text</span> <span class="n">file</span> <span class="k">for</span> <span class="n">ImageJ</span>
+<span class="o">--</span><span class="n">fast_mode</span>           <span class="n">make</span> <span class="n">code</span> <span class="n">run</span> <span class="n">faster</span> <span class="n">by</span> <span class="n">turning</span> <span class="n">off</span> <span class="n">augmentations</span> <span class="ow">and</span>
+                        <span class="mi">4</span> <span class="n">network</span> <span class="n">averaging</span>
+<span class="o">--</span><span class="n">no_npy</span>              <span class="n">suppress</span> <span class="n">saving</span> <span class="n">of</span> <span class="n">npy</span>
+<span class="o">--</span><span class="n">mask_filter</span> <span class="n">MASK_FILTER</span>
+                        <span class="n">end</span> <span class="n">string</span> <span class="k">for</span> <span class="n">masks</span> <span class="n">to</span> <span class="n">run</span> <span class="n">on</span>
+<span class="o">--</span><span class="n">test_dir</span> <span class="n">TEST_DIR</span>   <span class="n">folder</span> <span class="n">containing</span> <span class="n">test</span> <span class="n">data</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span>
+<span class="o">--</span><span class="n">learning_rate</span> <span class="n">LEARNING_RATE</span>
+                        <span class="n">learning</span> <span class="n">rate</span>
+<span class="o">--</span><span class="n">n_epochs</span> <span class="n">N_EPOCHS</span>   <span class="n">number</span> <span class="n">of</span> <span class="n">epochs</span>
+<span class="o">--</span><span class="n">batch_size</span> <span class="n">BATCH_SIZE</span>
+                        <span class="n">batch</span> <span class="n">size</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Carsen Stringer &amp; Marius Pachitariu.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

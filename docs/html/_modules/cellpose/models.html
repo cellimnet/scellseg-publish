@@ -1,0 +1,1107 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>cellpose.models &mdash; cellpose 0.7.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> cellpose
+          
+
+          
+            
+            <img src="../../_static/favicon.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Basics:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../inputs.html">Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../outputs.html">Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../train.html">Training</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notebook.html">In a notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../command.html">Command line</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">Cellpose API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">cellpose</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>cellpose.models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for cellpose.models</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">time</span><span class="o">,</span> <span class="nn">shutil</span><span class="o">,</span> <span class="nn">tempfile</span><span class="o">,</span> <span class="nn">datetime</span><span class="o">,</span> <span class="nn">pathlib</span><span class="o">,</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">trange</span><span class="p">,</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">from</span> <span class="nn">scipy.ndimage</span> <span class="kn">import</span> <span class="n">median_filter</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">transforms</span><span class="p">,</span> <span class="n">dynamics</span><span class="p">,</span> <span class="n">utils</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">core</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="kn">import</span> <span class="n">UnetModel</span><span class="p">,</span> <span class="n">assign_device</span><span class="p">,</span> <span class="n">check_mkl</span><span class="p">,</span> <span class="n">use_gpu</span><span class="p">,</span> <span class="n">convert_images</span><span class="p">,</span> <span class="n">MXNET_ENABLED</span><span class="p">,</span> <span class="n">parse_model_string</span>
+
+<span class="n">urls</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;https://www.cellpose.org/models/cyto_0&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/cyto_1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/cyto_2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/cyto_3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/size_cyto_0.npy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/cytotorch_0&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/cytotorch_1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/cytotorch_2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/cytotorch_3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/size_cytotorch_0.npy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nuclei_0&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nuclei_1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nuclei_2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nuclei_3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/size_nuclei_0.npy&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nucleitorch_0&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nucleitorch_1&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nucleitorch_2&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/nucleitorch_3&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;https://www.cellpose.org/models/size_nucleitorch_0.npy&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">download_model_weights</span><span class="p">(</span><span class="n">urls</span><span class="o">=</span><span class="n">urls</span><span class="p">):</span>
+    <span class="c1"># cellpose directory</span>
+    <span class="n">cp_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.cellpose&#39;</span><span class="p">)</span>
+    <span class="n">cp_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">model_dir</span> <span class="o">=</span> <span class="n">cp_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;models&#39;</span><span class="p">)</span>
+    <span class="n">model_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">urls</span><span class="p">:</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">parts</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">cached_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">model_dir</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">cached_file</span><span class="p">):</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;Downloading: &quot;</span><span class="si">{}</span><span class="s1">&quot; to </span><span class="si">{}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cached_file</span><span class="p">))</span>
+            <span class="n">utils</span><span class="o">.</span><span class="n">download_url_to_file</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">cached_file</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">download_model_weights</span><span class="p">()</span>
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">home</span><span class="p">()</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;.cellpose&#39;</span><span class="p">,</span> <span class="s1">&#39;models&#39;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">dx_to_circ</span><span class="p">(</span><span class="n">dP</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; dP is 2 x Y x X =&gt; &#39;optic&#39; flow representation &quot;&quot;&quot;</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">99</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">sc</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">sc</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">99</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">sc</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">normalize99</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">dP</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+    <span class="n">HSV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">H</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">S</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span> <span class="n">S</span><span class="p">[:,:,</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">HSV</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">HSV</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span>
+    <span class="n">flow</span> <span class="o">=</span> <span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">hsv_to_rgb</span><span class="p">(</span><span class="n">HSV</span><span class="p">)</span><span class="o">*</span><span class="mi">255</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flow</span>
+
+<div class="viewcode-block" id="Cellpose"><a class="viewcode-back" href="../../api.html#cellpose.models.Cellpose">[docs]</a><span class="k">class</span> <span class="nc">Cellpose</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; main model which combines SizeModel and CellposeModel</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    gpu: bool (optional, default False)</span>
+<span class="sd">        whether or not to use GPU, will check if GPU available</span>
+
+<span class="sd">    model_type: str (optional, default &#39;cyto&#39;)</span>
+<span class="sd">        &#39;cyto&#39;=cytoplasm model; &#39;nuclei&#39;=nucleus model</span>
+
+<span class="sd">    net_avg: bool (optional, default True)</span>
+<span class="sd">        loads the 4 built-in networks and averages them if True, loads one network if False</span>
+
+<span class="sd">    device: gpu device (optional, default None)</span>
+<span class="sd">        where model is saved (e.g. mx.gpu() or mx.cpu()), overrides gpu input,</span>
+<span class="sd">        recommended if you want to use a specific GPU (e.g. mx.gpu(4) or torch.cuda.device(4))</span>
+
+<span class="sd">    torch: bool (optional, default False)</span>
+<span class="sd">        run model using torch if available</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;cyto&#39;</span><span class="p">,</span> <span class="n">net_avg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">torch</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Cellpose</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">MXNET_ENABLED</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: mxnet not installed, using torch&#39;</span><span class="p">)</span>
+                <span class="n">torch</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">torch</span> <span class="o">=</span> <span class="n">torch</span>
+        <span class="n">torch_str</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39;torch&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">]</span>
+        
+        <span class="c1"># assign device (GPU or CPU)</span>
+        <span class="n">sdevice</span><span class="p">,</span> <span class="n">gpu</span> <span class="o">=</span> <span class="n">assign_device</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">,</span> <span class="n">gpu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span> <span class="k">if</span> <span class="n">device</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">sdevice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span> <span class="o">=</span> <span class="n">gpu</span>
+        <span class="n">model_type</span> <span class="o">=</span> <span class="s1">&#39;cyto&#39;</span> <span class="k">if</span> <span class="n">model_type</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">model_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">model_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">_</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">model_type</span><span class="p">,</span><span class="n">torch_str</span><span class="p">,</span><span class="n">j</span><span class="p">)))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_size</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">model_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;size_</span><span class="si">%s%s</span><span class="s1">_0.npy&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">model_type</span><span class="p">,</span><span class="n">torch_str</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">=</span> <span class="mf">30.</span> <span class="k">if</span> <span class="n">model_type</span><span class="o">==</span><span class="s1">&#39;cyto&#39;</span> <span class="k">else</span> <span class="mf">17.</span>
+        
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">net_avg</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cp</span> <span class="o">=</span> <span class="n">CellposeModel</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu</span><span class="p">,</span>
+                                <span class="n">pretrained_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">,</span>
+                                <span class="n">diam_mean</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span><span class="p">,</span> <span class="n">torch</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">model_type</span> <span class="o">=</span> <span class="n">model_type</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">sz</span> <span class="o">=</span> <span class="n">SizeModel</span><span class="p">(</span><span class="n">device</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="p">,</span> <span class="n">pretrained_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_size</span><span class="p">,</span>
+                            <span class="n">cp_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sz</span><span class="o">.</span><span class="n">model_type</span> <span class="o">=</span> <span class="n">model_type</span>
+
+<div class="viewcode-block" id="Cellpose.eval"><a class="viewcode-back" href="../../api.html#cellpose.models.Cellpose.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span> <span class="n">do_3D</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">anisotropy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+             <span class="n">net_avg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">augment</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tile_overlap</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">resample</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+             <span class="n">flow_threshold</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">cellprob_threshold</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> 
+              <span class="n">stitch_threshold</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">rescale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; run cellpose and get masks</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        x: list or array of images</span>
+<span class="sd">            can be list of 2D/3D images, or array of 2D/3D images, or 4D image array</span>
+
+<span class="sd">        batch_size: int (optional, default 8)</span>
+<span class="sd">            number of 224x224 patches to run simultaneously on the GPU</span>
+<span class="sd">            (can make smaller or bigger depending on GPU memory usage)</span>
+
+<span class="sd">        channels: list (optional, default None)</span>
+<span class="sd">            list of channels, either of length 2 or of length number of images by 2.</span>
+<span class="sd">            First element of list is the channel to segment (0=grayscale, 1=red, 2=blue, 3=green).</span>
+<span class="sd">            Second element of list is the optional nuclear channel (0=none, 1=red, 2=blue, 3=green).</span>
+<span class="sd">            For instance, to segment grayscale images, input [0,0]. To segment images with cells</span>
+<span class="sd">            in green and nuclei in blue, input [2,3]. To segment one grayscale image and one</span>
+<span class="sd">            image with cells in green and nuclei in blue, input [[0,0], [2,3]].</span>
+
+<span class="sd">        invert: bool (optional, default False)</span>
+<span class="sd">            invert image pixel intensity before running network (if True, image is also normalized)</span>
+
+<span class="sd">        normalize: bool (optional, default True)</span>
+<span class="sd">                normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel</span>
+
+<span class="sd">        diameter: float (optional, default 30.)</span>
+<span class="sd">            if set to None, then diameter is automatically estimated if size model is loaded</span>
+
+<span class="sd">        do_3D: bool (optional, default False)</span>
+<span class="sd">            set to True to run 3D segmentation on 4D image input</span>
+
+<span class="sd">        anisotropy: float (optional, default None)</span>
+<span class="sd">            for 3D segmentation, optional rescaling factor (e.g. set to 2.0 if Z is sampled half as dense as X or Y)</span>
+
+<span class="sd">        net_avg: bool (optional, default True)</span>
+<span class="sd">            runs the 4 built-in networks and averages them if True, runs one network if False</span>
+
+<span class="sd">        augment: bool (optional, default False)</span>
+<span class="sd">            tiles image with overlapping tiles and flips overlapped regions to augment</span>
+
+<span class="sd">        tile: bool (optional, default True)</span>
+<span class="sd">            tiles image to ensure GPU/CPU memory usage limited (recommended)</span>
+
+<span class="sd">        tile_overlap: float (optional, default 0.1)</span>
+<span class="sd">            fraction of overlap of tiles when computing flows</span>
+
+<span class="sd">        resample: bool (optional, default False)</span>
+<span class="sd">            run dynamics at original image size (will be slower but create more accurate boundaries)</span>
+
+<span class="sd">        interp: bool (optional, default True)</span>
+<span class="sd">                interpolate during 2D dynamics (not available in 3D) </span>
+<span class="sd">                (in previous versions it was False)</span>
+
+<span class="sd">        flow_threshold: float (optional, default 0.4)</span>
+<span class="sd">            flow error threshold (all cells with errors below threshold are kept) (not used for 3D)</span>
+
+<span class="sd">        cellprob_threshold: float (optional, default 0.0)</span>
+<span class="sd">            cell probability threshold (all pixels with prob above threshold kept for masks)</span>
+
+<span class="sd">        min_size: int (optional, default 15)</span>
+<span class="sd">                minimum number of pixels per mask, can turn off with -1</span>
+
+<span class="sd">        stitch_threshold: float (optional, default 0.0)</span>
+<span class="sd">            if stitch_threshold&gt;0.0 and not do_3D and equal image sizes, masks are stitched in 3D to return volume segmentation</span>
+
+<span class="sd">        rescale: float (optional, default None)</span>
+<span class="sd">            if diameter is set to None, and rescale is not None, then rescale is used instead of diameter for resizing image</span>
+
+<span class="sd">        progress: pyqt progress bar (optional, default None)</span>
+<span class="sd">            to return progress bar status to GUI</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        masks: list of 2D arrays, or single 3D array (if do_3D=True)</span>
+<span class="sd">                labelled image, where 0=no masks; 1,2,...=mask labels</span>
+
+<span class="sd">        flows: list of lists 2D arrays, or list of 3D arrays (if do_3D=True)</span>
+<span class="sd">            flows[k][0] = XY flow in HSV 0-255</span>
+<span class="sd">            flows[k][1] = flows at each pixel</span>
+<span class="sd">            flows[k][2] = the cell probability centered at 0.0</span>
+
+<span class="sd">        styles: list of 1D arrays of length 64, or single 1D array (if do_3D=True)</span>
+<span class="sd">            style vector summarizing each image, also used to estimate size of objects in image</span>
+
+<span class="sd">        diams: list of diameters, or float (if do_3D=True)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span><span class="nb">list</span><span class="p">):</span>
+            <span class="n">nolist</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">D images not supported&#39;</span><span class="o">%</span><span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">4</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">do_3D</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">nolist</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">elif</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span><span class="o">==</span><span class="mi">5</span><span class="p">:</span> 
+                <span class="k">if</span> <span class="n">do_3D</span><span class="p">:</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+                    <span class="n">nolist</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;4D images must be processed using 3D&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">x</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nolist</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">xi</span> <span class="ow">in</span> <span class="n">x</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">xi</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="n">xi</span><span class="o">.</span><span class="n">ndim</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%d</span><span class="s1">D images not supported&#39;</span><span class="o">%</span><span class="n">xi</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
+            
+        <span class="n">tic0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="n">nimg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;processing </span><span class="si">%d</span><span class="s1"> image(s)&#39;</span><span class="o">%</span><span class="n">nimg</span><span class="p">)</span>
+        <span class="c1"># make rescale into length of x</span>
+        <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">and</span> 
+                <span class="p">(</span><span class="n">diameter</span><span class="o">==</span><span class="mi">0</span> <span class="ow">or</span> <span class="p">(</span><span class="n">diameter</span><span class="o">==</span><span class="mf">30.</span> <span class="ow">and</span> <span class="n">rescale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">))):</span>    
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">diameter</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">diameter</span><span class="p">)</span><span class="o">&lt;</span><span class="n">nimg</span><span class="p">:</span>
+                <span class="n">diams</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nimg</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">diams</span> <span class="o">=</span> <span class="n">diameter</span>
+            <span class="n">rescale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">/</span> <span class="n">diams</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">rescale</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rescale</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rescale</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">rescale</span> <span class="o">=</span> <span class="n">rescale</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nimg</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">rescale</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">do_3D</span><span class="p">:</span>
+                <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">diams</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sz</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> 
+                                        <span class="n">augment</span><span class="o">=</span><span class="n">augment</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">)</span>
+                <span class="n">rescale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">/</span> <span class="n">diams</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;estimated cell diameters for </span><span class="si">%d</span><span class="s1"> image(s) in </span><span class="si">%0.2f</span><span class="s1"> sec&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">nimg</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tic</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;&gt; diameter(s) = &#39;</span><span class="p">,</span> <span class="n">diams</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">rescale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">do_3D</span><span class="p">:</span>
+                        <span class="n">rescale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">rescale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nimg</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="n">diams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">/</span> <span class="n">rescale</span>
+        <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">styles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> 
+                                            <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span> 
+                                            <span class="n">invert</span><span class="o">=</span><span class="n">invert</span><span class="p">,</span> 
+                                            <span class="n">rescale</span><span class="o">=</span><span class="n">rescale</span><span class="p">,</span> 
+                                            <span class="n">anisotropy</span><span class="o">=</span><span class="n">anisotropy</span><span class="p">,</span> 
+                                            <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span> 
+                                            <span class="n">augment</span><span class="o">=</span><span class="n">augment</span><span class="p">,</span> 
+                                            <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span> 
+                                            <span class="n">do_3D</span><span class="o">=</span><span class="n">do_3D</span><span class="p">,</span> 
+                                            <span class="n">net_avg</span><span class="o">=</span><span class="n">net_avg</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">,</span>
+                                            <span class="n">tile_overlap</span><span class="o">=</span><span class="n">tile_overlap</span><span class="p">,</span>
+                                            <span class="n">resample</span><span class="o">=</span><span class="n">resample</span><span class="p">,</span>
+                                            <span class="n">interp</span><span class="o">=</span><span class="n">interp</span><span class="p">,</span>
+                                            <span class="n">flow_threshold</span><span class="o">=</span><span class="n">flow_threshold</span><span class="p">,</span> 
+                                            <span class="n">cellprob_threshold</span><span class="o">=</span><span class="n">cellprob_threshold</span><span class="p">,</span>
+                                            <span class="n">min_size</span><span class="o">=</span><span class="n">min_size</span><span class="p">,</span> 
+                                            <span class="n">stitch_threshold</span><span class="o">=</span><span class="n">stitch_threshold</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;estimated masks for </span><span class="si">%d</span><span class="s1"> image(s) in </span><span class="si">%0.2f</span><span class="s1"> sec&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">nimg</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tic</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&gt;&gt;&gt;&gt; TOTAL TIME </span><span class="si">%0.2f</span><span class="s1"> sec&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tic0</span><span class="p">))</span>
+        
+        <span class="k">if</span> <span class="n">nolist</span><span class="p">:</span>
+            <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">styles</span><span class="p">,</span> <span class="n">diams</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">flows</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">styles</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diams</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="k">return</span> <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">styles</span><span class="p">,</span> <span class="n">diams</span></div></div>
+
+<div class="viewcode-block" id="CellposeModel"><a class="viewcode-back" href="../../api.html#cellpose.models.CellposeModel">[docs]</a><span class="k">class</span> <span class="nc">CellposeModel</span><span class="p">(</span><span class="n">UnetModel</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    -------------------</span>
+
+<span class="sd">    gpu: bool (optional, default False)</span>
+<span class="sd">        whether or not to save model to GPU, will check if GPU available</span>
+
+<span class="sd">    pretrained_model: str or list of strings (optional, default False)</span>
+<span class="sd">        path to pretrained cellpose model(s), if False, no model loaded;</span>
+<span class="sd">        if None, built-in &#39;cyto&#39; model loaded</span>
+
+<span class="sd">    net_avg: bool (optional, default True)</span>
+<span class="sd">        loads the 4 built-in networks and averages them if True, loads one network if False</span>
+
+<span class="sd">    diam_mean: float (optional, default 27.)</span>
+<span class="sd">        mean &#39;diameter&#39;, 27. is built in value for &#39;cyto&#39; model</span>
+
+<span class="sd">    device: mxnet device (optional, default None)</span>
+<span class="sd">        where model is saved (mx.gpu() or mx.cpu()), overrides gpu input,</span>
+<span class="sd">        recommended if you want to use a specific GPU (e.g. mx.gpu(4))</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">pretrained_model</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">torch</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">diam_mean</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span> <span class="n">net_avg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">residual_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">style_on</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">concatenation</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">torch</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">MXNET_ENABLED</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;WARNING: mxnet not installed, using torch&#39;</span><span class="p">)</span>
+                <span class="n">torch</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">torch</span> <span class="o">=</span> <span class="n">torch</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">pretrained_model</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">)</span>
+        <span class="n">nclasses</span> <span class="o">=</span> <span class="mi">3</span> <span class="c1"># 3 prediction maps (dY, dX and cellprob)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nclasses</span> <span class="o">=</span> <span class="n">nclasses</span> 
+        <span class="k">if</span> <span class="n">pretrained_model</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">parse_model_string</span><span class="p">(</span><span class="n">pretrained_model</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">nclasses</span><span class="p">,</span> <span class="n">residual_on</span><span class="p">,</span> <span class="n">style_on</span><span class="p">,</span> <span class="n">concatenation</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="c1"># load default cyto model if pretrained_model is None</span>
+        <span class="k">elif</span> <span class="n">pretrained_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">torch_str</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">,</span><span class="s1">&#39;torch&#39;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">]</span>
+            <span class="n">pretrained_model</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">model_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;cyto</span><span class="si">%s</span><span class="s1">_</span><span class="si">%d</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">torch_str</span><span class="p">,</span><span class="n">j</span><span class="p">)))</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span> <span class="k">if</span> <span class="n">net_avg</span> <span class="k">else</span> <span class="n">os</span><span class="o">.</span><span class="n">fspath</span><span class="p">(</span><span class="n">model_dir</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s1">&#39;cyto_0&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">=</span> <span class="mf">30.</span>
+            <span class="n">residual_on</span><span class="p">,</span> <span class="n">style_on</span><span class="p">,</span> <span class="n">concatenation</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">False</span>
+        
+        <span class="c1"># initialize network</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">gpu</span><span class="o">=</span><span class="n">gpu</span><span class="p">,</span> <span class="n">pretrained_model</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                         <span class="n">diam_mean</span><span class="o">=</span><span class="n">diam_mean</span><span class="p">,</span> <span class="n">net_avg</span><span class="o">=</span><span class="n">net_avg</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">,</span>
+                         <span class="n">residual_on</span><span class="o">=</span><span class="n">residual_on</span><span class="p">,</span> <span class="n">style_on</span><span class="o">=</span><span class="n">style_on</span><span class="p">,</span> <span class="n">concatenation</span><span class="o">=</span><span class="n">concatenation</span><span class="p">,</span>
+                         <span class="n">nclasses</span><span class="o">=</span><span class="n">nclasses</span><span class="p">,</span> <span class="n">torch</span><span class="o">=</span><span class="n">torch</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unet</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span> <span class="o">=</span> <span class="n">pretrained_model</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">,</span> <span class="n">cpu</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
+        <span class="n">ostr</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;off&#39;</span><span class="p">,</span> <span class="s1">&#39;on&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">net_type</span> <span class="o">=</span> <span class="s1">&#39;cellpose_residual_</span><span class="si">{}</span><span class="s1">_style_</span><span class="si">{}</span><span class="s1">_concatenation_</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ostr</span><span class="p">[</span><span class="n">residual_on</span><span class="p">],</span>
+                                                                                <span class="n">ostr</span><span class="p">[</span><span class="n">style_on</span><span class="p">],</span>
+                                                                                <span class="n">ostr</span><span class="p">[</span><span class="n">concatenation</span><span class="p">])</span>
+                                                                                
+<div class="viewcode-block" id="CellposeModel.eval"><a class="viewcode-back" href="../../api.html#cellpose.models.CellposeModel.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imgs</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+             <span class="n">rescale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">do_3D</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">anisotropy</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">net_avg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+             <span class="n">augment</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tile_overlap</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+             <span class="n">resample</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">flow_threshold</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">cellprob_threshold</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">compute_masks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+             <span class="n">min_size</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span> <span class="n">stitch_threshold</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            segment list of images imgs, or 4D array - Z x nchan x Y x X</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            imgs: list or array of images</span>
+<span class="sd">                can be list of 2D/3D/4D images, or array of 2D/3D images</span>
+
+<span class="sd">            batch_size: int (optional, default 8)</span>
+<span class="sd">                number of 224x224 patches to run simultaneously on the GPU</span>
+<span class="sd">                (can make smaller or bigger depending on GPU memory usage)</span>
+
+<span class="sd">            channels: list (optional, default None)</span>
+<span class="sd">                list of channels, either of length 2 or of length number of images by 2.</span>
+<span class="sd">                First element of list is the channel to segment (0=grayscale, 1=red, 2=blue, 3=green).</span>
+<span class="sd">                Second element of list is the optional nuclear channel (0=none, 1=red, 2=blue, 3=green).</span>
+<span class="sd">                For instance, to segment grayscale images, input [0,0]. To segment images with cells</span>
+<span class="sd">                in green and nuclei in blue, input [2,3]. To segment one grayscale image and one</span>
+<span class="sd">                image with cells in green and nuclei in blue, input [[0,0], [2,3]].</span>
+
+<span class="sd">            normalize: bool (default, True)</span>
+<span class="sd">                normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel</span>
+
+<span class="sd">            invert: bool (optional, default False)</span>
+<span class="sd">                invert image pixel intensity before running network</span>
+
+<span class="sd">            rescale: float (optional, default None)</span>
+<span class="sd">                resize factor for each image, if None, set to 1.0</span>
+
+<span class="sd">            diameter: float (optional, default None)</span>
+<span class="sd">                diameter for each image (only used if rescale is None), </span>
+<span class="sd">                if diameter is None, set to diam_mean</span>
+
+<span class="sd">            do_3D: bool (optional, default False)</span>
+<span class="sd">                set to True to run 3D segmentation on 4D image input</span>
+
+<span class="sd">            anisotropy: float (optional, default None)</span>
+<span class="sd">                for 3D segmentation, optional rescaling factor (e.g. set to 2.0 if Z is sampled half as dense as X or Y)</span>
+
+<span class="sd">            net_avg: bool (optional, default True)</span>
+<span class="sd">                runs the 4 built-in networks and averages them if True, runs one network if False</span>
+
+<span class="sd">            augment: bool (optional, default False)</span>
+<span class="sd">                tiles image with overlapping tiles and flips overlapped regions to augment</span>
+
+<span class="sd">            tile: bool (optional, default True)</span>
+<span class="sd">                tiles image to ensure GPU/CPU memory usage limited (recommended)</span>
+
+<span class="sd">            tile_overlap: float (optional, default 0.1)</span>
+<span class="sd">                fraction of overlap of tiles when computing flows</span>
+
+<span class="sd">            resample: bool (optional, default False)</span>
+<span class="sd">                run dynamics at original image size (will be slower but create more accurate boundaries)</span>
+
+<span class="sd">            interp: bool (optional, default True)</span>
+<span class="sd">                interpolate during 2D dynamics (not available in 3D) </span>
+<span class="sd">                (in previous versions it was False)</span>
+
+<span class="sd">            flow_threshold: float (optional, default 0.4)</span>
+<span class="sd">                flow error threshold (all cells with errors below threshold are kept) (not used for 3D)</span>
+
+<span class="sd">            cellprob_threshold: float (optional, default 0.0)</span>
+<span class="sd">                cell probability threshold (all pixels with prob above threshold kept for masks)</span>
+
+<span class="sd">            compute_masks: bool (optional, default True)</span>
+<span class="sd">                Whether or not to compute dynamics and return masks.</span>
+<span class="sd">                This is set to False when retrieving the styles for the size model.</span>
+
+<span class="sd">            min_size: int (optional, default 15)</span>
+<span class="sd">                minimum number of pixels per mask, can turn off with -1</span>
+
+<span class="sd">            stitch_threshold: float (optional, default 0.0)</span>
+<span class="sd">                if stitch_threshold&gt;0.0 and not do_3D, masks are stitched in 3D to return volume segmentation</span>
+
+<span class="sd">            progress: pyqt progress bar (optional, default None)</span>
+<span class="sd">                to return progress bar status to GUI</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            masks: list of 2D arrays, or single 3D array (if do_3D=True)</span>
+<span class="sd">                labelled image, where 0=no masks; 1,2,...=mask labels</span>
+
+<span class="sd">            flows: list of lists 2D arrays, or list of 3D arrays (if do_3D=True)</span>
+<span class="sd">                flows[k][0] = XY flow in HSV 0-255</span>
+<span class="sd">                flows[k][1] = flows at each pixel</span>
+<span class="sd">                flows[k][2] = the cell probability centered at 0.0</span>
+
+<span class="sd">            styles: list of 1D arrays of length 64, or single 1D array (if do_3D=True)</span>
+<span class="sd">                style vector summarizing each image, also used to estimate size of objects in image</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">nolist</span> <span class="o">=</span> <span class="n">convert_images</span><span class="p">(</span><span class="n">imgs</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">channels</span><span class="p">,</span> <span class="n">do_3D</span><span class="p">,</span> <span class="n">normalize</span><span class="p">,</span> <span class="n">invert</span><span class="p">)</span>
+        
+        <span class="n">nimg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        
+        <span class="n">styles</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">flows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">masks</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">rescale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">diameter</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diameter</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                    <span class="n">diameter</span> <span class="o">=</span> <span class="n">diameter</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nimg</span><span class="p">)</span>
+                <span class="n">rescale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">/</span> <span class="n">diameter</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rescale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nimg</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rescale</span><span class="p">,</span> <span class="nb">float</span><span class="p">):</span>
+            <span class="n">rescale</span> <span class="o">=</span> <span class="n">rescale</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">nimg</span><span class="p">)</span>
+
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">trange</span><span class="p">(</span><span class="n">nimg</span><span class="p">)</span> <span class="k">if</span> <span class="n">nimg</span><span class="o">&gt;</span><span class="mi">1</span> <span class="k">else</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimg</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">net_avg</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">cpu</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">collect_params</span><span class="p">()</span><span class="o">.</span><span class="n">grad_req</span> <span class="o">=</span> <span class="s1">&#39;null&#39;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">do_3D</span><span class="p">:</span>
+            <span class="n">flow_time</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">net_time</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">Ly</span><span class="p">,</span><span class="n">Lx</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span>
+
+                <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>
+                <span class="c1"># rescale image for flow computation</span>
+                <span class="n">img</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">resize_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">rsz</span><span class="o">=</span><span class="n">rescale</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                <span class="n">y</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_nets</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">net_avg</span><span class="o">=</span><span class="n">net_avg</span><span class="p">,</span> 
+                                            <span class="n">augment</span><span class="o">=</span><span class="n">augment</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span>
+                                            <span class="n">tile_overlap</span><span class="o">=</span><span class="n">tile_overlap</span><span class="p">)</span>
+                <span class="n">net_time</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span>
+                <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">55</span><span class="p">)</span>
+                <span class="n">styles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">compute_masks</span><span class="p">:</span>
+                    <span class="n">tic</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">resample</span><span class="p">:</span>
+                        <span class="n">y</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">resize_image</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
+                    <span class="n">cellprob</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">dP</span> <span class="o">=</span> <span class="n">y</span><span class="p">[:,:,:</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">))</span>
+                    <span class="n">niter</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">rescale</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*</span> <span class="mi">200</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">follow_flows</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">dP</span> <span class="o">*</span> <span class="p">(</span><span class="n">cellprob</span> <span class="o">&gt;</span> <span class="n">cellprob_threshold</span><span class="p">)</span> <span class="o">/</span> <span class="mf">5.</span><span class="p">,</span> 
+                                                <span class="n">niter</span><span class="o">=</span><span class="n">niter</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="n">interp</span><span class="p">,</span> <span class="n">use_gpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gpu</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">65</span><span class="p">)</span>
+                    <span class="n">maski</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">get_masks</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">iscell</span><span class="o">=</span><span class="p">(</span><span class="n">cellprob</span><span class="o">&gt;</span><span class="n">cellprob_threshold</span><span class="p">),</span>
+                                                <span class="n">flows</span><span class="o">=</span><span class="n">dP</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">flow_threshold</span><span class="p">)</span>
+                    <span class="n">maski</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">fill_holes_and_remove_small_masks</span><span class="p">(</span><span class="n">maski</span><span class="p">)</span>
+                    <span class="n">maski</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">resize_image</span><span class="p">(</span><span class="n">maski</span><span class="p">,</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">],</span> <span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">],</span> 
+                                                    <span class="n">interpolation</span><span class="o">=</span><span class="n">cv2</span><span class="o">.</span><span class="n">INTER_NEAREST</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">75</span><span class="p">)</span>
+                    <span class="c1">#dP = np.concatenate((dP, np.zeros((1,dP.shape[1],dP.shape[2]), np.uint8)), axis=0)</span>
+                    <span class="n">flows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">dx_to_circ</span><span class="p">(</span><span class="n">dP</span><span class="p">),</span> <span class="n">dP</span><span class="p">,</span> <span class="n">cellprob</span><span class="p">,</span> <span class="n">p</span><span class="p">])</span>
+                    <span class="n">masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">maski</span><span class="p">)</span>
+                    <span class="n">flow_time</span> <span class="o">+=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">tic</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">flows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="mi">3</span><span class="p">)</span>
+                    <span class="n">masks</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+            <span class="k">if</span> <span class="n">compute_masks</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;time spent: running network </span><span class="si">%0.2f</span><span class="s1">s; flow+mask computation </span><span class="si">%0.2f</span><span class="s1">&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">net_time</span><span class="p">,</span> <span class="n">flow_time</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">stitch_threshold</span> <span class="o">&gt;</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">nimg</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">shape</span><span class="o">==</span><span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">masks</span><span class="p">]):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;stitching </span><span class="si">%d</span><span class="s1"> masks using stitch_threshold=</span><span class="si">%0.3f</span><span class="s1"> to make 3D masks&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">nimg</span><span class="p">,</span> <span class="n">stitch_threshold</span><span class="p">))</span>
+                <span class="n">masks</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">stitch3D</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">masks</span><span class="p">),</span> <span class="n">stitch_threshold</span><span class="o">=</span><span class="n">stitch_threshold</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+                <span class="n">tic</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">shape</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span>
+                <span class="n">yf</span><span class="p">,</span> <span class="n">style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_3D</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">rsz</span><span class="o">=</span><span class="n">rescale</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">anisotropy</span><span class="o">=</span><span class="n">anisotropy</span><span class="p">,</span> 
+                                         <span class="n">net_avg</span><span class="o">=</span><span class="n">net_avg</span><span class="p">,</span> <span class="n">augment</span><span class="o">=</span><span class="n">augment</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span> 
+                                         <span class="n">tile_overlap</span><span class="o">=</span><span class="n">tile_overlap</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="n">progress</span><span class="p">)</span>
+                <span class="n">cellprob</span> <span class="o">=</span> <span class="n">yf</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">yf</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">yf</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">dP</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">((</span><span class="n">yf</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">yf</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="n">yf</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">yf</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="n">yf</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">yf</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]),</span> 
+                                <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="c1"># (dZ, dY, dX)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;flows computed </span><span class="si">%2.2f</span><span class="s1">s&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tic</span><span class="p">))</span>
+                <span class="c1"># ** mask out values using cellprob to increase speed and reduce memory requirements **</span>
+                <span class="n">yout</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">follow_flows</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">dP</span> <span class="o">*</span> <span class="p">(</span><span class="n">cellprob</span> <span class="o">&gt;</span> <span class="n">cellprob_threshold</span><span class="p">)</span> <span class="o">/</span> <span class="mf">5.</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;dynamics computed </span><span class="si">%2.2f</span><span class="s1">s&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tic</span><span class="p">))</span>
+                <span class="n">maski</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">get_masks</span><span class="p">(</span><span class="n">yout</span><span class="p">,</span> <span class="n">iscell</span><span class="o">=</span><span class="p">(</span><span class="n">cellprob</span><span class="o">&gt;</span><span class="n">cellprob_threshold</span><span class="p">))</span>
+                <span class="n">maski</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">fill_holes_and_remove_small_masks</span><span class="p">(</span><span class="n">maski</span><span class="p">,</span> <span class="n">min_size</span><span class="o">=</span><span class="n">min_size</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;masks computed </span><span class="si">%2.2f</span><span class="s1">s&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tic</span><span class="p">))</span>
+                <span class="n">flow</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">dx_to_circ</span><span class="p">(</span><span class="n">dP</span><span class="p">[</span><span class="mi">1</span><span class="p">:,</span><span class="n">i</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dP</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])])</span>
+                <span class="n">flows</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">flow</span><span class="p">,</span> <span class="n">dP</span><span class="p">,</span> <span class="n">cellprob</span><span class="p">,</span> <span class="n">yout</span><span class="p">])</span>
+                <span class="n">masks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">maski</span><span class="p">)</span>
+                <span class="n">styles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">style</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nolist</span><span class="p">:</span>
+            <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">styles</span> <span class="o">=</span> <span class="n">masks</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">flows</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">styles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">styles</span></div>
+
+<div class="viewcode-block" id="CellposeModel.loss_fn"><a class="viewcode-back" href="../../api.html#cellpose.models.CellposeModel.loss_fn">[docs]</a>    <span class="k">def</span> <span class="nf">loss_fn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lbl</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; loss function between true labels lbl and prediction y &quot;&quot;&quot;</span>
+        
+        <span class="n">veci</span> <span class="o">=</span> <span class="mf">5.</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_device</span><span class="p">(</span><span class="n">lbl</span><span class="p">[:,</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="n">lbl</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_to_device</span><span class="p">(</span><span class="n">lbl</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span><span class="o">&gt;.</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="p">(</span><span class="n">y</span><span class="p">[:,:</span><span class="mi">2</span><span class="p">]</span> <span class="p">,</span> <span class="n">veci</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">:</span>
+            <span class="n">loss</span> <span class="o">/=</span> <span class="mf">2.</span>
+        <span class="n">loss2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">criterion2</span><span class="p">(</span><span class="n">y</span><span class="p">[:,</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">,</span> <span class="n">lbl</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">loss2</span>
+        <span class="k">return</span> <span class="n">loss</span></div>
+
+
+<div class="viewcode-block" id="CellposeModel.train"><a class="viewcode-back" href="../../api.html#cellpose.models.CellposeModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">train_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+              <span class="n">test_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_files</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">pretrained_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+              <span class="n">save_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">save_every</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+              <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.9</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">0.00001</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rescale</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; train network with images train_data </span>
+<span class="sd">        </span>
+<span class="sd">            Parameters</span>
+<span class="sd">            ------------------</span>
+
+<span class="sd">            train_data: list of arrays (2D or 3D)</span>
+<span class="sd">                images for training</span>
+
+<span class="sd">            train_labels: list of arrays (2D or 3D)</span>
+<span class="sd">                labels for train_data, where 0=no masks; 1,2,...=mask labels</span>
+<span class="sd">                can include flows as additional images</span>
+
+<span class="sd">            train_files: list of strings</span>
+<span class="sd">                file names for images in train_data (to save flows for future runs)</span>
+
+<span class="sd">            test_data: list of arrays (2D or 3D)</span>
+<span class="sd">                images for testing</span>
+
+<span class="sd">            test_labels: list of arrays (2D or 3D)</span>
+<span class="sd">                labels for test_data, where 0=no masks; 1,2,...=mask labels; </span>
+<span class="sd">                can include flows as additional images</span>
+<span class="sd">        </span>
+<span class="sd">            test_files: list of strings</span>
+<span class="sd">                file names for images in test_data (to save flows for future runs)</span>
+
+<span class="sd">            channels: list of ints (default, None)</span>
+<span class="sd">                channels to use for training</span>
+
+<span class="sd">            normalize: bool (default, True)</span>
+<span class="sd">                normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel</span>
+
+<span class="sd">            pretrained_model: string (default, None)</span>
+<span class="sd">                path to pretrained_model to start from, if None it is trained from scratch</span>
+
+<span class="sd">            save_path: string (default, None)</span>
+<span class="sd">                where to save trained model, if None it is not saved</span>
+
+<span class="sd">            save_every: int (default, 100)</span>
+<span class="sd">                save network every [save_every] epochs</span>
+
+<span class="sd">            learning_rate: float (default, 0.2)</span>
+<span class="sd">                learning rate for training</span>
+
+<span class="sd">            n_epochs: int (default, 500)</span>
+<span class="sd">                how many times to go through whole training set during training</span>
+
+<span class="sd">            weight_decay: float (default, 0.00001)</span>
+
+<span class="sd">            batch_size: int (optional, default 8)</span>
+<span class="sd">                number of 224x224 patches to run simultaneously on the GPU</span>
+<span class="sd">                (can make smaller or bigger depending on GPU memory usage)</span>
+
+<span class="sd">            rescale: bool (default, True)</span>
+<span class="sd">                whether or not to rescale images to diam_mean during training, </span>
+<span class="sd">                if True it assumes you will fit a size model after training or resize your images accordingly,</span>
+<span class="sd">                if False it will try to train the model to be scale-invariant (works worse)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">test_labels</span><span class="p">,</span> <span class="n">run_test</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">reshape_train_test</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span>
+                                                                                                   <span class="n">test_data</span><span class="p">,</span> <span class="n">test_labels</span><span class="p">,</span>
+                                                                                                   <span class="n">channels</span><span class="p">,</span> <span class="n">normalize</span><span class="p">)</span>
+
+        <span class="c1"># check if train_labels have flows</span>
+        <span class="n">train_flows</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">labels_to_flows</span><span class="p">(</span><span class="n">train_labels</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">train_files</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">run_test</span><span class="p">:</span>
+            <span class="n">test_flows</span> <span class="o">=</span> <span class="n">dynamics</span><span class="o">.</span><span class="n">labels_to_flows</span><span class="p">(</span><span class="n">test_labels</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="n">test_files</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">test_flows</span> <span class="o">=</span> <span class="kc">None</span>
+        
+        <span class="n">model_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_train_net</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_flows</span><span class="p">,</span> 
+                                     <span class="n">test_data</span><span class="p">,</span> <span class="n">test_flows</span><span class="p">,</span>
+                                     <span class="n">pretrained_model</span><span class="p">,</span> <span class="n">save_path</span><span class="p">,</span> <span class="n">save_every</span><span class="p">,</span>
+                                     <span class="n">learning_rate</span><span class="p">,</span> <span class="n">n_epochs</span><span class="p">,</span> <span class="n">momentum</span><span class="p">,</span> <span class="n">weight_decay</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">,</span> <span class="n">rescale</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_model</span> <span class="o">=</span> <span class="n">model_path</span>
+        <span class="k">return</span> <span class="n">model_path</span></div></div>
+
+<div class="viewcode-block" id="SizeModel"><a class="viewcode-back" href="../../api.html#cellpose.models.SizeModel">[docs]</a><span class="k">class</span> <span class="nc">SizeModel</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot; linear regression model for determining the size of objects in image</span>
+<span class="sd">        used to rescale before input to cp_model</span>
+<span class="sd">        uses styles from cp_model</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        -------------------</span>
+
+<span class="sd">        cp_model: UnetModel or CellposeModel</span>
+<span class="sd">            model from which to get styles</span>
+
+<span class="sd">        device: mxnet device (optional, default mx.cpu())</span>
+<span class="sd">            where cellpose model is saved (mx.gpu() or mx.cpu())</span>
+
+<span class="sd">        pretrained_size: str</span>
+<span class="sd">            path to pretrained size model</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cp_model</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pretrained_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SizeModel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_size</span> <span class="o">=</span> <span class="n">pretrained_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cp</span> <span class="o">=</span> <span class="n">cp_model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">device</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">diam_mean</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">torch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">torch</span>
+        <span class="k">if</span> <span class="n">pretrained_size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_size</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">item</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;diam_mean&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="p">,</span> <span class="s1">&#39;pretrained_model&#39;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;provided model does not have a pretrained_model&#39;</span><span class="p">)</span>
+        
+<div class="viewcode-block" id="SizeModel.eval"><a class="viewcode-back" href="../../api.html#cellpose.models.SizeModel.eval">[docs]</a>    <span class="k">def</span> <span class="nf">eval</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">imgs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">styles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">augment</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; use images imgs to produce style or use style input to predict size of objects in image</span>
+
+<span class="sd">            Object size estimation is done in two steps:</span>
+<span class="sd">            1. use a linear regression model to predict size from style in image</span>
+<span class="sd">            2. resize image to predicted size and run CellposeModel to get output masks.</span>
+<span class="sd">                Take the median object size of the predicted masks as the final predicted size.</span>
+
+<span class="sd">            Parameters</span>
+<span class="sd">            -------------------</span>
+
+<span class="sd">            imgs: list or array of images (optional, default None)</span>
+<span class="sd">                can be list of 2D/3D images, or array of 2D/3D images</span>
+
+<span class="sd">            styles: list or array of styles (optional, default None)</span>
+<span class="sd">                styles for images x - if x is None then styles must not be None</span>
+
+<span class="sd">            channels: list (optional, default None)</span>
+<span class="sd">                list of channels, either of length 2 or of length number of images by 2.</span>
+<span class="sd">                First element of list is the channel to segment (0=grayscale, 1=red, 2=blue, 3=green).</span>
+<span class="sd">                Second element of list is the optional nuclear channel (0=none, 1=red, 2=blue, 3=green).</span>
+<span class="sd">                For instance, to segment grayscale images, input [0,0]. To segment images with cells</span>
+<span class="sd">                in green and nuclei in blue, input [2,3]. To segment one grayscale image and one</span>
+<span class="sd">                image with cells in green and nuclei in blue, input [[0,0], [2,3]].</span>
+
+<span class="sd">            normalize: bool (default, True)</span>
+<span class="sd">                normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel</span>
+
+<span class="sd">            invert: bool (optional, default False)</span>
+<span class="sd">                invert image pixel intensity before running network</span>
+
+<span class="sd">            augment: bool (optional, default False)</span>
+<span class="sd">                tiles image with overlapping tiles and flips overlapped regions to augment</span>
+
+<span class="sd">            tile: bool (optional, default True)</span>
+<span class="sd">                tiles image to ensure GPU/CPU memory usage limited (recommended)</span>
+
+<span class="sd">            progress: pyqt progress bar (optional, default None)</span>
+<span class="sd">                to return progress bar status to GUI</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            diam: array, float</span>
+<span class="sd">                final estimated diameters from images x or styles style after running both steps</span>
+
+<span class="sd">            diam_style: array, float</span>
+<span class="sd">                estimated diameters from style alone</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">styles</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">imgs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;no image or features given&#39;</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">imgs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">nolist</span> <span class="o">=</span> <span class="n">convert_images</span><span class="p">(</span><span class="n">imgs</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">channels</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="n">normalize</span><span class="p">,</span> <span class="n">invert</span><span class="p">)</span>
+            <span class="n">nimg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">styles</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;computing styles from images&#39;</span><span class="p">)</span>
+            <span class="n">styles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">net_avg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">augment</span><span class="o">=</span><span class="n">augment</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span> <span class="n">compute_masks</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+            <span class="n">diam_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size_estimation</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">styles</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">styles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">styles</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">styles</span>
+            <span class="n">diam_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_size_estimation</span><span class="p">(</span><span class="n">styles</span><span class="p">)</span>
+        <span class="n">diam_style</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">diam_style</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span>
+
+        <span class="k">if</span> <span class="n">imgs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">masks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">rescale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span><span class="o">/</span><span class="n">diam_style</span><span class="p">,</span> <span class="n">net_avg</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+                                <span class="n">augment</span><span class="o">=</span><span class="n">augment</span><span class="p">,</span> <span class="n">tile</span><span class="o">=</span><span class="n">tile</span><span class="p">,</span> <span class="n">interp</span><span class="o">=</span><span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">diam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">utils</span><span class="o">.</span><span class="n">diameters</span><span class="p">(</span><span class="n">masks</span><span class="p">[</span><span class="n">i</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimg</span><span class="p">)])</span>
+            <span class="k">if</span> <span class="n">progress</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">progress</span><span class="o">.</span><span class="n">setValue</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;model_type&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="o">==</span><span class="s1">&#39;nuclei&#39;</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_type</span><span class="o">==</span><span class="s1">&#39;cyto&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">:</span>
+                <span class="n">diam_style</span> <span class="o">/=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+                <span class="n">diam</span><span class="p">[</span><span class="n">diam</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">/</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">diam</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">diam</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span> <span class="o">/</span> <span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mf">0.5</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">diam</span><span class="p">[</span><span class="n">diam</span><span class="o">==</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span>
+                <span class="n">diam</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">diam</span><span class="p">)]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">diam</span> <span class="o">=</span> <span class="n">diam_style</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;no images provided, using diameters estimated from styles alone&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">nolist</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">diam</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">diam_style</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">diam</span><span class="p">,</span> <span class="n">diam_style</span></div>
+
+    <span class="k">def</span> <span class="nf">_size_estimation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; linear regression from style to size </span>
+<span class="sd">        </span>
+<span class="sd">            sizes were estimated using &quot;diameters&quot; from square estimates not circles; </span>
+<span class="sd">            therefore a conversion factor is included (to be removed)</span>
+<span class="sd">        </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">szest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;A&#39;</span><span class="p">]</span> <span class="o">@</span> <span class="p">(</span><span class="n">style</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;smean&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;ymean&#39;</span><span class="p">])</span>
+        <span class="n">szest</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">5.</span><span class="p">,</span> <span class="n">szest</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">szest</span>
+
+<div class="viewcode-block" id="SizeModel.train"><a class="viewcode-back" href="../../api.html#cellpose.models.SizeModel.train">[docs]</a>    <span class="k">def</span> <span class="nf">train</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span>
+              <span class="n">test_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">test_labels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+              <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+              <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">n_epochs</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> 
+              <span class="n">l2_regularization</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">8</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; train size model with images train_data to estimate linear model from styles to diameters</span>
+<span class="sd">        </span>
+<span class="sd">            Parameters</span>
+<span class="sd">            ------------------</span>
+
+<span class="sd">            train_data: list of arrays (2D or 3D)</span>
+<span class="sd">                images for training</span>
+
+<span class="sd">            train_labels: list of arrays (2D or 3D)</span>
+<span class="sd">                labels for train_data, where 0=no masks; 1,2,...=mask labels</span>
+<span class="sd">                can include flows as additional images</span>
+
+<span class="sd">            channels: list of ints (default, None)</span>
+<span class="sd">                channels to use for training</span>
+
+<span class="sd">            normalize: bool (default, True)</span>
+<span class="sd">                normalize data so 0.0=1st percentile and 1.0=99th percentile of image intensities in each channel</span>
+
+<span class="sd">            n_epochs: int (default, 10)</span>
+<span class="sd">                how many times to go through whole training set (taking random patches) for styles for diameter estimation</span>
+
+<span class="sd">            l2_regularization: float (default, 1.0)</span>
+<span class="sd">                regularize linear model from styles to diameters</span>
+
+<span class="sd">            batch_size: int (optional, default 8)</span>
+<span class="sd">                number of 224x224 patches to run simultaneously on the GPU</span>
+<span class="sd">                (can make smaller or bigger depending on GPU memory usage)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">batch_size</span> <span class="o">/=</span> <span class="mi">2</span> <span class="c1"># reduce batch_size by factor of 2 to use larger tiles</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">batch_size</span> <span class="o">=</span> <span class="n">batch_size</span>
+        <span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">test_labels</span><span class="p">,</span> <span class="n">run_test</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">reshape_train_test</span><span class="p">(</span><span class="n">train_data</span><span class="p">,</span> <span class="n">train_labels</span><span class="p">,</span>
+                                                                                                   <span class="n">test_data</span><span class="p">,</span> <span class="n">test_labels</span><span class="p">,</span>
+                                                                                                   <span class="n">channels</span><span class="p">,</span> <span class="n">normalize</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">cp_model_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">pretrained_model</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">cp_model_path</span><span class="p">,</span> <span class="n">cpu</span><span class="o">=</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">gpu</span><span class="p">))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">torch</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">net</span><span class="o">.</span><span class="n">collect_params</span><span class="p">()</span><span class="o">.</span><span class="n">grad_req</span> <span class="o">=</span> <span class="s1">&#39;null&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cp_model_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">pretrained_model</span>
+
+        <span class="n">diam_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">utils</span><span class="o">.</span><span class="n">diameters</span><span class="p">(</span><span class="n">lbl</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">train_labels</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">run_test</span><span class="p">:</span> 
+            <span class="n">diam_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">utils</span><span class="o">.</span><span class="n">diameters</span><span class="p">(</span><span class="n">lbl</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="n">test_labels</span><span class="p">])</span>
+        
+        <span class="n">nimg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">train_data</span><span class="p">)</span>
+        <span class="n">styles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_epochs</span><span class="o">*</span><span class="n">nimg</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">diams</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_epochs</span><span class="o">*</span><span class="n">nimg</span><span class="p">,),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">tic</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">iepoch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_epochs</span><span class="p">):</span>
+            <span class="n">iall</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nimg</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="nb">int</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">ibatch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">nimg</span><span class="p">,</span><span class="n">batch_size</span><span class="p">):</span>
+                <span class="n">inds</span> <span class="o">=</span> <span class="n">iall</span><span class="p">[</span><span class="n">ibatch</span><span class="p">:</span><span class="n">ibatch</span><span class="o">+</span><span class="n">batch_size</span><span class="p">]</span>
+                <span class="n">imgi</span><span class="p">,</span><span class="n">lbl</span><span class="p">,</span><span class="n">scale</span> <span class="o">=</span> <span class="n">transforms</span><span class="o">.</span><span class="n">random_rotate_and_resize</span><span class="p">(</span>
+                            <span class="p">[</span><span class="n">train_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inds</span><span class="p">],</span>
+                            <span class="n">Y</span><span class="o">=</span><span class="p">[</span><span class="n">train_labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">inds</span><span class="p">],</span> <span class="n">scale_range</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">512</span><span class="p">,</span><span class="mi">512</span><span class="p">))</span>
+                <span class="n">feat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">network</span><span class="p">(</span><span class="n">imgi</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">styles</span><span class="p">[</span><span class="n">inds</span><span class="o">+</span><span class="n">nimg</span><span class="o">*</span><span class="n">iepoch</span><span class="p">]</span> <span class="o">=</span> <span class="n">feat</span>
+                <span class="n">diams</span><span class="p">[</span><span class="n">inds</span><span class="o">+</span><span class="n">nimg</span><span class="o">*</span><span class="n">iepoch</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">diam_train</span><span class="p">[</span><span class="n">inds</span><span class="p">])</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">scale</span><span class="p">)</span>
+            <span class="k">del</span> <span class="n">feat</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">iepoch</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="mi">2</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ran </span><span class="si">%d</span><span class="s1"> epochs in </span><span class="si">%0.3f</span><span class="s1"> sec&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">iepoch</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="o">-</span><span class="n">tic</span><span class="p">))</span>
+
+        <span class="c1"># create model</span>
+        <span class="n">smean</span> <span class="o">=</span> <span class="n">styles</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="p">((</span><span class="n">styles</span> <span class="o">-</span> <span class="n">smean</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">ymean</span> <span class="o">=</span> <span class="n">diams</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">diams</span> <span class="o">-</span> <span class="n">ymean</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">X</span><span class="nd">@X</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">l2_regularization</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">X</span> <span class="o">@</span> <span class="n">y</span><span class="p">)</span>
+        <span class="n">ypred</span> <span class="o">=</span> <span class="n">A</span> <span class="o">@</span> <span class="n">X</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;train correlation: </span><span class="si">%0.4f</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">ypred</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+            
+        <span class="k">if</span> <span class="n">run_test</span><span class="p">:</span>
+            <span class="n">nimg_test</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">test_data</span><span class="p">)</span>
+            <span class="n">styles_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">nimg_test</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nimg_test</span><span class="p">):</span>
+                <span class="n">styles_test</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cp</span><span class="o">.</span><span class="n">_run_net</span><span class="p">(</span><span class="n">test_data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">transpose</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)))[</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">diam_test_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">A</span> <span class="o">@</span> <span class="p">(</span><span class="n">styles_test</span> <span class="o">-</span> <span class="n">smean</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span><span class="p">)</span> <span class="o">+</span> <span class="n">ymean</span><span class="p">)</span>
+            <span class="n">diam_test_pred</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="mf">5.</span><span class="p">,</span> <span class="n">diam_test_pred</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;test correlation: </span><span class="si">%0.4f</span><span class="s1">&#39;</span><span class="o">%</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">diam_test</span><span class="p">,</span> <span class="n">diam_test_pred</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pretrained_size</span> <span class="o">=</span> <span class="n">cp_model_path</span><span class="o">+</span><span class="s1">&#39;_size.npy&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;A&#39;</span><span class="p">:</span> <span class="n">A</span><span class="p">,</span> <span class="s1">&#39;smean&#39;</span><span class="p">:</span> <span class="n">smean</span><span class="p">,</span> <span class="s1">&#39;diam_mean&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">diam_mean</span><span class="p">,</span> <span class="s1">&#39;ymean&#39;</span><span class="p">:</span> <span class="n">ymean</span><span class="p">}</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pretrained_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Carsen Stringer &amp; Marius Pachitariu.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>
