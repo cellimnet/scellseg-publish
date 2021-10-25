@@ -29,8 +29,8 @@ class Extractor(nn.Module):
         nbaseup = nbase[1:]
         nbaseup.append(nbaseup[-1])  # [32, 64, 128, 256, 256]
 
-        # self.choose_layers = [0, 1, 2, 3]
-        # self.style_channels = [256+128+64+32, 256+128+64, 256+128, 256]  # 多层次concat模式
+        self.choose_layers = [0, 1, 2, 3]
+        self.style_channels = [256+128+64+32, 256+128+64, 256+128, 256]  # 多层次concat模式
 
         # self.style_channels = [256+128+64+32, 256+128+64+32, 256+128+64+32, 256+128+64+32]  # 多层次concat模式
         # self.style_channels = [32, 64, 128, 256]  # 多层次
