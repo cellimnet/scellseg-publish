@@ -40,8 +40,8 @@ class TripletLossFunc(nn.Module):
         return
 
     def forward(self, anchor, positive, negative):
-        matched = torch.pow(func.pairwise_distance(anchor, positive), 2)
-        mismatched = torch.pow(func.pairwise_distance(anchor, negative), 2)
+        matched = torch.pow(func.pairwise_distance(anchor, positive), 1)
+        mismatched = torch.pow(func.pairwise_distance(anchor, negative), 1)
         part_1 = torch.clamp(matched-mismatched, min=self.t1)
         part_2 = torch.clamp(matched, min=self.t2)
         dist_hinge = part_1 + self.beta * part_2

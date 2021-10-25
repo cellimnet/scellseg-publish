@@ -102,7 +102,7 @@ class sCellSeg(UnetModel):
                  last_conv_on=True, attn_on=False, dense_on=False,
                  nclasses=3, multi_class=False,
                  use_branch=False, ndecoder=1, ntasker_seg=1,
-                 task_mode='cellpose'):
+                 task_mode='cellpose', model=None):
         """
         use_branch: 是否使用use_branch
         ndecoder: 有多少个decoder分支，默认一个分支只对应tasker，class是自动加一个decoder
@@ -147,7 +147,7 @@ class sCellSeg(UnetModel):
                          attn_on=attn_on, dense_on=dense_on,
                          nclasses=nclasses, multi_class=multi_class,
                          use_branch=use_branch, ndecoder=ndecoder, ntasker_seg=ntasker_seg,
-                         last_conv_on=last_conv_on, task_mode=task_mode)
+                         last_conv_on=last_conv_on, task_mode=task_mode, model=model)
 
         if 'classic' not in self.task_mode:
             self.unet = False  # 这个表示的是是否使用原生的unet架构
@@ -177,7 +177,18 @@ class sCellSeg(UnetModel):
             # pred_cellprob = torch.transpose(y[:, 2:3], 1, 3)
             # loss_cellprob = dice_loss(pred_cellprob, true_cellprob)  # 细胞概率上的loss, y[:, -1] or y[:, 2:]
 
-        loss = loss_map * 0.5 + loss_cellprob * 1.
+            loss = loss_map * 0.5 + loss_cellprob * 1.
+        elif 'classic' in self.task_mode:
+            ce_criterion = nn.CrossEntropyLoss()
+            nclasses = int(self.task_mode.split('-')[-1])
+            if lbl.shape[1] > 1 and nclasses > 2:
+                boundary = lbl[:, 1] <= 4
+                lbl = lbl[:, 0]  # lbl是一张图上的像素级分类
+                lbl[boundary] *= 2
+            else:
+                lbl = lbl[:, 0]
+            lbl = lbl.float().to(self.device)
+            loss = 8 * 1. / nclasses * ce_criterion(y, lbl.long())
 
         return loss
 
@@ -226,6 +237,21 @@ class sCellSeg(UnetModel):
                     p['lr'] = np.float32((p['lr'] * self.net.lr_schedule_gamma[key_name]))
                     # else:
                     #     p['lr'] = threshold
+
+        # if now_step < 10:
+        #     for p in self.net.optimizer.param_groups:
+        #         key_name = p['key_name']
+        #         p['lr'] = np.float32(self.net.lr[key_name] * now_step * 0.1)
+        # elif now_step > step_size*2:
+        #     if now_step % 10 ==0:
+        #         for p in self.net.optimizer.param_groups:
+        #             key_name = p['key_name']
+        #             p['lr'] = np.float32(p['lr'] * self.net.lr_schedule_gamma[key_name])
+        # else:
+        #     for p in self.net.optimizer.param_groups:
+        #         key_name = p['key_name']
+        #         p['lr'] = np.float32(self.net.lr[key_name])
+
 
     def train(self, train_data, train_labels, train_files=None,
               test_data=None, test_labels=None, test_files=None,
@@ -923,9 +949,7 @@ class sCellSeg(UnetModel):
                 # if not self.net.multi_class:
                 # self.net.optimizer = self.set_optimizer(lr, multi_class=self.net.multi_class, use_branch=self.net.use_branch, ndecoder=self.net.ndecoder, ntasker_seg=self.net.ntasker_seg)
                 self.net.m = m
-                # if m==100:
-                #     self.net.extractor_lr=0.0002
-                #     self.net.tasker_lr=0.0002
+
                 shot_images = batch[0]
                 shot_lbls= batch[1]
                 if self.gpu:
@@ -933,15 +957,17 @@ class sCellSeg(UnetModel):
                     shot_lbls = shot_lbls.cuda()
                 self.net((shot_images, shot_lbls))
 
-                # if m >= 25:
-                #     self.net.contrast_on = 0
-
                 # if self.net.multi_class:
                 self.lr_step(m, step_size=step_size, threshold=0.0005)
+
                 # self.net.lr_scheduler.step()
                 # print('lr', [self.net.optimizer.param_groups[i]['lr'] for i in range(len(self.net.optimizer.param_groups))])
 
             self.net.save_model(transfer_path)
+
+            # 保存每次的单个模型 TODO!!!
+            save_single_path = r'G:\Python\9-Project\1-flurSeg\scellseg\output\models\save_single_model'
+            self.net.save_model(os.path.join(save_single_path, self.net.save_name))
 
         self.net.eval()
         self.net.phase = 'eval'
@@ -970,7 +996,7 @@ class sCellSeg(UnetModel):
 
         elif 'classic' in self.task_mode:
             masks, flows, styles = self.classic_eval(query_images, batch_size=eval_batch_size, net_avg=self.net_avg,
-                     channels=channels, invert=invert, normalize=True, rescale=None, diameter=diameter,
+                     channels=channels, invert=invert, normalize=normalize, rescale=None, diameter=diameter,
                      do_3D=do_3D, anisotropy=anisotropy,
                      augment=augment, tile=tile,
                      min_size=min_size, shot_pairs=shot_pairs)
@@ -1299,8 +1325,12 @@ class sCellSeg(UnetModel):
             if shot_pairs[-1]:
                 print('>>>> computing cell and boundary threshold ...')
                 shot_imgs = self.load_eval_imgs(shot_pairs[0])
-                shot_imgs, _ = convert_images(shot_imgs, channels, do_3D, normalize, invert)
+                shot_imgs, _ = convert_images(shot_imgs, [2, 1], do_3D, normalize, invert)  # 取10张加快速度
                 shot_masks = [np.array(imread(shot_mask_name)) for shot_mask_name in shot_pairs[1]]
+
+                shot_imgs, shot_masks, _ = dataset.resize_image(shot_imgs, M=shot_masks, xy=[224, 224])
+                shot_imgs = [np.transpose(shot_img, (1, 2, 0)) for shot_img in shot_imgs]  # 调整轴的顺序
+
                 cell_threshold, boundary_threshold = self.threshold_validation(shot_imgs, shot_masks)
                 np.save(model_path + 'classic_cell_boundary_threshold.npy', np.array([cell_threshold, boundary_threshold]))
         if cell_threshold is None or boundary_threshold is None:
@@ -1323,9 +1353,8 @@ class sCellSeg(UnetModel):
                 img = x[i].copy()
                 shape = img.shape
                 # rescale image for flow computation
-                # imgs = transforms.resize_image(img, rsz=rescale[i])
+                imgs = transforms.resize_image(img, rsz=rescale[i])
                 y, style = self._run_nets(img, net_avg=net_avg, augment=augment, tile=tile)
-
                 maski = utils.get_masks_unet(y, cell_threshold, boundary_threshold)
                 maski = utils.fill_holes_and_remove_small_masks(maski, min_size=min_size)
                 maski = transforms.resize_image(maski, shape[-3], shape[-2],
@@ -1383,7 +1412,7 @@ class sCellSeg(UnetModel):
         else:
             boundary_thresholds = np.zeros(1)
         aps = np.zeros((cell_thresholds.size, boundary_thresholds.size, 3))
-        for j, cell_threshold in enumerate(cell_thresholds):
+        for j, cell_threshold in tqdm(enumerate(cell_thresholds)):
             for k, boundary_threshold in enumerate(boundary_thresholds):
                 masks = []
                 for i in range(len(val_data)):
@@ -2208,3 +2237,8 @@ class SizeModel():
         self.params = {'A': A, 'smean': smean, 'diam_mean': self.diam_mean, 'ymean': ymean}
         np.save(self.pretrained_size, self.params)
         return self.params
+
+def fix_bn(m):
+    classname = m.__class__.__name__
+    if classname.find('BatchNorm') != -1:
+        m.eval()

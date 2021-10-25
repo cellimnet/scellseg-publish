@@ -1,4 +1,6 @@
 import os
+
+import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 from scipy.ndimage import gaussian_filter
@@ -89,33 +91,67 @@ def show_segmentation(fig, img, maski, flowi, channels=[0,0], file_name=None, la
         io.imsave(save_path + '_flows.jpg', flowi)
 
 
+def show_segmentation2(fig, img, maski, flowi, channels=[0, 0], file_name=None, labeli=None, api=None):
+    """ plot segmentation for scellseg paper
+    """
+    # ax = fig.add_subplot(1,3,1)
+
+    img0 = img.copy()
+    if img0.shape[0] < 4:
+        img0 = np.transpose(img0, (1, 2, 0))
+    if img0.shape[-1] < 3 or img0.ndim < 3:
+        img0 = image_to_rgb(img0, channels=channels)
+    else:
+        if img0.max() <= 50.0:
+            img0 = np.uint8(np.clip(img0 * 255, 0, 1))
+
+    # ax.imshow(img0)
+    # ax.set_title('original image')
+    # ax.axis('off')
+
+    ax = fig.add_subplot(1, 2, 1)
+    ax.imshow(img0)
+    # outlines = utils.masks_to_outlines(maski)
+    # outX, outY = np.nonzero(outlines)
+    # imgout= img0.copy()
+    # imgout[outX, outY] = np.array([255,75,75])
+    # ax.imshow(imgout)
+
+    if labeli is not None:
+        outpix_label = utils.outlines_list(labeli)
+        for o_label in outpix_label:
+            ax.plot(o_label[:, 0], o_label[:, 1], color='y', ls='-', lw=0.5)
+
+    outpix = utils.outlines_list(maski)
+
+    for o in outpix:
+        ax.plot(o[:, 0], o[:, 1], color='r', ls='--', lw=0.5)
+
+    # if api is not None:
+    #     ax.text(0.655, 0.033, 'ap@0.5=%.2f' % api[0],
+    #             bbox=dict(facecolor='black', alpha=0.6, edgecolor='None', boxstyle='round'),
+    #             transform=ax.transAxes, fontsize=7, color='white')
+    # ax.set_title('predicted outlines')
+    ax.axis('off')
+
+    overlay = mask_overlay(img0, maski)
+
+    ax = fig.add_subplot(1,2,2)
+    ax.imshow(flowi)
+    # ax.set_title('predicted cell pose')
+    ax.axis('off')
+
+
+    if file_name is not None:
+        save_path = os.path.splitext(file_name)[0]
+        io.imsave(save_path + '_showimg.png', img0)
+        io.imsave(save_path + '_overlay.jpg', overlay)
+        # io.imsave(save_path + '_outlines.jpg', outpix)
+        io.imsave(save_path + '_flows.jpg', flowi)
+
+
 def show_classic_segmentation(fig, img, maski, channels=[0, 0], file_name=None, labeli=None, api=None):
-    """ plot segmentation results (like on website)
-
-    Can save each panel of figure with file_name option. Use channels option if
-    img input is not an RGB image with 3 channels.
-
-    Parameters
-    -------------
-
-    fig: matplotlib.pyplot.figure
-        figure in which to make plot
-
-    img: 2D or 3D array
-        image input into scellseg
-
-    maski: int, 2D array
-        for image k, masks[k] output from Cellpose.eval, where 0=NO masks; 1,2,...=mask labels
-
-    flowi: int, 2D array
-        for image k, flows[k][0] output from Cellpose.eval (RGB of flows)
-
-    channels: list of int (optional, default [0,0])
-        channels used to run Cellpose, no need to use if image is RGB
-
-    file_name: str (optional, default None)
-        file name of image, if file_name is not None, figure panels are saved
-
+    """ plot segmentation for scellseg paper
     """
     ax = fig.add_subplot(1, 3, 1)
     img0 = img.copy()
@@ -163,6 +199,85 @@ def show_classic_segmentation(fig, img, maski, channels=[0, 0], file_name=None, 
 
     if file_name is not None:
         save_path = os.path.splitext(file_name)[0]
+        io.imsave(save_path + '_overlay.jpg', overlay)
+        # io.imsave(save_path + '_outlines.jpg', imgout)
+
+
+def show_classic_segmentation2(fig, img, maski, channels=[0, 0], file_name=None, labeli=None, api=None):
+    """ plot segmentation results (like on website)
+
+    Can save each panel of figure with file_name option. Use channels option if
+    img input is not an RGB image with 3 channels.
+
+    Parameters
+    -------------
+
+    fig: matplotlib.pyplot.figure
+        figure in which to make plot
+
+    img: 2D or 3D array
+        image input into scellseg
+
+    maski: int, 2D array
+        for image k, masks[k] output from Cellpose.eval, where 0=NO masks; 1,2,...=mask labels
+
+    flowi: int, 2D array
+        for image k, flows[k][0] output from Cellpose.eval (RGB of flows)
+
+    channels: list of int (optional, default [0,0])
+        channels used to run Cellpose, no need to use if image is RGB
+
+    file_name: str (optional, default None)
+        file name of image, if file_name is not None, figure panels are saved
+
+    """
+    # ax = fig.add_subplot(1, 3, 1)
+    img0 = img.copy()
+    if img0.shape[0] < 4:
+        img0 = np.transpose(img0, (1, 2, 0))
+    if img0.shape[-1] < 3 or img0.ndim < 3:
+        img0 = image_to_rgb(img0, channels=channels)
+    else:
+        if img0.max() <= 50.0:
+            img0 = np.uint8(np.clip(img0 * 255, 0, 1))
+    # ax.imshow(img0)
+    # ax.set_title('original image')
+    # ax.axis('off')
+
+    ax = fig.add_subplot(1, 1, 1)
+    ax.imshow(img0)
+    # outlines = utils.masks_to_outlines(maski)
+    # outX, outY = np.nonzero(outlines)
+    # imgout= img0.copy()
+    # imgout[outX, outY] = np.array([255,75,75])
+    # ax.imshow(imgout)
+
+    if labeli is not None:
+        outpix_label = utils.outlines_list(labeli)
+        for o_label in outpix_label:
+            ax.plot(o_label[:, 0], o_label[:, 1], color='y', ls='-', lw=0.5)
+
+    outpix = utils.outlines_list(maski)
+
+    for o in outpix:
+        ax.plot(o[:, 0], o[:, 1], color='r', ls='--', lw=0.5)
+
+    # if api is not None:
+    #     ax.text(0.655, 0.033, 'ap@0.5=%.2f' % api[0],
+    #             bbox=dict(facecolor='black', alpha=0.6, edgecolor='None', boxstyle='round'),
+    #             transform=ax.transAxes, fontsize=7, color='white')
+    # ax.set_title('predicted outlines')
+    ax.axis('off')
+
+    overlay = mask_overlay(img0, maski)
+    # ax = fig.add_subplot(1, 2, 2)
+    # ax.imshow(overlay)
+    # ax.set_title('predicted masks')
+    # ax.axis('off')
+
+    if file_name is not None:
+        save_path = os.path.splitext(file_name)[0]
+        io.imsave(save_path + '_showimg.png', img0)
         io.imsave(save_path + '_overlay.jpg', overlay)
         # io.imsave(save_path + '_outlines.jpg', imgout)
 

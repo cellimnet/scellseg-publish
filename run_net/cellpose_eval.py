@@ -8,24 +8,25 @@ from scellseg.dataset import DatasetQuery
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-# pretrained_model = r'C:\Users\admin\.scellseg\models\cytotorch_0'
+pretrained_model = r'C:\Users\admin\.scellseg\models\cytotorch_0'
 
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021070913_3905'  # cellpose自训练的
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021071700_1949'  # cellpose自训练的-2
-
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021071216_1451'  # 多层次style
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021071622_5232'# 多层次style-2
 
 # pretrained_model = os.path.join(r'G:\Python\9-Project\1-flurSeg\scellseg\output\models\scellstyle_train', model_name)
 
+model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021100718_1426'
 
-model_name= r'499_cellpose_residual_on_style_on_concatenation_off_retrain_2021073121_4151'
-pretrained_model = os.path.join(r'G:\Python\9-Project\1-flurSeg\scellseg\output\models\retrain\models', model_name)
+# model_name= r'499_cellpose_residual_on_style_on_concatenation_off_retrain_2021073121_4151'
+# pretrained_model = os.path.join(r'G:\Python\9-Project\1-flurSeg\scellseg\output\models\retrain\models', model_name)
 
 
 channel = [2, 1]
 mpl.rcParams['figure.dpi'] = 300
-dataset_dir = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval\2018DB_nuclei_small'
+dataset_name = 'nc_nuclei'
+dataset_dir = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval\{}'.format(dataset_name)
 query_dir = os.path.join(dataset_dir, 'query')
 
 # 根据label计算diam
@@ -75,7 +76,9 @@ query_labels = metrics.refine_masks(query_labels)  # 防止标记mask中的索�
 
 # 计算AP
 thresholds = np.arange(0.5, 1.05, 0.05)
-ap = metrics.average_precision(query_labels, masks, threshold=thresholds)[0]
+ap, _, _, _, pred_ious = metrics.average_precision(query_labels, masks, threshold=thresholds, return_pred_iou=True)
+# io.mask_to_cocojson(r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval', dataset_name, pred_masks=masks, pred_ious=pred_ious)
+
 if show_single:
     ap_dict = dict(zip(image_names, ap))
     print('\033[1;34m>>>> cellpose - AP\033[0m')
@@ -110,6 +113,6 @@ print('\033[1;34m>>>> SQ@0.5 Mean:\033[0m', [round(sq_i, 3) for sq_i in sq.mean(
 print('\033[1;34m>>>> PQ@0.5 Mean:\033[0m', [round(pq_i, 3) for pq_i in pq.mean(axis=0)])
 
 
-diams = [diam]
-io.masks_flows_to_seg(imgs, masks, flows, diams, query_image_names, channels)
-io.save_to_png(imgs, masks, flows, query_image_names, labels=query_labels, aps=ap)
+# diams = [diam]
+# io.masks_flows_to_seg(imgs, masks, flows, diams, query_image_names, channels)
+# io.save_to_png(imgs, masks, flows, query_image_names, labels=query_labels, aps=ap)

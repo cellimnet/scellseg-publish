@@ -20,7 +20,7 @@ flow_threshold = 0.4
 cellprob_threshold = 0.5
 min_size = ((30. // 2) ** 2) * np.pi * 0.05
 # min_size = 15
-dataset_dir = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval\mito'
+dataset_dir = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval\BBBC010_elegans'
 # task_mode： cellpose, hover, classic-3, classic-2
 task_mode = 'classic-3' # 用1000
 task_mode = 'cellpose' # 用400
@@ -28,7 +28,7 @@ contrast_on = 1
 
 set_manual_seed(5)
 
-active_ind = [2, 5, 6]
+active_ind = [9, 5, 2, 4]
 train_epoch = 100
 shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks', channels=channel,
                       train_num= train_epoch * num_batch, task_mode=task_mode, active_ind=active_ind, rescale=True)
@@ -48,6 +48,7 @@ pretrained_model = r'C:\Users\admin\.scellseg\models\cytotorch_0'
 
 model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021070913_3905'  # cellpose自训练的
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021071722_3201'  # cellpose自训练的-2
+model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021100718_1426'
 
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021071216_1451'  # 多层次style
 # # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021071720_3731'# 多层次style-2
@@ -58,7 +59,7 @@ model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021072323_4252'  # all+多层次style
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021070920_3743'  # attn自训练, 要开attn
 # model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021072223_5440'  # dense
-model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021080720_3401'  # all+多层次style-3
+# model_name = r'499_cellpose_residual_on_style_on_concatenation_off_cellpose_2021080720_3401'  # all+多层次style-3
 
 pretrained_model = os.path.join(r'G:\Python\9-Project\1-flurSeg\scellseg\output\models\scellstyle_train', model_name)
 
@@ -72,7 +73,7 @@ lr_schedule_gamma = {'downsample': 0.5, 'upsample': 0.5, 'tasker': 0.5, 'alpha':
 step_size = int(train_epoch * 0.25)
 model = models.sCellSeg(pretrained_model=pretrained_model, gpu=use_GPU, update_step=1, nclasses=3,
                         task_mode=task_mode, net_avg=False,
-                        attn_on=True, dense_on=True, style_on=True,
+                        attn_on=False, dense_on=False, style_on=True,
                         use_branch=False, ntasker_seg=1,
                         last_conv_on=True)
 model_dict = model.net.state_dict()
@@ -89,7 +90,7 @@ if contrast_on:
 # print(count)
 
 shot_pairs = (shotset.shot_img_names, shotset.shot_mask_names, True)  # 第三个参数为是否根据shot重新计算
-masks, flows, styles = model.query_eval(shot_gen=shot_gen, use_transfer_model=True,
+masks, flows, styles = model.query_eval(shot_gen=None, use_transfer_model=False,
                                query_image_names=query_image_names, channel=channel, diameter=diameter,
                                resample=False, flow_threshold=flow_threshold, cellprob_threshold=cellprob_threshold,
                                min_size=min_size, tile_overlap=0.5, eval_batch_size=16, tile=True,
@@ -145,4 +146,4 @@ print('\033[1;34m>>>> PQ Mean:\033[0m', [round(pq_i, 3) for pq_i in pq.mean(axis
 diams = np.ones(len(query_image_names))*diameter
 imgs = [io.imread(query_image_name) for query_image_name in query_image_names]
 io.masks_flows_to_seg(imgs, masks, flows, diams, query_image_names, [channel for i in range(len(query_image_names))])
-io.save_to_png(imgs, masks, flows, query_image_names, labels=query_labels, aps=ap, task_mode=task_mode)
+io.save_to_png(imgs, masks, flows, query_image_names, labels=query_labels, aps=None, task_mode=task_mode)

@@ -166,7 +166,6 @@ class resup(nn.Module):
         self.proj = bcBlock(in_channels, out_channels, 1)
         if dense_on:
             # self.up_conv = bcBlock(in_channels, out_channels, 1)  # 第一种方案先卷积后相加
-            # self.up_conv = cbrBlock(in_channels, out_channels, 1)  # 第一种方案先卷积后相加
             self.up_conv = cbrBlock(in_channels+out_channels, out_channels, 1)  # 第二种方案是先cat，再卷积，这里是用bc还是brc还待考究
 
     def forward(self, x, y, style, mkldnn=False):
@@ -189,7 +188,7 @@ class convup(nn.Module):
         self.conv.add_module('conv_0', brcBlock(in_channels, out_channels, sz))
         self.conv.add_module('conv_1', brcStyle(out_channels, out_channels, style_channels, sz, concatenation=concatenation))
 
-    def forward(self, x, y, style):
+    def forward(self, x, y, style, mkldnn=False):
         out = self.conv[1](style, self.conv[0](x) + y)
         if self.dense_on:
             # out = self.up_conv(x)+out  # 第一种方案

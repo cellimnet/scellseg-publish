@@ -59,12 +59,20 @@ class DatasetShot(Dataset):
                 shot_images.append(shot_image)
             shot_masks = []
             mds = []
-            for shot_mask_name in shot_mask_names:
+            for maski, shot_mask_name in enumerate(shot_mask_names):
                 shot_mask = imread(shot_mask_name)
-                md = diameters(shot_mask)[0]
-                if md < 5.0:
-                    md = 5.0
-                mds.append(md)
+                if active_ind is not None:
+                    if isinstance(active_ind, int): active_ind = [active_ind] # 针对active_ind只有一个的情况
+                    if maski in active_ind:
+                        md = diameters(shot_mask)[0]
+                        if md < 5.0:
+                            md = 5.0
+                        mds.append(md)
+                else:
+                    md = diameters(shot_mask)[0]
+                    if md < 5.0:
+                        md = 5.0
+                    mds.append(md)
                 shot_masks.append(shot_mask)
 
             if self.multi_class:
@@ -86,11 +94,19 @@ class DatasetShot(Dataset):
         else:
             mds = []
             shot_images, shot_masks = shot_datas
-            for shot_mask in shot_masks:
-                md = diameters(shot_mask)[0]
-                if md < 5.0:
-                    md = 5.0
-                mds.append(md)
+            for maski, shot_mask in enumerate(shot_masks):
+                if active_ind is not None:
+                    if isinstance(active_ind, int): active_ind = [active_ind]
+                    if maski in active_ind:
+                        md = diameters(shot_mask)[0]
+                        if md < 5.0:
+                            md = 5.0
+                        mds.append(md)
+                else:
+                    md = diameters(shot_mask)[0]
+                    if md < 5.0:
+                        md = 5.0
+                    mds.append(md)
 
         # self.shot_flow_names = shot_flow_names
         # if shot_flow_names is not None:  # 图片过大的情况,读取预先保存的
@@ -119,15 +135,19 @@ class DatasetShot(Dataset):
         if self.task_mode == 'cellpose':
             shot_flows = dynamics.labels_to_flows(shot_masks)
             shot_lbls = [shot_flow[1:] for shot_flow in shot_flows]  # (3, ...)
+            self.unet = False
         elif self.task_mode == 'classic-3':
-            shot_lbl0 = [np.stack((label, label > 0, distance_to_boundary(label)), axis=0).astype(np.float32) for label in shot_mask]
+            shot_lbl0 = [np.stack((label, label > 0, distance_to_boundary(label)), axis=0).astype(np.float32) for label in shot_masks]
             shot_lbls = [shot_lbl[1:] for shot_lbl in shot_lbl0]  # (2, ...)
+            self.unet = True
         elif self.task_mode == 'classic-2':
-            shot_lbl0 = [np.stack((label, label > 0), axis=0).astype(np.float32) for label in shot_mask]
+            shot_lbl0 = [np.stack((label, label > 0), axis=0).astype(np.float32) for label in shot_masks]
             shot_lbls = [shot_lbl[1:] for shot_lbl in shot_lbl0]  # (1, ...)
+            self.unet = True
         elif self.task_mode == 'hover':
             shot_flows = dynamics.labels_to_hovers(shot_masks)
             shot_lbls = [shot_flow[1:] for shot_flow in shot_flows]  # (3, ...)
+            self.unet = False
         self.shot_lbls = shot_lbls
 
         self.shot_images = shot_images
@@ -138,7 +158,7 @@ class DatasetShot(Dataset):
 
     def __getitem__(self, i):
         # print('testi', i)
-        unet=False
+        unet=self.unet
 
         # 1. 随机选择一张shot图片
         if self.active_ind is not None:
@@ -291,7 +311,7 @@ class DatasetTsne(Dataset):
         label_names = []
         class_ids = []
 
-        negative_dirs = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_train\train'
+        negative_dirs = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_train\trainall'
         negative_dir = [os.path.join(negative_dirs, classi) for classi in os.listdir(negative_dirs)]
         negative_mask_names = []
         class_id = 0

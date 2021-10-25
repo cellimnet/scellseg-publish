@@ -29,8 +29,8 @@ class Extractor(nn.Module):
         nbaseup = nbase[1:]
         nbaseup.append(nbaseup[-1])  # [32, 64, 128, 256, 256]
 
-        self.choose_layers = [0, 1, 2, 3]
-        self.style_channels = [256+128+64+32, 256+128+64, 256+128, 256]  # 多层次concat模式
+        # self.choose_layers = [0, 1, 2, 3]
+        # self.style_channels = [256+128+64+32, 256+128+64, 256+128, 256]  # 多层次concat模式
 
         # self.style_channels = [256+128+64+32, 256+128+64+32, 256+128+64+32, 256+128+64+32]  # 多层次concat模式
         # self.style_channels = [32, 64, 128, 256]  # 多层次
@@ -41,7 +41,7 @@ class Extractor(nn.Module):
         self.mkldnn = mkldnn
         self.style_on = style_on
 
-    def forward(self, data):
+    def forward(self, data, use_upsample=True):
         if self.mkldnn:
             data = data.to_mkldnn()
         T0 = self.downsample(data)
@@ -80,7 +80,10 @@ class Extractor(nn.Module):
 
         if not self.style_on:
             styles = [style * 0 for style in styles]
-        T1 = self.upsample(styles, T0, mkldnn=self.mkldnn)
+        if use_upsample:
+            T1 = self.upsample(styles, T0, mkldnn=self.mkldnn)
+        else:
+            T1 = None
 
         return T1, style0[-1]
 
@@ -116,10 +119,10 @@ class LossFn(nn.Module):
             # self.criterion = nn.SmoothL1Loss(reduction='mean', size_average=True)  # 理论上学的更准一点
             self.criterion2 = nn.BCEWithLogitsLoss(reduction='mean')
             self.criterion3 = nn.CrossEntropyLoss()
-            # self.criterion4 = TripletLossFunc(-1., 0., 0)
 
             self.alpha = torch.tensor(0.2, requires_grad=True)
         elif 'classic' in task_mode:
+            self.alpha = torch.tensor(0.2, requires_grad=True)
             self.criterion = nn.CrossEntropyLoss()
 
     def forward(self, lbl, y, device, styles=None):
@@ -161,16 +164,23 @@ class LossFn(nn.Module):
                 else:
                     loss_pos = mse_pairs(style, style_pos, self.criterion)
                     loss_neg = mse_pairs(style, style_neg, self.criterion)
+
                     # loss_in_shot = mse_pairs(style[:int(len(style)*0.5)], styles[int(len(style)*0.5):], self.criterion)
                     # loss_in_pos = mse_pairs(style_pos[:int(len(style_pos)*0.5)], style_pos[int(len(style_pos)*0.5):], self.criterion)
                     # loss_in_neg = mse_pairs(style_neg[:int(len(style_neg)*0.5)], style_neg[int(len(style_neg)*0.5):], self.criterion)
                     # loss_in = loss_in_shot
                     # print('>>>', loss_pos, loss_neg)
                     # loss_contrast = torch.pow((loss_pos), 2) + torch.pow((1. - loss_neg), 2)
-                    loss_contrast = torch.pow(loss_pos, 1)/ (torch.pow(loss_neg, 1) + torch.tensor(1e-5))
+
+                    loss_contrast = torch.pow(loss_pos, 1) / (torch.pow(loss_neg, 1) + torch.tensor(1e-5))
+                    # loss_contrast = torch.pow(loss_pos, 2) / (torch.pow(loss_neg, 2) + torch.pow(loss_pos, 2))
+
+                    # self.criterion4 = TripletLossFunc(-1., 0., nn.functional.sigmoid(self.alpha))
+                    # loss_contrast = self.criterion4(style, style_pos, style_neg)
+
 
             # print('>>>loss', loss_map, loss_cellprob, loss_contrast)
-            # print('>>>loss', self.alpha, loss_pos, loss_neg, loss_contrast)
+            # print('>>>loss', loss_pos, loss_neg)
 
                 # loss3 = torch.pow((loss_pos-loss_neg), 2)
                 # loss3 = torch.abs(loss_pos) - torch.abs(loss_neg - 1) * nn.functional.sigmoid(self.alpha)
@@ -186,6 +196,39 @@ class LossFn(nn.Module):
             lbl = lbl.float().to(device)
             loss = 8 * 1. / nclasses * self.criterion(y, lbl.long())
         return loss
+
+
+class LossFn_Contrast(nn.Module):
+    def __init__(self):
+        super(LossFn_Contrast, self).__init__()
+        self.criterion = nn.MSELoss(reduction='mean', size_average=True)  # 能把背景去除的很干净
+        self.alpha = torch.tensor(0.2, requires_grad=True)
+
+    def forward(self, styles=None):
+
+        style, style_pos, style_neg = styles
+        # target_pos=torch.ones(style.shape[0]).to(device)  # 余弦相似性效果确实不好
+        # target_neg=(torch.ones(style.shape[0])).to(device)
+        # loss_pos = nn.functional.cosine_embedding_loss(style, style_pos, target=target_pos)
+        # loss_neg = nn.functional.cosine_embedding_loss(style, style_neg, target=target_neg)
+
+        loss_contrast = 0
+        if isinstance(style, list):
+            for i in range(len(style)):
+                loss_posi = mse_pairs(style[i], style_pos[i], self.criterion)
+                loss_negi = mse_pairs(style[i], style_neg[i], self.criterion)
+                print('>>>', loss_posi, loss_negi)
+                loss_contrast += torch.pow((loss_posi), 2) + torch.pow((1 - loss_negi), 2)
+                # loss_contrast += torch.pow((loss_posi), 2 ) / torch.pow((loss_negi), 2) * style_weights[i]
+        else:
+            loss_pos = mse_pairs(style, style_pos, self.criterion)
+            loss_neg = mse_pairs(style, style_neg, self.criterion)
+
+            loss_contrast = torch.pow(loss_pos, 1) - torch.pow(loss_neg, 1)
+
+            # self.criterion4 = TripletLossFunc(-1., 0., nn.functional.sigmoid(self.alpha))
+            # loss_contrast = self.criterion4(style, style_pos, style_neg)
+        return loss_contrast * nn.functional.sigmoid(self.alpha)
 
 
 class sCSnet(nn.Module):
@@ -248,16 +291,20 @@ class sCSnet(nn.Module):
 
             styles = None
             if self.contrast_on:
-                pos_imgs, neg_imgs = self.pair_gen.get_pair(n_sample1class=len(data_shot))
+                pos_imgs, neg_imgs, neg_lbls = self.pair_gen.get_pair(n_sample1class=len(data_shot))
                 embedding_pos, style_pos = self.extractor(pos_imgs)
                 embedding_neg, style_neg = self.extractor(neg_imgs)
 
                 styles = (style, style_pos, style_neg)
 
+                if self.pair_gen.use_negative_masks:
+                    label_shot = torch.cat((label_shot, neg_lbls), dim=0)
+                    logits_neg = self.tasker(embedding_neg)
+                    logits = torch.cat((logits, logits_neg), dim=0)
+
             loss = self.loss_fn(label_shot, logits, device=self.device, styles=styles)
             # if _ == 0:
             #     print("loss_now", loss.item())
-
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()

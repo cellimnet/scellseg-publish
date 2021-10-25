@@ -141,7 +141,7 @@ class UnetModel():
                     nclasses = 3, multi_class=False,
                     attn_on=False, dense_on=False,
                     use_branch=False, ndecoder=False, ntasker_seg=False,
-                    last_conv_on=True, task_mode='cellpose'):
+                    last_conv_on=True, task_mode='cellpose', model=None):
         self.unet = True
         self.task_mode = task_mode
         if not TORCH_ENABLED:
@@ -178,37 +178,40 @@ class UnetModel():
         nchan = 2
         nbase = [nchan, 32, 64, 128, 256]
         # nbase = [nchan, 256, 128, 64, 32]  # 用来测试倒过来的特征数是否有意义，训练了300批不知道为什么就内存炸了
-        if not use_branch:
-            self.net = net_desc.sCSnet(nbase=nbase,
-                                       nout=nout,
-                                       sz=3,
-                                       multi_class=multi_class,
-                                       net_avg=net_avg,
-                                       residual_on=residual_on,
-                                       style_on=style_on,
-                                       concatenation=concatenation,
-                                       update_step=update_step,
-                                       mkldnn=self.mkldnn,
-                                       dense_on=dense_on,
-                                       attn_on=attn_on,
-                                       task_mode=task_mode,
-                                       device=self.device).to(self.device)  # 模型初始化
+        if model is None:
+            if not use_branch:
+                self.net = net_desc.sCSnet(nbase=nbase,
+                                           nout=nout,
+                                           sz=3,
+                                           multi_class=multi_class,
+                                           net_avg=net_avg,
+                                           residual_on=residual_on,
+                                           style_on=style_on,
+                                           concatenation=concatenation,
+                                           update_step=update_step,
+                                           mkldnn=self.mkldnn,
+                                           dense_on=dense_on,
+                                           attn_on=attn_on,
+                                           task_mode=task_mode,
+                                           device=self.device).to(self.device)  # 模型初始化
+            else:
+                self.net = net_desc_nbranch.sCSnet(nbase=nbase,
+                                           sz=3,
+                                           multi_class=multi_class,
+                                           net_avg=net_avg,
+                                           residual_on=residual_on,
+                                           style_on=style_on,
+                                           concatenation=concatenation,
+                                           update_step=update_step,
+                                           mkldnn=self.mkldnn,
+                                           dense_on=dense_on,
+                                           attn_on=attn_on,
+                                           task_mode=task_mode,
+                                           device=self.device,
+                                           ndecoder=ndecoder,
+                                           ntasker_seg=ntasker_seg).to(self.device)  # 模型初始化
         else:
-            self.net = net_desc_nbranch.sCSnet(nbase=nbase,
-                                       sz=3,
-                                       multi_class=multi_class,
-                                       net_avg=net_avg,
-                                       residual_on=residual_on,
-                                       style_on=style_on,
-                                       concatenation=concatenation,
-                                       update_step=update_step,
-                                       mkldnn=self.mkldnn,
-                                       dense_on=dense_on,
-                                       attn_on=attn_on,
-                                       task_mode=task_mode,
-                                       device=self.device,
-                                       ndecoder=ndecoder,
-                                       ntasker_seg=ntasker_seg).to(self.device)  # 模型初始化
+            self.net = model
 
         if pretrained_model is not None and isinstance(pretrained_model, str):
             self.net.load_model(pretrained_model, cpu=(not self.gpu), last_conv_on=last_conv_on)
@@ -705,7 +708,7 @@ class UnetModel():
         loss = 8 * 1./self.nclasses * self.criterion(y, lbl.long())
         return loss
 
-    def train(self, train_data, train_labels, train_files=None, 
+    def train(self, train_data, train_labels, train_files=None,
               test_data=None, test_labels=None, test_files=None,
               channels=None, normalize=True, pretrained_model=None, save_path=None, save_every=100,
               learning_rate=0.2, n_epochs=500, momentum=0.9, weight_decay=0.00001, batch_size=8, rescale=False):
@@ -740,10 +743,10 @@ class UnetModel():
         # del train_data[::8], train_classes[::8], train_labels[::8]
 
         model_path = self._train_net(train_data, train_classes, 
-                                     test_data, test_classes,
-                                     pretrained_model, save_path, save_every,
-                                     learning_rate, n_epochs, momentum, weight_decay, 
-                                     batch_size, rescale)
+                                     test_data=test_data, test_labels=test_classes,
+                                     pretrained_model=pretrained_model, save_path=save_path, save_every=save_every,
+                                     learning_rate=learning_rate, n_epochs=n_epochs, momentum=momentum, weight_decay=weight_decay,
+                                     batch_size=batch_size, rescale=rescale)
 
         # find threshold using validation set
         # print('>>>> finding best thresholds using validation set')

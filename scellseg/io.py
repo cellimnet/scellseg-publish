@@ -1,8 +1,12 @@
-import os, datetime, gc, warnings, glob
+import os, datetime, gc, warnings, glob, json
 from natsort import natsorted
 import numpy as np
 import cv2
 import tifffile
+from pycocotools.coco import COCO
+import pycocotools
+from pycococreatortools import pycococreatortools
+from tqdm import trange
 
 from . import utils, plot, transforms
 
@@ -249,19 +253,19 @@ def masks_flows_to_seg(images, masks, flows, diams, file_names, channels=None):
                      'flows': flowi,
                      'est_diam': diams})    
 
-def save_to_png(images, masks, flows, file_names, labels=None, aps=None, task_mode='cellpose'):
+def save_to_png(images, masks, flows, file_names, labels=None, aps=None, task_mode='cellpose', for_paper=False):
     """ deprecated (runs io.save_masks with png=True) 
     
         does not work for 3D images
     
     """
     if len(flows)!=0:
-        save_masks(images, masks, flows, file_names, png=True, labels=labels, aps=aps)
+        save_masks(images, masks, flows, file_names, png=True, labels=labels, aps=aps, for_paper=for_paper)
     else:
-        save_masks_noflows(images, masks, file_names, png=True, labels=labels, aps=aps)
+        save_masks_noflows(images, masks, file_names, png=True, labels=labels, aps=aps, for_paper=for_paper)
 
 
-def save_masks(images, masks, flows, file_names, png=True, tif=False, labels=None, aps=None):
+def save_masks(images, masks, flows, file_names, png=True, tif=False, labels=None, aps=None, for_paper=False):
     """ save masks + nicely plotted segmentation image to png and/or tiff
 
     if png, masks[k] for images[k] are saved to file_names[k]+'_cp_masks.png'
@@ -292,20 +296,20 @@ def save_masks(images, masks, flows, file_names, png=True, tif=False, labels=Non
         if labels is None:
             if aps is None:
                 for image, mask, flow, file_name in zip(images, masks, flows, file_names):
-                    save_masks(image, mask, flow, file_name, png=png, tif=tif)
+                    save_masks(image, mask, flow, file_name, png=png, tif=tif, for_paper=for_paper)
                 return
             else:
                 for image, mask, flow, file_name, ap in zip(images, masks, flows, file_names, aps):
-                    save_masks(image, mask, flow, file_name, png=png, tif=tif, aps=ap)
+                    save_masks(image, mask, flow, file_name, png=png, tif=tif, aps=ap, for_paper=for_paper)
                 return
         else:
             if aps is None:
                 for image, mask, flow, file_name, label in zip(images, masks, flows, file_names, labels):
-                    save_masks(image, mask, flow, file_name, png=png, tif=tif, labels=label)
+                    save_masks(image, mask, flow, file_name, png=png, tif=tif, labels=label, for_paper=for_paper)
                 return
             else:
                 for image, mask, flow, file_name, label, ap in zip(images, masks, flows, file_names, labels, aps):
-                    save_masks(image, mask, flow, file_name, png=png, tif=tif, labels=label, aps=ap)
+                    save_masks(image, mask, flow, file_name, png=png, tif=tif, labels=label, aps=ap, for_paper=for_paper)
                 return
 
     if masks.ndim > 2 and not tif:
@@ -342,9 +346,14 @@ def save_masks(images, masks, flows, file_names, png=True, tif=False, labels=Non
         elif img.shape[0]<8:
             np.transpose(img, (1,2,0))
         
-        fig = plt.figure(figsize=(12,3))
         # can save images (set save_dir=None if not)
-        plot.show_segmentation(fig, img, masks, flows[0], labeli=labels, api=aps)
+        if for_paper:
+            fig = plt.figure(figsize=(6, 3))
+            plot.show_segmentation2(fig, img, masks, flows[0], labeli=labels, api=aps, file_name=base)
+            plt.subplots_adjust(top=0.9, right=0.9, bottom=0.1, left=0.1, wspace=0.1, hspace=0.1)
+        else:
+            fig = plt.figure(figsize=(12, 3))
+            plot.show_segmentation(fig, img, masks, flows[0], labeli=labels, api=aps)
         # plot.show_segmentation(fig, img, masks, flows[0], labeli=labels, api=aps)
         fig.savefig(base + '_cp_output.png', dpi=300)
         plt.close(fig)
@@ -354,7 +363,7 @@ def save_masks(images, masks, flows, file_names, png=True, tif=False, labels=Non
         outlines_to_text(base, outlines)
 
 
-def save_masks_noflows(images, masks, file_names, png=True, tif=False, labels=None, aps=None):
+def save_masks_noflows(images, masks, file_names, png=True, tif=False, labels=None, aps=None, for_paper=False):
     """ save masks + nicely plotted segmentation image to png and/or tiff
 
     if png, masks[k] for images[k] are saved to file_names[k]+'_cp_masks.png'
@@ -385,20 +394,20 @@ def save_masks_noflows(images, masks, file_names, png=True, tif=False, labels=No
         if labels is None:
             if aps is None:
                 for image, mask, file_name in zip(images, masks, file_names):
-                    save_masks_noflows(image, mask, file_name, png=png, tif=tif)
+                    save_masks_noflows(image, mask, file_name, png=png, tif=tif, for_paper=for_paper)
                 return
             else:
                 for image, mask, file_name, ap in zip(images, masks, file_names, aps):
-                    save_masks_noflows(image, mask, file_name, png=png, tif=tif, aps=ap)
+                    save_masks_noflows(image, mask, file_name, png=png, tif=tif, aps=ap, for_paper=for_paper)
                 return
         else:
             if aps is None:
                 for image, mask, file_name, label in zip(images, masks, file_names, labels):
-                    save_masks_noflows(image, mask, file_name, png=png, tif=tif, labels=label)
+                    save_masks_noflows(image, mask, file_name, png=png, tif=tif, labels=label, for_paper=for_paper)
                 return
             else:
                 for image, mask, file_name, label, ap in zip(images, masks, file_names, labels, aps):
-                    save_masks_noflows(image, mask, file_name, png=png, tif=tif, labels=label, aps=ap)
+                    save_masks_noflows(image, mask, file_name, png=png, tif=tif, labels=label, aps=ap, for_paper=for_paper)
                 return
 
     if masks.ndim > 2 and not tif:
@@ -435,9 +444,14 @@ def save_masks_noflows(images, masks, file_names, png=True, tif=False, labels=No
         elif img.shape[0] < 8:
             np.transpose(img, (1, 2, 0))
 
-        fig = plt.figure(figsize=(12, 3))
         # can save images (set save_dir=None if not)
-        plot.show_classic_segmentation(fig, img, masks, labeli=labels, api=aps)
+        if for_paper:
+            fig = plt.figure(figsize=(2, 2))
+            plot.show_classic_segmentation2(fig, img, masks, labeli=labels, api=aps, file_name=base)
+        else:
+            fig = plt.figure(figsize=(9, 3))
+            plot.show_classic_segmentation(fig, img, masks, labeli=labels, api=aps)
+
         # plot.show_segmentation(fig, img, masks, flows[0], labeli=labels, api=aps)
         fig.savefig(base + '_cp_output.png', dpi=300)
         plt.close(fig)
@@ -865,4 +879,166 @@ def _save_sets(parent):
     print('--- %d ROIs saved chan1 %s, chan2 %s'%(parent.ncells,
                                                   parent.ChannelChoose[0].currentText(),
                                                   parent.ChannelChoose[1].currentText()))
+
+
+def cocojson_to_mask(json_dir, save_dir):
+    test_set=COCO(json_dir)
+
+    catIds = test_set.getCatIds() # 通过父类的名筛选
+    cats_name = test_set.loadCats(ids=catIds)
+    print('>>>> ', catIds, cats_name)
+
+    imgIds = test_set.getImgIds() # 获取所有的image id，可以选择参数 coco.getImgIds(imgIds=[], catIds=[])
+    imgs = test_set.loadImgs(imgIds)  # 读取图片信息
+    img_name = [img['file_name'].split('.')[0] for img in imgs]
+
+    # save_dir0 = save_dir # 使用总的文件生成mask - 1
+
+    for idx, imgId in enumerate(imgIds):
+
+        # cell_type_name = img_name[idx].split('_Phase')[0]  # 使用总的文件生成mask - 2
+        # save_dir = os.path.join(save_dir0, cell_type_name)
+        # if not os.path.isdir(save_dir):
+        #     os.mkdir(save_dir)
+
+        # if 'SKOV3' not in img_name[idx]:  # skov3单独提供的json有问题
+        #     continue
+        annId = test_set.getAnnIds(imgIds=imgId, catIds=1) # 获得类别id为0，1，2的标签
+        anni = test_set.loadAnns(annId)
+        maski = np.array([test_set.annToMask(ann) for ann in anni])
+        instance_num, h, w = maski.shape
+        mask = np.zeros((h, w)).astype(np.uint16)
+        for i in range(instance_num):
+            mask[maski[i] == 1] = i+1
+        save_path = os.path.join(save_dir, img_name[idx] + '_masks.png')
+        cv2.imwrite(save_path, mask.astype(np.uint16))
+
+
+def mask_to_cocojson(gt_files_path=None, pred_masks=None, pred_ious=None, mask_filter='_masks', image_filter='_img',
+                     use_bbox=False, is_crowd=0):
+    """
+    分为两种模式：
+    1. gt_mask，输入的是源文件的地址
+    2. pred_mask: 输入的是预测的mask和iou
+    """
+
+    image_id = 1
+    segmentation_id = 1
+    # go through each image
+    if pred_masks is None:
+        INFO = {
+            "description": "Test Dataset",
+            "url": "https://github.com/waspinator/pycococreator",
+            "version": "0.1.0",
+            "year": 2021,
+            "contributor": "Dejin Xun",
+            "date_created": datetime.datetime.utcnow().isoformat(' ')
+        }
+
+        LICENSES = [
+            {
+                "id": 1,
+                "name": "Test Dataset",
+                "url": "http://creativecommons.org/licenses/by-nc-sa/2.0/"
+            }
+        ]
+
+        CATEGORIES = [
+            {
+                'id': 1,
+                'name': 'cell',
+            },
+        ]
+
+        gt_mask_json = {
+            "info": INFO,
+            "licenses": LICENSES,
+            "categories": CATEGORIES,
+            "images": [],
+            "annotations": []
+        }
+
+        img_names = get_image_files(gt_files_path, mask_filter, image_filter)
+        gt_names, _ = get_label_files(img_names, mask_filter, imf=image_filter)
+        for i in trange(len(img_names)):
+            img = imread(img_names[i])
+            img_info = pycococreatortools.create_image_info(
+                image_id, os.path.basename(img_names[i]), img.shape)
+            gt_mask_json["images"].append(img_info)
+            gt_mask = imread(gt_names[i])
+            category_info = {'id': 1, 'is_crowd': is_crowd}
+
+            for j in range(1, gt_mask.max()+1):
+                gt_maski = np.zeros_like(gt_mask)
+                gt_maski[gt_mask == j] = 1
+                gt_maski_encoded = pycocotools.mask.encode(np.asfortranarray(gt_maski.astype(np.uint8)))
+                bounding_box = pycocotools.mask.toBbox(gt_maski_encoded)
+
+                area = pycocotools.mask.area(gt_maski_encoded)
+                if area < 1:
+                    print('get', img_names[i])
+                    continue
+
+                segmentation = pycocotools.mask.encode(np.array(gt_maski[:, :, None], order="F", dtype="uint8"))[0]
+                segmentation["counts"] = gt_maski_encoded["counts"].decode("utf-8")
+
+                gt_mask_info = {
+                    "id": segmentation_id,
+                    "image_id": image_id,
+                    "category_id": category_info["id"],
+                    "iscrowd": category_info["is_crowd"],
+                    'bbox': bounding_box.tolist(),
+                    "area": area.tolist(),
+                    "segmentation": segmentation,
+                    "width": gt_maski.shape[1],
+                    "height": gt_maski.shape[0],
+                }
+
+                if gt_mask_info is not None:
+                    gt_mask_json["annotations"].append(gt_mask_info)
+                segmentation_id = segmentation_id + 1
+            image_id = image_id + 1
+
+        return gt_mask_json
+    else:
+        pred_mask_json = []
+        for i in trange(len(pred_masks)):
+            category_info = {'id': 1, 'is_crowd': 1}
+            pred_mask = pred_masks[i]
+            for j in range(1, pred_mask.max() + 1):
+                pred_maski = np.zeros_like(pred_mask)
+                pred_maski[pred_mask == j] = 1
+
+                pred_maski_encoded = pycocotools.mask.encode(np.asfortranarray(pred_maski.astype(np.uint8)))
+
+                area = pycocotools.mask.area(pred_maski_encoded)  # 太小的区域舍弃
+                if area < 1:
+                    continue
+
+                segmentation = pycocotools.mask.encode(np.array(pred_maski[:, :, None], order="F", dtype="uint8"))[0]
+                segmentation["counts"] = pred_maski_encoded["counts"].decode("utf-8")
+
+                pred_mask_info = {
+                    "id": segmentation_id,
+                    "image_id": image_id,
+                    "category_id": category_info["id"],
+                    "iscrowd": 0,
+                    "area": area.tolist(),
+                    "segmentation": segmentation,
+                    "width": pred_maski.shape[1],
+                    "height": pred_maski.shape[0],
+                }
+
+                if pred_ious is not None:
+                    pred_mask_info['score'] = pred_ious[i][j-1]
+                if use_bbox:
+                    bounding_box = pycocotools.mask.toBbox(pred_maski_encoded)
+                    pred_mask_info['bbox'] = bounding_box.tolist()
+
+                pred_mask_json.append(pred_mask_info)
+                segmentation_id = segmentation_id + 1
+
+            image_id = image_id + 1
+
+        return pred_mask_json
 
