@@ -5,46 +5,46 @@ from pyqtgraph import Point
 import numpy as np
 import pathlib
 
-def make_quadrants(parent):
-    """ make quadrant buttons """
-    parent.quadbtns = QtGui.QButtonGroup(parent)  # 按钮组
-    for b in range(9):
-        btn = QuadButton(b, ' '+str(b+1), parent)  # 按钮实例，参数为id，按钮标签，父窗体
-        parent.quadbtns.addButton(btn, b)  # 添加进按钮组，参数为按钮实例，索引
-        parent.l0.addWidget(btn, 1 + parent.quadbtns.button(b).ypos, 30 + parent.quadbtns.button(b).xpos, 1, 1)  # 设置btn按钮的位置
-        btn.setEnabled(True)
-        b += 1
-    parent.quadbtns.setExclusive(True)  # 自动排他，只可选中一个
-
-class QuadButton(QtGui.QPushButton):
-    """ custom QPushButton class for quadrant plotting
-        requires buttons to put into a QButtonGroup (parent.quadbtns)
-         allows only 1 button to pressed at a time
-    """
-    def __init__(self, bid, Text, parent=None):
-        super(QuadButton,self).__init__(parent)
-        self.setText(Text)  # 设置文本
-        self.setCheckable(True)  # 设置是否可选
-        self.setStyleSheet(parent.styleUnpressed)  # 设置样式
-        self.setFont(QtGui.QFont("Arial", 8, QtGui.QFont.Bold))  # 设置字体
-        self.resize(self.minimumSizeHint())  # 调整按钮大小
-        self.setMaximumWidth(22)  # 设置最大宽度
-        self.xpos = bid%3  # 这里的行数，列数怎么计算的
-        self.ypos = int(np.floor(bid/3))
-        self.clicked.connect(lambda: self.press(parent, bid))  # 链接点击时候的函数
-        self.show()  # 按钮显示？？？
-
-    def press(self, parent, bid):
-        for b in range(9):
-            if parent.quadbtns.button(b).isEnabled():
-                parent.quadbtns.button(b).setStyleSheet(parent.styleUnpressed)
-        self.setStyleSheet(parent.stylePressed)  # 调整按钮的样式
-        self.xrange = np.array([self.xpos-.2, self.xpos+1.2]) * parent.Lx/3
-        self.yrange = np.array([self.ypos-.2, self.ypos+1.2]) * parent.Ly/3
-        # change the zoom
-        parent.p0.setXRange(self.xrange[0], self.xrange[1])
-        parent.p0.setYRange(self.yrange[0], self.yrange[1])
-        parent.show()
+# def make_quadrants(parent):
+#     """ make quadrant buttons """
+#     parent.quadbtns = QtGui.QButtonGroup(parent)
+#     for b in range(9):
+#         btn = QuadButton(b, ' '+str(b+1), parent)
+#         parent.quadbtns.addButton(btn, b)
+#         parent.verticalLayout.addWidget(btn, 0 + parent.quadbtns.button(b).ypos, 29 + parent.quadbtns.button(b).xpos, 1, 1)
+#         btn.setEnabled(True)
+#         b += 1
+#     parent.quadbtns.setExclusive(True)
+#
+# class QuadButton(QtGui.QPushButton):
+#     """ custom QPushButton class for quadrant plotting
+#         requires buttons to put into a QButtonGroup (parent.quadbtns)
+#          allows only 1 button to pressed at a time
+#     """
+#     def __init__(self, bid, Text, parent=None):
+#         super(QuadButton,self).__init__(parent)
+#         self.setText(Text)
+#         self.setCheckable(True)
+#         # self.setStyleSheet(parent.styleUnpressed)
+#         # self.setFont(QtGui.QFont("Arial", 8, QtGui.QFont.Bold))
+#         self.resize(self.minimumSizeHint())
+#         self.setMaximumWidth(22)
+#         self.xpos = bid%3
+#         self.ypos = int(np.floor(bid/3))
+#         self.clicked.connect(lambda: self.press(parent, bid))
+#         self.show()
+#
+#     def press(self, parent, bid):
+#         for b in range(9):
+#             if parent.quadbtns.button(b).isEnabled():
+#                 parent.quadbtns.button(b).setStyleSheet(parent.styleUnpressed)
+#         self.setStyleSheet(parent.stylePressed)
+#         self.xrange = np.array([self.xpos-.2, self.xpos+1.2]) * parent.Lx/3
+#         self.yrange = np.array([self.ypos-.2, self.ypos+1.2]) * parent.Ly/3
+#         # change the zoom
+#         parent.p0.setXRange(self.xrange[0], self.xrange[1])
+#         parent.p0.setYRange(self.yrange[0], self.yrange[1])
+#         parent.show()
 
 def horizontal_slider_style():
     return """QSlider::groove:horizontal {
@@ -107,14 +107,14 @@ def horizontal_slider_style():
 class ExampleGUI(QtGui.QDialog):
     def __init__(self, parent=None):
         super(ExampleGUI, self).__init__(parent)
-        self.setGeometry(100,100,1300,900)  # setGeometry(左上顶点横坐标，左上顶点纵坐标， 宽， 高)
-        self.setWindowTitle('GUI layout')  # 窗口名称
-        self.win = QtGui.QWidget(self)  # 窗口实例
-        layout = QtGui.QGridLayout()  # 布局实例
-        self.win.setLayout(layout)  # 窗口设置布局
-        guip_path = pathlib.Path.home().joinpath('.scellseg', 'cellpose_gui.png')  # 路径名
+        self.setGeometry(100,100,1300,900)
+        self.setWindowTitle('GUI layout')
+        self.win = QtGui.QWidget(self)
+        layout = QtGui.QGridLayout()
+        self.win.setLayout(layout)
+        guip_path = pathlib.Path.home().joinpath('.cellpose', 'cellpose_gui.png')
         guip_path = str(guip_path.resolve())
-        pixmap = QtGui.QPixmap(guip_path)  # 用于加载图像，提供路径即可
+        pixmap = QtGui.QPixmap(guip_path)
         label = QtGui.QLabel(self)
         label.setPixmap(pixmap)
         pixmap.scaled
@@ -124,10 +124,10 @@ class HelpWindow(QtGui.QDialog):
     def __init__(self, parent=None):
         super(HelpWindow, self).__init__(parent)
         self.setGeometry(100,100,700,800)
-        self.setWindowTitle('scellseg help')
+        self.setWindowTitle('cellpose help')
         self.win = QtGui.QWidget(self)
         layout = QtGui.QGridLayout()
-        self.win.setLayout(layout)  # 一定要设置布局吗
+        self.win.setLayout(layout)
         
         text = ('''
             <p class="has-line-data" data-line-start="5" data-line-end="6">Main GUI mouse controls:</p>
@@ -225,7 +225,7 @@ class HelpWindow(QtGui.QDialog):
             <p class="has-line-data" data-line-start="44" data-line-end="45">CHAN TO SEG: this is the channel in which the cytoplasm or nuclei exist</p>
             <p class="has-line-data" data-line-start="46" data-line-end="47">CHAN2 (OPT): if <em>cytoplasm</em> model is chosen, then choose the nuclear channel for this option</p>
             ''')
-        label = QtGui.QLabel(text)  # 放入html文本
+        label = QtGui.QLabel(text)
         label.setFont(QtGui.QFont("Arial", 8))
         label.setWordWrap(True)
         layout.addWidget(label, 0, 0, 1, 1)
@@ -274,17 +274,14 @@ class RGBRadioButtons(QtGui.QButtonGroup):
         #self.buttons.
 
     def btnpress(self, parent):
-       b = self.checkedId()  # 返回选中的按钮
+       b = self.checkedId()
        self.parent.view = b
        if self.parent.loaded:
            self.parent.update_plot()
 
 
 class ViewBoxNoRightDrag(pg.ViewBox):
-    """
-    设计了一些打开图片后的交互操作，主要是移动和放缩？
-    """
-    def __init__(self, parent=None, border=None, lockAspect=False, enableMouse=True, invertY=False, enableMenu=True, name=None, invertX=False):
+    def __init__(self, parent=None, border=None, lockAspect=True, enableMouse=True, invertY=False, enableMenu=True, name=None, invertX=False):
         pg.ViewBox.__init__(self, None, border, lockAspect, enableMouse,
                             invertY, enableMenu, name, invertX)
         self.parent = parent
@@ -292,7 +289,6 @@ class ViewBoxNoRightDrag(pg.ViewBox):
 
     def keyPressEvent(self, ev):
         """
-        这里的ev是指捕获到交互事件，可以是键盘的或鼠标的
         This routine should capture key presses in the current view box.
         The following events are implemented:
         +/= : moves forward in the zooming stack (if it exists)
@@ -348,9 +344,21 @@ class ViewBoxNoRightDrag(pg.ViewBox):
                         self.translateBy(x=x, y=y)
                     self.sigRangeChangedManually.emit(self.state['mouseEnabled'])
 
+    def setBackgroundColor(self, color):
+        """
+        Set the background color of the ViewBox.
+
+        If color is None, then no background will be drawn.
+
+        Added in version 0.9.9
+        """
+        self.background.setVisible(color is not None)
+        self.state['background'] = color
+        self.updateBackground()
+
+
 class ImageDraw(pg.ImageItem):
     """
-    这个应该是用于做label的
     **Bases:** :class:`GraphicsObject <pyqtgraph.GraphicsObject>`
     GraphicsObject displaying an image. Optimized for rapid update (ie video display).
     This item displays either a 2D numpy array (height, width) or
@@ -436,7 +444,7 @@ class ImageDraw(pg.ImageItem):
 
     def create_start(self, pos):
         self.scatter = pg.ScatterPlotItem([pos.x()], [pos.y()], pxMode=False,
-                                        pen=pg.mkPen(color=(255,0,0), width=self.parent.brush_size),
+                                        pen=pg.mkPen(color=(255,255,0), width=3),
                                         size=max(3*2, self.parent.brush_size*1.8*2), brush=None)
         self.parent.p0.addItem(self.scatter)
 
@@ -562,7 +570,7 @@ class RangeSlider(QtGui.QSlider):
         self.hover_control = QtGui.QStyle.SC_None
         self.click_offset = 0
 
-        self.setOrientation(QtCore.Qt.Vertical)
+        self.setOrientation(QtCore.Qt.Horizontal)
         self.setTickPosition(QtGui.QSlider.TicksRight)
         #self.setStyleSheet(\
         #        "QSlider::handle:vertical {\

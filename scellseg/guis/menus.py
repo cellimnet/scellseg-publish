@@ -1,31 +1,24 @@
 from PyQt5 import QtGui, QtCore, Qt, QtWidgets
-from scellseg import io, models
+import iopart, models
 
 def mainmenu(parent):
-    """
-    Args:
-        parent: 传进一个父集窗体
-
-    Returns:
-
-    """
-    main_menu = parent.menuBar()  # 实例
-    file_menu = main_menu.addMenu("&File")  # 名称
+    main_menu = parent.menuBar()
+    file_menu = main_menu.addMenu("&File")
     # load processed data
-    loadImg = QtGui.QAction("&Load image (*.tif, *.png, *.jpg)", parent)  # 子菜单名称，这里并没有绑定到菜单上。&的作用是下划线
-    loadImg.setShortcut("Ctrl+L")  # 设置快捷键
-    loadImg.triggered.connect(lambda: io._load_image(parent))  # 链接到函数
-    file_menu.addAction(loadImg)  # 绑定到菜单上
+    loadImg = QtGui.QAction("&Load image (*.tif, *.png, *.jpg)", parent)
+    loadImg.setShortcut("Ctrl+L")
+    loadImg.triggered.connect(lambda: iopart._load_image(parent))
+    file_menu.addAction(loadImg)
 
     parent.loadMasks = QtGui.QAction("Load &masks (*.tif, *.png, *.jpg)", parent)
     parent.loadMasks.setShortcut("Ctrl+M")
-    parent.loadMasks.triggered.connect(lambda: io._load_masks(parent))
+    parent.loadMasks.triggered.connect(lambda: iopart._load_masks(parent))
     file_menu.addAction(parent.loadMasks)
-    parent.loadMasks.setEnabled(False)  # 设置能否被使用
+    parent.loadMasks.setEnabled(False)
 
     loadManual = QtGui.QAction("Load &processed/labelled image (*_seg.npy)", parent)
     loadManual.setShortcut("Ctrl+P")
-    loadManual.triggered.connect(lambda: io._load_seg(parent))
+    loadManual.triggered.connect(lambda: iopart._load_seg(parent))
     file_menu.addAction(loadManual)
 
     #loadStack = QtGui.QAction("Load &numpy z-stack (*.npy nimgs x nchan x pixels x pixels)", parent)
@@ -35,31 +28,34 @@ def mainmenu(parent):
 
     parent.saveSet = QtGui.QAction("&Save masks and image (as *_seg.npy)", parent)
     parent.saveSet.setShortcut("Ctrl+S")
-    parent.saveSet.triggered.connect(lambda: io._save_sets(parent))
+    parent.saveSet.triggered.connect(lambda: iopart._save_sets(parent))
     file_menu.addAction(parent.saveSet)
     parent.saveSet.setEnabled(False)
 
     parent.savePNG = QtGui.QAction("Save masks as P&NG", parent)
     parent.savePNG.setShortcut("Ctrl+N")
-    parent.savePNG.triggered.connect(lambda: io._save_png(parent))
+    parent.savePNG.triggered.connect(lambda: iopart._save_png(parent))
     file_menu.addAction(parent.savePNG)
     parent.savePNG.setEnabled(False)
 
     parent.saveOutlines = QtGui.QAction("Save &Outlines as text for imageJ", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")
-    parent.saveOutlines.triggered.connect(lambda: io._save_outlines(parent))
+    parent.saveOutlines.triggered.connect(lambda: iopart._save_outlines(parent))
     file_menu.addAction(parent.saveOutlines)
     parent.saveOutlines.setEnabled(False)
 
     parent.saveServer = QtGui.QAction("Send manually labelled data to server", parent)
-    parent.saveServer.triggered.connect(lambda: io.save_server(parent))
+    parent.saveServer.triggered.connect(lambda: iopart.save_server(parent))
     file_menu.addAction(parent.saveServer)
     parent.saveServer.setEnabled(False)
 
     parent.switchBackend = QtGui.QAction("Switch backend to MXNET if installed", parent)
     parent.switchBackend.triggered.connect(lambda: parent.check_gpu(False))
     file_menu.addAction(parent.switchBackend)
-    parent.switchBackend.setEnabled(False)
+    if models.MXNET_ENABLED:
+        parent.switchBackend.setEnabled(True)
+    else:
+        parent.switchBackend.setEnabled(False)
 
 def editmenu(parent):
     main_menu = parent.menuBar()
