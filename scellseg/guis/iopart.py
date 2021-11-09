@@ -54,7 +54,7 @@ def imread(filename):
 
 def imsave(filename, arr):
     ext = os.path.splitext(filename)[-1]
-    if ext== '.tif' or ext=='tiff':
+    if ext== '.tif' or ext=='_mask':
         tifffile.imsave(filename, arr)
     else:
         cv2.imwrite(filename, arr)
@@ -375,7 +375,6 @@ def _load_image(parent, filename=None):
         filename = name[0]
     manual_file = os.path.splitext(filename)[0]+'_seg.npy'
     if os.path.isfile(manual_file):
-        print(manual_file)
         _load_seg(parent, manual_file, image=imread(filename), image_file=filename)
         return
     elif os.path.isfile(os.path.splitext(filename)[0]+'_manual.npy'):
@@ -383,14 +382,13 @@ def _load_image(parent, filename=None):
         _load_seg(parent, manual_file, image=imread(filename), image_file=filename)
         return
     try:
-        print("we are trying!")
         image = imread(filename)
         image.shape
         parent.loaded = True
     except:
         print('images not compatible')
 
-    if parent.loaded:
+    if parent.loaded and "_mask" not in filename:
         parent.reset()
         parent.filename = filename
         filename = os.path.split(parent.filename)[-1]
@@ -595,11 +593,14 @@ def _load_seg(parent, filename=None, image=None, image_file=None):
         parent.RGBDropDown.setCurrentIndex(parent.color)
 
     if 'flows' in dat:
-        parent.flows = dat['flows']
-        if parent.flows[0].shape[-3]!=dat['masks'].shape[-2]:
-            Ly, Lx = dat['masks'].shape[-2:]
-            parent.flows[0] = cv2.resize(parent.flows[0][0], (Lx, Ly), interpolation=cv2.INTER_NEAREST)[np.newaxis,...]
-            parent.flows[1] = cv2.resize(parent.flows[1][0], (Lx, Ly), interpolation=cv2.INTER_NEAREST)[np.newaxis,...]
+        try:
+            parent.flows = dat['flows']
+            if parent.flows[0].shape[-3]!=dat['masks'].shape[-2]:
+                Ly, Lx = dat['masks'].shape[-2:]
+                parent.flows[0] = cv2.resize(parent.flows[0][0], (Lx, Ly), interpolation=cv2.INTER_NEAREST)[np.newaxis,...]
+                parent.flows[1] = cv2.resize(parent.flows[1][0], (Lx, Ly), interpolation=cv2.INTER_NEAREST)[np.newaxis,...]
+        except:
+            pass
         try:
             if parent.NZ==1:
                 parent.threshslider.setEnabled(True)
@@ -693,6 +694,11 @@ def _save_png(parent):
     if parent.NZ==1:
         print('saving 2D masks to png')
         imsave(base + '_cp_masks.png', parent.cellpix[0])
+        print(type(parent.cellpix[0]))
+        print(parent.cellpix[0][100][100])
+        # print(type(parent.masks_for_save))
+        # imsave(base + '_cp_masks.png', parent.masks_for_save)
+
     else:
         print('saving 3D masks to tiff')
         imsave(base + '_cp_masks.tif', parent.cellpix)

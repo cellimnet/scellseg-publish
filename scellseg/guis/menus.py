@@ -36,7 +36,7 @@ def mainmenu(parent):
     parent.savePNG.setShortcut("Ctrl+N")
     parent.savePNG.triggered.connect(lambda: iopart._save_png(parent))
     file_menu.addAction(parent.savePNG)
-    parent.savePNG.setEnabled(False)
+    parent.savePNG.setEnabled(True)
 
     parent.saveOutlines = QtGui.QAction("Save &Outlines as text for imageJ", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")
