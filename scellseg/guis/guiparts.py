@@ -5,47 +5,6 @@ from pyqtgraph import Point
 import numpy as np
 import pathlib
 
-# def make_quadrants(parent):
-#     """ make quadrant buttons """
-#     parent.quadbtns = QtGui.QButtonGroup(parent)
-#     for b in range(9):
-#         btn = QuadButton(b, ' '+str(b+1), parent)
-#         parent.quadbtns.addButton(btn, b)
-#         parent.verticalLayout.addWidget(btn, 0 + parent.quadbtns.button(b).ypos, 29 + parent.quadbtns.button(b).xpos, 1, 1)
-#         btn.setEnabled(True)
-#         b += 1
-#     parent.quadbtns.setExclusive(True)
-#
-# class QuadButton(QtGui.QPushButton):
-#     """ custom QPushButton class for quadrant plotting
-#         requires buttons to put into a QButtonGroup (parent.quadbtns)
-#          allows only 1 button to pressed at a time
-#     """
-#     def __init__(self, bid, Text, parent=None):
-#         super(QuadButton,self).__init__(parent)
-#         self.setText(Text)
-#         self.setCheckable(True)
-#         # self.setStyleSheet(parent.styleUnpressed)
-#         # self.setFont(QtGui.QFont("Arial", 8, QtGui.QFont.Bold))
-#         self.resize(self.minimumSizeHint())
-#         self.setMaximumWidth(22)
-#         self.xpos = bid%3
-#         self.ypos = int(np.floor(bid/3))
-#         self.clicked.connect(lambda: self.press(parent, bid))
-#         self.show()
-#
-#     def press(self, parent, bid):
-#         for b in range(9):
-#             if parent.quadbtns.button(b).isEnabled():
-#                 parent.quadbtns.button(b).setStyleSheet(parent.styleUnpressed)
-#         self.setStyleSheet(parent.stylePressed)
-#         self.xrange = np.array([self.xpos-.2, self.xpos+1.2]) * parent.Lx/3
-#         self.yrange = np.array([self.ypos-.2, self.ypos+1.2]) * parent.Ly/3
-#         # change the zoom
-#         parent.p0.setXRange(self.xrange[0], self.xrange[1])
-#         parent.p0.setYRange(self.yrange[0], self.yrange[1])
-#         parent.show()
-
 def horizontal_slider_style():
     return """QSlider::groove:horizontal {
             border: 1px solid #bbb;
@@ -263,13 +222,11 @@ class RGBRadioButtons(QtGui.QButtonGroup):
         self.dropdown = []
         for b in range(len(self.bstr)):
             button = QtGui.QRadioButton(self.bstr[b])
-            button.setStyleSheet('color: white;')
-            button.setFont(QtGui.QFont("Arial", 10))
             if b==0:
                 button.setChecked(True)
             self.addButton(button, b)
             button.toggled.connect(lambda: self.btnpress(parent))
-            self.parent.l0.addWidget(button, row+b,col,1,1)
+            self.parent.gridLayout.addWidget(button, row+b,col,1,1)
         self.setExclusive(True)
         #self.buttons.
 
@@ -384,45 +341,69 @@ class ImageDraw(pg.ImageItem):
         self.axisOrder = 'row-major'
         self.removable = False
 
+
+
         self.parent = parent
         #kernel[1,1] = 1
+
         self.setDrawKernel(kernel_size=self.parent.brush_size)
         self.parent.current_stroke = []
         self.parent.in_stroke = False
 
     def mouseClickEvent(self, ev):
-        if self.parent.masksOn or self.parent.outlinesOn:
-            if  self.parent.loaded and (ev.button()==QtCore.Qt.RightButton or 
-                    ev.modifiers() == QtCore.Qt.ShiftModifier and not ev.double()):
-                if not self.parent.in_stroke:
-                    ev.accept()
-                    self.create_start(ev.pos())
-                    self.parent.stroke_appended = False
-                    self.parent.in_stroke = True
-                    self.drawAt(ev.pos(), ev)
-                else:
-                    ev.accept()
-                    self.end_stroke()
-                    self.parent.in_stroke = False
-            elif not self.parent.in_stroke:
-                y,x = int(ev.pos().y()), int(ev.pos().x())
-                if y>=0 and y<self.parent.Ly and x>=0 and x<self.parent.Lx:
-                    if ev.button()==QtCore.Qt.LeftButton and not ev.double():
-                        idx = self.parent.cellpix[self.parent.currentZ][y,x]
-                        if idx > 0:
-                            if ev.modifiers()==QtCore.Qt.ControlModifier:
-                                # delete mask selected
-                                self.parent.remove_cell(idx)
-                            elif ev.modifiers()==QtCore.Qt.AltModifier:
-                                self.parent.merge_cells(idx)
+        print(type(self.parent.layers))
+        print("we can get acces to the layers!")
+
+        self.eraser_model = self.parent.eraser_button.isChecked()
+
+        if not self.eraser_model:
+            if self.parent.masksOn or self.parent.outlinesOn:
+                if  self.parent.loaded and (ev.button()==QtCore.Qt.RightButton or
+                        ev.modifiers() == QtCore.Qt.ShiftModifier and not ev.double()):
+                    if not self.parent.in_stroke:
+                        ev.accept()
+                        self.create_start(ev.pos())
+                        self.parent.stroke_appended = False
+                        self.parent.in_stroke = True
+                        self.drawAt(ev.pos(), ev)
+
+                    else:
+                        ev.accept()
+                        self.end_stroke()
+                        self.parent.in_stroke = False
+                elif not self.parent.in_stroke:
+                    y,x = int(ev.pos().y()), int(ev.pos().x())
+                    if y>=0 and y<self.parent.Ly and x>=0 and x<self.parent.Lx:
+                        if ev.button()==QtCore.Qt.LeftButton and not ev.double():
+                            idx = self.parent.cellpix[self.parent.currentZ][y,x]
+                            if idx > 0:
+                                if ev.modifiers()==QtCore.Qt.ControlModifier:
+                                    # delete mask selected
+                                    self.parent.remove_cell(idx)
+                                elif ev.modifiers()==QtCore.Qt.AltModifier:
+                                    self.parent.merge_cells(idx)
+                                elif self.parent.masksOn:
+                                    self.parent.unselect_cell()
+                                    self.parent.select_cell(idx)
                             elif self.parent.masksOn:
                                 self.parent.unselect_cell()
-                                self.parent.select_cell(idx)
-                        elif self.parent.masksOn:
-                            self.parent.unselect_cell()
-                    else:
-                        ev.ignore()
-                        return
+                        else:
+                            ev.ignore()
+                            return
+
+        if self.eraser_model:
+            if self.parent.loaded == True:
+                if self.parent.loaded and ev.button() == QtCore.Qt.RightButton:
+                    # print('in eraser_model')
+                    # print(ev.pos())
+                    # print(self.parent.layers[0][int(ev.pos().y()),int(ev.pos().x()),-1])
+                    # need sync for all the pix
+                    self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+1, int(ev.pos().x())-1:int(ev.pos().x())+1,:3] = (0,0,0)
+                    self.parent.cellpix[0][int(ev.pos().y())-1:int(ev.pos().y())+1, int(ev.pos().x())-1:int(ev.pos().x())+1] = 0
+                    self.parent.update_plot()
+
+
+
 
 
     def mouseDragEvent(self, ev):
@@ -438,13 +419,15 @@ class ImageDraw(pg.ImageItem):
                 if self.is_at_start(ev.pos()):
                     self.end_stroke()
                     self.parent.in_stroke = False
+
+
         else:
             ev.acceptClicks(QtCore.Qt.RightButton)
             #ev.acceptClicks(QtCore.Qt.LeftButton)
 
     def create_start(self, pos):
         self.scatter = pg.ScatterPlotItem([pos.x()], [pos.y()], pxMode=False,
-                                        pen=pg.mkPen(color=(255,255,0), width=3),
+                                        pen=pg.mkPen(color=(255,255,255), width=2),
                                         size=max(3*2, self.parent.brush_size*1.8*2), brush=None)
         self.parent.p0.addItem(self.scatter)
 
@@ -458,10 +441,13 @@ class ImageDraw(pg.ImageItem):
             dist = dist.flatten()
             #print(dist)
             has_left = (dist > thresh_out).nonzero()[0]
+            # self.parent.myCellList = ['cell' + str(i) for i in range(len(np.unique(self.parent.masks)[1:]))]
+            # self.parent.initialize_listView()
             if len(has_left) > 0:
                 first_left = np.sort(has_left)[0]
                 has_returned = (dist[max(4,first_left+1):] < thresh_in).sum()
                 if has_returned > 0:
+
                     return True
                 else:
                     return False
@@ -487,6 +473,7 @@ class ImageDraw(pg.ImageItem):
         #print(ev.device())
         #print(ev.pointerType())
         #print(ev.pressure())
+
 
     def drawAt(self, pos, ev=None):
         mask = self.greenmask

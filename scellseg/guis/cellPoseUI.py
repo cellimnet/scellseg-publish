@@ -72,10 +72,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1200, 848))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
 
-
-
-
-
         self.tableRow = 20
         self.tableCol = 2
 
@@ -84,12 +80,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.TableView = QtGui.QTableView()
         # self.TableView.setModel(self.TableModel)
 
-
         self.mainLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(0)
         self.mainLayout.setObjectName("mainLayout")
-
 
         self.previous_button = QtWidgets.QPushButton("previous image")
         self.load_folder = QtWidgets.QPushButton("load image folder ")
@@ -98,11 +92,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.mainLayout.addWidget(self.load_folder, 1,2)
         self.mainLayout.addWidget(self.next_button, 1,3)
 
-
         self.previous_button.clicked.connect(self.PreImBntClicked)
         self.next_button.clicked.connect(self.NextImBntClicked)
         self.load_folder.clicked.connect(self.OpenDirBntClicked)
-
 
         self.listView = QtWidgets.QListView()
         self.myCellList = ['cell list']
@@ -114,26 +106,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.listView.clicked.connect(self.showChoosen)
         self.mainLayout.addWidget(self.listView,0,0,0,1)
-
-
-
-
-
-
-
-        # self.jLabelPicture = QtWidgets.QLabel(self.scrollAreaWidgetContents)
-        # self.jLabelPicture.setText("")
-        # self.jLabelPicture.setPixmap(QtGui.QPixmap(":/icon/Resource/DefaultCell.jpg"))
-        # self.jLabelPicture.setScaledContents(False)
-        # self.jLabelPicture.setAlignment(QtCore.Qt.AlignCenter)
-        # self.jLabelPicture.setObjectName("jLabelPicture")
-        # self.jLabelPicture.lower()
-        # self.mainLayout.addWidget(self.jLabelPicture)
-
-
-
-
-
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
 
@@ -149,10 +121,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout.setSpacing(6)
         self.gridLayout.setObjectName("gridLayout")
 
-
-
-
-
         # cross-hair/Draw area
         self.vLine = pg.InfiniteLine(angle=90, movable=False)
         self.hLine = pg.InfiniteLine(angle=0, movable=False)
@@ -163,11 +131,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.state_label = pg.LabelItem("Canvas has been initialized!")
         self.win.addItem(self.state_label,3,0)
 
-
-
         self.mainLayout.addWidget(self.win,0,1,1,3)
-
-
 
         self.win.scene().sigMouseClicked.connect(self.plot_clicked)
         self.win.scene().sigMouseMoved.connect(self.mouse_moved)
@@ -196,7 +160,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.setAcceptDrops(True)
         self.win.show()
         self.show()
-
 
         self.SCheckBox = QtWidgets.QCheckBox(self.page)
         self.SCheckBox.setChecked(True)
@@ -238,13 +201,31 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.OCheckBox.toggled.connect(self.toggle_masks)
         self.gridLayout.addWidget(self.OCheckBox, 5, 0, 1, 2)
 
-        self.ServerButton = QtWidgets.QPushButton(self.page)
-        self.ServerButton.setObjectName("ServerButton")
-        self.ServerButton.clicked.connect(lambda: iopart.save_server(self))
-        self.ServerButton.setEnabled(False)
-        self.gridLayout.addWidget(self.ServerButton, 7, 0, 1, 2)
+        self.checkBox = QtWidgets.QCheckBox(self.page)
+        self.checkBox.setObjectName("checkBox")
+        self.checkBox.setChecked(True)
+        self.checkBox.toggled.connect(self.toggle_scale)
+        self.gridLayout.addWidget(self.checkBox, 6, 0, 1, 1)
+
+        self.eraser_button = QtWidgets.QCheckBox(self.page)
+        self.eraser_button.setObjectName("eraser model")
+        self.eraser_button.setChecked(False)
+        self.eraser_button.toggled.connect(self.eraser_model_change)
+        self.gridLayout.addWidget(self.eraser_button, 7, 0, 1, 1)
+
+        self.RGBChoose = guiparts.RGBRadioButtons(self, 8,1)
+        self.RGBDropDown = QtGui.QComboBox()
+        self.RGBDropDown.addItems(["RGB","gray","spectral","red","green","blue"])
+        self.RGBDropDown.currentIndexChanged.connect(self.color_choose)
+        self.gridLayout.addWidget(self.RGBDropDown,8,0,1,1)
+
+        # self.ServerButton = QtWidgets.QPushButton(self.page)
+        # self.ServerButton.setObjectName("ServerButton")
+        # self.ServerButton.clicked.connect(lambda: iopart.save_server(self))
+        # self.ServerButton.setEnabled(False)
+        # self.gridLayout.addWidget(self.ServerButton, 7, 0, 1, 2)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout.addItem(spacerItem, 6, 0, 1, 2)
+        self.gridLayout.addItem(spacerItem, 12, 0, 1, 2)
 
 
         self.toolBox.addItem(self.page, "")
@@ -300,13 +281,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.useGPU.setObjectName("useGPU")
         self.gridLayout_2.addWidget(self.useGPU, 3, 0, 1, 1)
         self.check_gpu()
-        
-        
-        self.checkBox = QtWidgets.QCheckBox(self.page_2)
-        self.checkBox.setObjectName("checkBox")
-        self.checkBox.setChecked(True)
-        self.checkBox.toggled.connect(self.toggle_scale)
-        self.gridLayout_2.addWidget(self.checkBox, 2, 0, 1, 1)
+
+
+
+        # self.checkBox = QtWidgets.QCheckBox(self.page_2)
+        # self.checkBox.setObjectName("checkBox")
+        # self.checkBox.setChecked(True)
+        # self.checkBox.toggled.connect(self.toggle_scale)
+        # self.gridLayout_2.addWidget(self.checkBox, 2, 0, 1, 1)
 
 
         self.ModelChoose = QtWidgets.QComboBox(self.page_2)
@@ -349,7 +331,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_2.addItem(spacerItem1, 8, 0, 1, 2)
-        self.toolBox.addItem(self.page_2, "")
+
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setGeometry(QtCore.QRect(0, 0, 712, 487))
         self.page_3.setObjectName("page_3")
@@ -363,12 +345,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.progress.setAlignment(QtCore.Qt.AlignCenter)
         self.progress.setObjectName("progress")
         self.verticalLayout_3.addWidget(self.progress)
-        
-        
+
+
         self.label_7 = QtWidgets.QLabel(self.page_3)
         self.label_7.setObjectName("label_7")
         self.verticalLayout_3.addWidget(self.label_7)
-        
+
         self.threshold = 0.4
         self.threshslider = QtWidgets.QSlider(self.page_3)
         self.threshslider.setOrientation(QtCore.Qt.Horizontal)
@@ -428,6 +410,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         spacerItem2 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_3.addItem(spacerItem2)
         self.toolBox.addItem(self.page_3, "")
+        self.toolBox.addItem(self.page_2, "")
         self.verticalLayout_2.addWidget(self.splitter)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -445,7 +428,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.MCheckBox.setText(_translate("MainWindow", "MASKS ON [X]"))
         self.label_2.setText(_translate("MainWindow", "brush size"))
         self.OCheckBox.setText(_translate("MainWindow", "outlines on [Z]"))
-        self.ServerButton.setText(_translate("MainWindow", "send manual seg. to server"))
+        # self.ServerButton.setText(_translate("MainWindow", "send manual seg. to server"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page), _translate("MainWindow", "Draw and View"))
         self.SizeButton.setText(_translate("MainWindow", "calibrate"))
         self.label_3.setText(_translate("MainWindow", "cell diameter (pixels) (click ENTER)"))
@@ -458,6 +441,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.jCBChanToSegment.setItemText(3, _translate("MainWindow", "blue"))
         self.useGPU.setText(_translate("MainWindow", "use GPU"))
         self.checkBox.setText(_translate("MainWindow", "scale disk on"))
+        self.eraser_button.setText(_translate("MainWindow","eraser model"))
         self.ModelChoose.setItemText(0, _translate("MainWindow", "cyto"))
         self.ModelChoose.setItemText(1, _translate("MainWindow", "nuclei"))
         self.ModelChoose.setItemText(2, _translate("MainWindow", "cyto2"))
@@ -472,7 +456,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_2), _translate("MainWindow", "Inference"))
         self.label_7.setText(_translate("MainWindow", "model match threshold"))
         self.label_8.setText(_translate("MainWindow", "cell prob threshold"))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.page_3), _translate("MainWindow", "Fine-Tune"))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.page_3), _translate("MainWindow", "Fine-tune"))
         # self.menuFile.setTitle(_translate("MainWindow", "File"))
         # self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         # self.menuHelp.setTitle(_translate("MainWindow", "Help"))
@@ -491,15 +475,23 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def OpenDirBntClicked(self):
         self.ImFolder = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
-        print(self.ImFolder)
+
         if self.ImFolder != '':
-            self.ImNameSet = os.listdir(self.ImFolder)
+            self.ImNameSet = []
+            self.ImNameRowSet = os.listdir(self.ImFolder)
+            # print(self.ImNameRowSet)
+            for tmp in self.ImNameRowSet:
+                ext = os.path.splitext(tmp)[-1]
+                if ext in ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.jfif'] and '_mask' not in tmp:
+                    self.ImNameSet.append(tmp)
             self.ImNameSet.sort()
+            print(self.ImNameSet)
             self.ImPath = self.ImFolder + r'/'+self.ImNameSet[0]
             # pix = QtGui.QPixmap(self.ImPath)
             # self.ImShowLabel.setPixmap(pix)
             self.CurImId = 0
             iopart._load_image(self, filename=self.ImPath)
+            self.initialize_listView()
 
         else:
             print('Please Find Another File Folder')
@@ -515,6 +507,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.ImPath = self.ImFolder + r'/'+self.ImNameSet[self.CurImId - 1]
             self.CurImId = self.CurImId - 1
             iopart._load_image(self, filename=self.ImPath)
+            self.initialize_listView()
 
 
         if self.CurImId < 0:
@@ -529,7 +522,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if self.CurImId < self.ImNum - 1:
             self.ImPath = self.ImFolder + r'/'+self.ImNameSet[self.CurImId + 1]
             iopart._load_image(self, filename=self.ImPath)
+            self.initialize_listView()
             self.CurImId = self.CurImId + 1
+
+
+    def eraser_model_change(self):
+        if self.eraser_button.isChecked() == True:
+            self.outlinesOn = False
+            self.OCheckBox.setChecked(False)
+            self.OCheckBox.setEnabled(False)
+            self.update_plot()
+
 
 
 
@@ -631,7 +634,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.toggle_mask_ops()
 
         self.update_plot()
-        self.setWindowTitle(self.filename)
+        self.setWindowTitle('Scellseg@ZJU//'+self.filename)
 
     def add_set(self):
         if len(self.current_point_set) > 0:
@@ -647,10 +650,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.toggle_mask_ops()
                     self.cellcolors.append(color)
                     self.ncells+=1
+                    self.initialize_listView()
                     self.ismanual = np.append(self.ismanual, True)
                     if self.NZ==1:
                         # only save after each cell if single image
                         iopart._save_sets(self)
+
             self.current_stroke = []
             self.strokes = []
             self.current_point_set = []
@@ -724,12 +729,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 self.draw_mask(z+zmin, ar, ac, vr, vc, color)
         self.zdraw.append(zdraw)
 
+
+
         return median
 
 
-    def initialize_listView(self):
-        self.listmodel.setStringList(self.myCellList)
-        self.listView.setModel(self.listmodel)
 
     def move_in_Z(self):
         if self.loaded:
@@ -781,7 +785,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
 
         # guiparts.make_quadrants(self)
-        
+
     def get_channels(self):
         channels = [self.jCBChanToSegment.currentIndex(), self.jCBChan2.currentIndex()]
         if self.current_model=='nuclei':
@@ -795,7 +799,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for n in range(len(self.stack)):
             self.saturation.append([np.percentile(self.stack[n].astype(np.float32),1),
                                     np.percentile(self.stack[n].astype(np.float32),99)])
-            
+
 
 
     def keyPressEvent(self, event):
@@ -882,8 +886,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
                         self.clear_all()
         if event.key() == QtCore.Qt.Key_Minus or event.key() == QtCore.Qt.Key_Equal:
             self.p0.keyPressEvent(event)
-            
-            
+
+
     def chanchoose(self, image):
         if image.ndim > 2:
             if self.jCBChanToSegment.currentIndex()==0:
@@ -898,7 +902,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def initialize_model(self):
         self.current_model = self.ModelChoose.currentText()
         print(self.current_model)
-        self.model = models.Cellpose(gpu=self.useGPU.isChecked(), 
+        self.model = models.Cellpose(gpu=self.useGPU.isChecked(),
                                      torch=self.torch,
                                      model_type=self.current_model)
 
@@ -932,15 +936,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                      net_avg=net_avg, augment=False, resample=resample,
                                                      do_3D=do_3D, progress=self.progress)
 
-
-
+                self.masks_for_save = masks
 
             except Exception as e:
                 print('NET ERROR: %s' % e)
                 self.progress.setValue(0)
                 return
 
-            self.state_label.setText('%d cells found with cellpose net in %0.3f sec' % (len(np.unique(masks)[1:]), time.time() - tic))
+            self.state_label.setText('%d cells found with scellseg net in %0.3f sec' % (len(np.unique(masks)[1:]), time.time() - tic))
             self.update_plot()
             self.progress.setValue(75)
 
@@ -970,15 +973,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.MCheckBox.setChecked(True)
             self.OCheckBox.setChecked(True)
 
-            self.myCellList = ['cell' + str(i) for i in range(len(np.unique(masks)[1:]))]#not the robust way
-            self.initialize_listView()
-
-
 
 
 
             iopart._masks_to_gui(self, masks, outlines=None)
             self.progress.setValue(100)
+            self.initialize_listView()
 
             self.toggle_server(off=True)
             if not do_3D:
@@ -1006,7 +1006,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             thresh = self.threshold
             print('computing masks with cell prob=%0.3f, flow error threshold=%0.3f' %
                   (self.cellprob, thresh))
-            
+
         maski = dynamics.get_masks(self.flows[3].copy(), iscell=(self.flows[4][-1] > self.cellprob),
                                    flows=self.flows[4][:-1], threshold=thresh)
         if self.NZ == 1:
@@ -1026,6 +1026,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def reset(self):
         # ---- start sets of points ---- #
         self.selected = 0
+        self.OCheckBox.setEnabled(True)
         self.X2 = 0
         self.resize = -1
         self.onechan = False
@@ -1041,9 +1042,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.cellcolors = [np.array([255, 255, 255])]
         # -- set menus to default -- #
         self.color = 0
-        # self.RGBDropDown.setCurrentIndex(self.color)
+        self.RGBDropDown.setCurrentIndex(self.color)
         self.view = 0
-        # self.RGBChoose.button(self.view).setChecked(True)
+        self.RGBChoose.button(self.view).setChecked(True)
         self.BrushChoose.setCurrentIndex(1)
         self.CHCheckBox.setChecked(False)
         self.SCheckBox.setChecked(True)
@@ -1052,7 +1053,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.opacity = 128  # how opaque masks should be
         self.outcolor = [200, 200, 255, 200]
         self.NZ, self.Ly, self.Lx = 1, 512, 512
-        self.saturation = [[0, 255] for n in range(self.NZ)]
+        if self.autobtn.isChecked():
+            self.saturation = [[0, 255] for n in range(self.NZ)]
         self.currentZ = 0
         self.flows = [[], [], [], [], [[]]]
         self.stack = np.zeros((1, self.Ly, self.Lx, 3))
@@ -1066,13 +1068,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.update_plot()
         self.filename = []
         self.loaded = False
-        
+
+    def initialize_listView(self):
+        self.myCellList = ['cell' + str(i) for i in range(self.ncells)]
+        self.listmodel.setStringList(self.myCellList)
+        self.listView.setModel(self.listmodel)
+
+
 
     def check_gpu(self, torch=True):
         # also decide whether or not to use torch
         self.torch = torch
         self.useGPU.setChecked(False)
-        self.useGPU.setEnabled(False)    
+        self.useGPU.setEnabled(False)
         if self.torch and models.use_gpu(istorch=True):
             self.useGPU.setEnabled(True)
             self.useGPU.setChecked(True)
@@ -1098,6 +1106,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.outpix = np.zeros((self.NZ,self.Ly,self.Lx), np.uint16)
         self.cellcolors = [np.array([255,255,255])]
         self.ncells = 0
+        self.initialize_listView()
         print('removed all cells')
         self.toggle_removals()
         self.update_plot()
@@ -1160,6 +1169,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         del self.zdraw[idx-1]
         self.ncells -= 1
         print('removed cell %d'%(idx-1))
+        self.initialize_listView()
+
+
         if self.ncells==0:
             self.ClearButton.setEnabled(False)
         if self.NZ==1:
@@ -1194,6 +1206,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             print('merged two cells')
             self.update_plot()
             iopart._save_sets(self)
+
             self.undo.setEnabled(False)
             self.redo.setEnabled(False)
 
@@ -1207,6 +1220,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.toggle_mask_ops()
             self.cellcolors.append(color)
             self.ncells+=1
+            self.initialize_listView()
             self.ismanual = np.append(self.ismanual, self.removed_cell[0])
             self.zdraw.append([])
             print('added back removed cell')
@@ -1214,6 +1228,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             iopart._save_sets(self)
             self.removed_cell = []
             self.redo.setEnabled(False)
+
 
 
     def remove_stroke(self, delete_points=True):
@@ -1261,7 +1276,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def toggle_mask_ops(self):
         self.toggle_removals()
         self.toggle_server()
-        
+
     def toggle_scale(self):
         if self.scale_on:
             self.p0.removeItem(self.scale)
@@ -1271,15 +1286,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.scale_on = True
 
     def toggle_removals(self):
-        pass
-        # if self.ncells>0:
-        #     # self.ClearButton.setEnabled(True)
-        #     self.remcell.setEnabled(True)
-        #     self.undo.setEnabled(True)
-        # else:
-        #     # self.ClearButton.setEnabled(False)
-        #     self.remcell.setEnabled(False)
-        #     self.undo.setEnabled(False)
+
+        if self.ncells>0:
+            # self.ClearButton.setEnabled(True)
+            self.remcell.setEnabled(True)
+            self.undo.setEnabled(True)
+        else:
+            # self.ClearButton.setEnabled(False)
+            self.remcell.setEnabled(False)
+            self.undo.setEnabled(False)
 
     def remove_action(self):
         if self.selected>0:
@@ -1305,6 +1320,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         images.extend(glob.glob(os.path.dirname(self.filename) + '/*.jpeg'))
         images.extend(glob.glob(os.path.dirname(self.filename) + '/*.tif'))
         images.extend(glob.glob(os.path.dirname(self.filename) + '/*.tiff'))
+        images.extend(glob.glob(os.path.dirname(self.filename) + '/*.jfif'))
         images = natsorted(images)
         fnames = [os.path.split(images[k])[-1] for k in range(len(images))]
         f0 = os.path.split(self.filename)[-1]
@@ -1332,10 +1348,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         files = [u.toLocalFile() for u in event.mimeData().urls()]
         if os.path.splitext(files[0])[-1] == '.npy':
             iopart._load_seg(self, filename=files[0])
+            self.initialize_listView()
         else:
             # print(len(files))
             # print(files[0])
             iopart._load_image(self, filename=files[0])
+            self.initialize_listView()
 
 
 
@@ -1349,7 +1367,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:
             self.outlinesOn = False
         if not self.masksOn and not self.outlinesOn:
-            self.p0.removeItem(self.layer)
+            self.p0.remveItem(self.layer)
             self.layer_off = True
         else:
             if self.layer_off:
@@ -1364,12 +1382,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
         ''' draw single mask using outlines and area '''
         if idx is None:
             idx = self.ncells+1
+        print('type of ar is',type(ar))
+        print('shape of ar',ar.shape)
+        print('ar is' ,ar)
         self.cellpix[z][vr, vc] = idx
         self.cellpix[z][ar, ac] = idx
         self.outpix[z][vr, vc] = idx
         if self.masksOn:
             self.layers[z][ar, ac, :3] = color
+            # print(self.layers.shape)
+            # print(self.layers[z][ar, ac, :3].shape)
+            # print(self.layers[z][ar,ac,:3])
             self.layers[z][ar, ac, -1] = self.opacity
+            # print(z)
         if self.outlinesOn:
             self.layers[z][vr, vc] = np.array(self.outcolor)
 
@@ -1441,12 +1466,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.diameter = float(self.Diameter.value())
         self.pr = int(float(self.Diameter.value()))
-        radii = np.zeros((self.Ly+self.pr,self.Lx), np.uint8)
+
         self.radii = np.zeros((self.Ly+self.pr,self.Lx,4), np.uint8)
-        yy,xx = plot.disk([self.Ly+self.pr/2-1, self.pr/2+1],
+        yy,xx = plot.disk([self.pr/2-1, self.Ly-self.pr/2+1],
                             self.pr/2, self.Ly+self.pr, self.Lx)
         self.radii[yy,xx,0] = 255
-        self.radii[yy,xx,-1] = 255#self.opacity * (radii>0)
+        self.radii[yy,xx,-1] = 255
         self.update_plot()
         self.p0.setYRange(0,self.Ly+self.pr)
         self.p0.setXRange(0,self.Lx)
