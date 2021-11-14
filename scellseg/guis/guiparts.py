@@ -397,9 +397,7 @@ class ImageDraw(pg.ImageItem):
                     # print('in eraser_model')
                     # print(ev.pos())
                     # print(self.parent.layers[0][int(ev.pos().y()),int(ev.pos().x()),-1])
-                    # need sync for all the pix
-                    self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+1, int(ev.pos().x())-1:int(ev.pos().x())+1,:3] = (0,0,0)
-                    self.parent.cellpix[0][int(ev.pos().y())-1:int(ev.pos().y())+1, int(ev.pos().x())-1:int(ev.pos().x())+1] = 0
+                    self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+1, int(ev.pos().x())-1:int(ev.pos().x())+1, -1] = 0
                     self.parent.update_plot()
 
 

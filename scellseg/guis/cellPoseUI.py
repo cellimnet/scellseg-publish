@@ -65,6 +65,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
 
+        self.splitter2 = QtWidgets.QSplitter(self.centralwidget)
+        self.splitter2.setOrientation(QtCore.Qt.Horizontal)
+        self.splitter2.setObjectName("splitter2")
+
+
         self.scrollArea = QtWidgets.QScrollArea(self.splitter)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
@@ -72,8 +77,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1200, 848))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
 
-        self.tableRow = 20
-        self.tableCol = 2
 
         # self.TableModel = QtGui.QStandardItemModel(self.tableRow, self.tableCol)
         # self.TableModel.setHorizontalHeaderLabels(["INDEX", "NAME"])
@@ -96,13 +99,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.next_button.clicked.connect(self.NextImBntClicked)
         self.load_folder.clicked.connect(self.OpenDirBntClicked)
 
-        self.listView = QtWidgets.QListView()
-        self.myCellList = ['cell list']
+        self.listView = QtWidgets.QTableView()
+        self.listView.horizontalHeader().setVisible(False)
+
+        self.myCellList = []
         self.listmodel = QtCore.QStringListModel()
+
         self.listmodel.setStringList(self.myCellList)
         self.listView.setFixedWidth(100)
         self.listView.setModel(self.listmodel)
-        self.listView.setStyleSheet('background-image: url(./Resource/1.png);')
+        self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.listView.customContextMenuRequested.connect(self.show_menu)
+        self.listView.setStyleSheet('background-image: url(./Resource/2.jpg);')
 
         self.listView.clicked.connect(self.showChoosen)
         self.mainLayout.addWidget(self.listView,0,0,0,1)
@@ -210,6 +218,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.eraser_button = QtWidgets.QCheckBox(self.page)
         self.eraser_button.setObjectName("eraser model")
         self.eraser_button.setChecked(False)
+        self.eraser_button.setEnabled(False)
         self.eraser_button.toggled.connect(self.eraser_model_change)
         self.gridLayout.addWidget(self.eraser_button, 7, 0, 1, 1)
 
@@ -281,7 +290,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.useGPU.setObjectName("useGPU")
         self.gridLayout_2.addWidget(self.useGPU, 3, 0, 1, 1)
         self.check_gpu()
-
 
 
         # self.checkBox = QtWidgets.QCheckBox(self.page_2)
@@ -420,6 +428,37 @@ class Ui_MainWindow(QtGui.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.reset()
 
+
+    def show_menu(self,point):
+        # print(point.x())
+        # item = self.listView.itemAt(point)
+        # print(item)
+        temp_cell_idx = self.listView.rowAt(point.y())
+
+        # self.curRow = self.listView.currentRow()
+        # item = self.listView.item(self.curRow)
+        # print('will show the menu')
+
+        self.contextMenu = QtWidgets.QMenu()
+        self.actionA = QtGui.QAction("delete cell",self)
+        self.actionB = QtGui.QAction("save cell list",self)
+
+        self.contextMenu.addAction(self.actionA)
+        self.contextMenu.addAction(self.actionB)
+        self.contextMenu.popup(QtGui.QCursor.pos())
+
+        self.actionA.triggered.connect(lambda:self.remove_cell(temp_cell_idx))
+        self.actionB.triggered.connect(self.save_cell_list)
+
+        self.contextMenu.show()
+
+
+
+
+
+    def test_func(self):
+        print("now is test")
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Cell Pose"))
@@ -471,11 +510,29 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.DefaultImFolder = self.CurFolder
 
 
+    def OpenDirDropped(self):
+        if self.ImFolder != '':
+            self.ImNameSet = []
+            self.ImNameRowSet = os.listdir(self.ImFolder)
+            # print(self.ImNameRowSet)
+            for tmp in self.ImNameRowSet:
+                ext = os.path.splitext(tmp)[-1]
+                if ext in ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.jfif'] and '_mask' not in tmp:
+                    self.ImNameSet.append(tmp)
+            self.ImNameSet.sort()
+            print(self.ImNameSet)
+            self.ImPath = self.ImFolder + r'/'+self.ImNameSet[0]
+            # pix = QtGui.QPixmap(self.ImPath)
+            # self.ImShowLabel.setPixmap(pix)
+            self.CurImId = 0
+            iopart._load_image(self, filename=self.ImPath)
+            self.initialize_listView()
 
+        else:
+            print('Please Find Another File Folder')
 
     def OpenDirBntClicked(self):
         self.ImFolder = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
-
         if self.ImFolder != '':
             self.ImNameSet = []
             self.ImNameRowSet = os.listdir(self.ImFolder)
@@ -529,17 +586,23 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def eraser_model_change(self):
         if self.eraser_button.isChecked() == True:
             self.outlinesOn = False
-            self.OCheckBox.setChecked(False)
             self.OCheckBox.setEnabled(False)
+            self.OCheckBox.setChecked(False)
             self.update_plot()
 
 
 
 
     def showChoosen(self, item):
-        temp_cell_idx = int(''.join(list(filter(str.isdigit,self.myCellList[item.row()]))))
+        temp_cell_idx = int(item.row())
+        # print(temp_cell_idx)
         self.list_select_cell(int(temp_cell_idx))
 
+
+
+    def save_cell_list(self):
+        self.cell_list_name =self.filename + "-cell_list.txt"
+        np.savetxt(self.cell_list_name,np.array(self.myCellList),fmt="%s")
 
     def help_window(self):
         HW = guiparts.HelpWindow(self)
@@ -568,14 +631,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
         print("clicked")
         if event.double():
             if event.button()==QtCore.Qt.LeftButton:
-                if (event.modifiers() != QtCore.Qt.ShiftModifier and
-                    event.modifiers() != QtCore.Qt.AltModifier):
-
-                    try:
-                        self.p0.setYRange(0,self.Ly+self.pr)
-                    except:
-                        self.p0.setYRange(0,self.Ly)
-                    self.p0.setXRange(0,self.Lx)
+                print("will initialize the range")
+                # if (event.modifiers() != QtCore.Qt.ShiftModifier and
+                #     event.modifiers() != QtCore.Qt.AltModifier):
+                #
+                #     try:
+                #         self.p0.setYRange(0,self.Ly+self.pr)
+                #     except:
+                #         self.p0.setYRange(0,self.Ly)
+                #     self.p0.setXRange(0,self.Lx)
 
     def mouse_moved(self, pos):
         # print('moved')
@@ -638,6 +702,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def add_set(self):
         if len(self.current_point_set) > 0:
+            print(self.current_point_set)
+            print(np.array(self.current_point_set).shape)
             self.current_point_set = np.array(self.current_point_set)
             while len(self.strokes) > 0:
                 self.remove_stroke(delete_points=False)
@@ -980,7 +1046,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.progress.setValue(100)
             self.initialize_listView()
 
-            self.toggle_server(off=True)
+            # self.toggle_server(off=True)
             if not do_3D:
                 self.threshslider.setEnabled(True)
                 self.probslider.setEnabled(True)
@@ -1021,12 +1087,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
             maski = maski[np.newaxis, ...]
         print('%d cells found' % (len(np.unique(maski)[1:])))
         iopart._masks_to_gui(self, maski, outlines=None)
+        self.initialize_listView()
         self.show()
 
     def reset(self):
         # ---- start sets of points ---- #
         self.selected = 0
-        self.OCheckBox.setEnabled(True)
         self.X2 = 0
         self.resize = -1
         self.onechan = False
@@ -1047,10 +1113,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.RGBChoose.button(self.view).setChecked(True)
         self.BrushChoose.setCurrentIndex(1)
         self.CHCheckBox.setChecked(False)
+        self.OCheckBox.setEnabled(True)
         self.SCheckBox.setChecked(True)
 
         # -- zero out image stack -- #
-        self.opacity = 128  # how opaque masks should be
+        self.opacity = 200  # how opaque masks should be
         self.outcolor = [200, 200, 255, 200]
         self.NZ, self.Ly, self.Lx = 1, 512, 512
         if self.autobtn.isChecked():
@@ -1069,8 +1136,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.filename = []
         self.loaded = False
 
+
     def initialize_listView(self):
-        self.myCellList = ['cell' + str(i) for i in range(self.ncells)]
+        self.myCellList = ['cell' + str(i) for i in range(1,self.ncells+1)]
         self.listmodel.setStringList(self.myCellList)
         self.listView.setModel(self.listmodel)
 
@@ -1116,11 +1184,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.selected = idx
 
         if self.selected > 0:
-            self.layers[self.cellpix==idx] = np.array([255,255,255,self.opacity])
+            self.layers[self.cellpix==idx] = np.array([255,255,255,230])
             if idx < self.ncells + 1 and self.prev_selected > 0:
-                self.layers[self.cellpix == self.prev_selected] = np.append(self.cellcolors[idx], self.opacity)
-                if self.outlinesOn:
-                    self.layers[self.outpix == idx] = np.array(self.outcolor).astype(np.uint8)
+                self.layers[self.cellpix == self.prev_selected] = np.append(self.cellcolors[self.prev_selected], self.opacity)
+                # if self.outlinesOn:
+                #     self.layers[self.outpix == idx] = np.array(self.outcolor).astype(np.uint8)
             self.update_plot()
 
     def select_cell(self, idx):
@@ -1253,7 +1321,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.update_plot()
 
 
-
+    def draw_pixal(self,env):
+        pass
 
     def brush_choose(self):
         self.brush_size = self.BrushChoose.currentIndex()*2 + 1
@@ -1261,21 +1330,21 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.layer.setDrawKernel(kernel_size=self.brush_size)
             self.update_plot()
 
-
-    def toggle_server(self, off=False):
-        if SERVER_UPLOAD:
-            if self.ncells>0 and not off:
-                self.saveServer.setEnabled(True)
-                self.ServerButton.setEnabled(True)
-
-            else:
-                self.saveServer.setEnabled(False)
-                self.ServerButton.setEnabled(False)
+    #
+    # def toggle_server(self, off=False):
+    #     if SERVER_UPLOAD:
+    #         if self.ncells>0 and not off:
+    #             self.saveServer.setEnabled(True)
+    #             self.ServerButton.setEnabled(True)
+    #
+    #         else:
+    #             self.saveServer.setEnabled(False)
+    #             self.ServerButton.setEnabled(False)
 
 
     def toggle_mask_ops(self):
         self.toggle_removals()
-        self.toggle_server()
+        # self.toggle_server()
 
     def toggle_scale(self):
         if self.scale_on:
@@ -1344,11 +1413,16 @@ class Ui_MainWindow(QtGui.QMainWindow):
             event.ignore()
 
     def dropEvent(self, event):
-        print("dropped!")
         files = [u.toLocalFile() for u in event.mimeData().urls()]
+        print(files)
+
         if os.path.splitext(files[0])[-1] == '.npy':
             iopart._load_seg(self, filename=files[0])
             self.initialize_listView()
+        if os.path.isdir(files[0]):
+            print("loading a folder")
+            self.ImFolder = files[0]
+            self.OpenDirDropped()
         else:
             # print(len(files))
             # print(files[0])
@@ -1382,9 +1456,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         ''' draw single mask using outlines and area '''
         if idx is None:
             idx = self.ncells+1
-        print('type of ar is',type(ar))
-        print('shape of ar',ar.shape)
-        print('ar is' ,ar)
         self.cellpix[z][vr, vc] = idx
         self.cellpix[z][ar, ac] = idx
         self.outpix[z][vr, vc] = idx

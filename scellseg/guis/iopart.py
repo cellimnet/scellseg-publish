@@ -693,11 +693,9 @@ def _save_png(parent):
     base = os.path.splitext(filename)[0]
     if parent.NZ==1:
         print('saving 2D masks to png')
-        imsave(base + '_cp_masks.png', parent.cellpix[0])
-        print(type(parent.cellpix[0]))
-        print(parent.cellpix[0][100][100])
-        # print(type(parent.masks_for_save))
-        # imsave(base + '_cp_masks.png', parent.masks_for_save)
+        # imsave(base + '_cp_masks.png', parent.cellpix[0])
+        print(type(parent.masks_for_save))
+        imsave(base + '_cp_masks.png', parent.masks_for_save)
 
     else:
         print('saving 3D masks to tiff')
