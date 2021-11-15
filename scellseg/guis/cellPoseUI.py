@@ -169,11 +169,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.win.show()
         self.show()
 
-        self.SCheckBox = QtWidgets.QCheckBox(self.page)
-        self.SCheckBox.setChecked(True)
-        self.SCheckBox.setObjectName("SCheckBox")
-        self.SCheckBox.toggled.connect(self.autosave_on)
-        self.gridLayout.addWidget(self.SCheckBox, 1, 0, 1, 2)
+        # self.SCheckBox = QtWidgets.QCheckBox(self.page)
+        # self.SCheckBox.setChecked(True)
+        # self.SCheckBox.setObjectName("SCheckBox")
+        # self.SCheckBox.toggled.connect(self.autosave_on)
+        # self.gridLayout.addWidget(self.SCheckBox, 1, 0, 1, 2)
 
         self.CHCheckBox = QtWidgets.QCheckBox(self.page)
         self.CHCheckBox.setObjectName("CHCheckBox")
@@ -228,13 +228,24 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.RGBDropDown.currentIndexChanged.connect(self.color_choose)
         self.gridLayout.addWidget(self.RGBDropDown,8,0,1,1)
 
+        self.saturation_label = QtWidgets.QLabel("Image Saturation")
+        self.gridLayout.addWidget(self.saturation_label,12,0,1,1)
+
+        self.slider = guiparts.RangeSlider(self)
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(255)
+        self.slider.setLow(0)
+        self.slider.setHigh(255)
+        self.slider.setTickPosition(QtGui.QSlider.TicksRight)
+        self.gridLayout.addWidget(self.slider,13,0,1,2)
+
         # self.ServerButton = QtWidgets.QPushButton(self.page)
         # self.ServerButton.setObjectName("ServerButton")
         # self.ServerButton.clicked.connect(lambda: iopart.save_server(self))
         # self.ServerButton.setEnabled(False)
         # self.gridLayout.addWidget(self.ServerButton, 7, 0, 1, 2)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout.addItem(spacerItem, 12, 0, 1, 2)
+        self.gridLayout.addItem(spacerItem, 14, 0, 1, 2)
 
 
         self.toolBox.addItem(self.page, "")
@@ -247,11 +258,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setObjectName("gridLayout_2")
 
-        self.SizeButton = QtWidgets.QPushButton(self.page_2)
-        self.SizeButton.setObjectName("SizeButton")
-        self.gridLayout_2.addWidget(self.SizeButton, 1, 1, 1, 1)
-        self.SizeButton.clicked.connect(self.calibrate_size)
-        self.SizeButton.setEnabled(False)
 
 
 
@@ -259,13 +265,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_3.setObjectName("label_3")
         self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 2)
 
-
         self.diameter = 30
         self.Diameter = QtWidgets.QSpinBox(self.page_2)
         self.Diameter.setObjectName("Diameter")
         self.Diameter.setValue(30)
+        self.Diameter.setFixedWidth(70)
         self.Diameter.valueChanged.connect(self.compute_scale)
         self.gridLayout_2.addWidget(self.Diameter, 1, 0, 1, 1)
+
+        self.SizeButton = QtWidgets.QPushButton(self.page_2)
+        self.SizeButton.setObjectName("SizeButton")
+        self.gridLayout_2.addWidget(self.SizeButton, 1, 1, 1, 1)
+        self.SizeButton.clicked.connect(self.calibrate_size)
+        self.SizeButton.setEnabled(False)
 
 
         self.NetAvg = QtWidgets.QComboBox(self.page_2)
@@ -276,13 +288,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.NetAvg, 3, 1, 1, 1)
 
 
-        self.jCBChanToSegment = QtWidgets.QComboBox(self.page_2)
-        self.jCBChanToSegment.setObjectName("jCBChanToSegment")
-        self.jCBChanToSegment.addItem("")
-        self.jCBChanToSegment.addItem("")
-        self.jCBChanToSegment.addItem("")
-        self.jCBChanToSegment.addItem("")
-        self.gridLayout_2.addWidget(self.jCBChanToSegment, 5, 1, 1, 1)
+
 
         self.scale_on = True
 
@@ -307,6 +313,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ModelChoose.addItem("")
         self.gridLayout_2.addWidget(self.ModelChoose, 4, 1, 1, 1)
 
+        self.jCBChanToSegment = QtWidgets.QComboBox(self.page_2)
+        self.jCBChanToSegment.setObjectName("jCBChanToSegment")
+        self.jCBChanToSegment.addItem("")
+        self.jCBChanToSegment.addItem("")
+        self.jCBChanToSegment.addItem("")
+        self.jCBChanToSegment.addItem("")
+        self.gridLayout_2.addWidget(self.jCBChanToSegment, 5, 1, 1, 1)
+
 
         self.jCBChan2 = QtWidgets.QComboBox(self.page_2)
         self.jCBChan2.setObjectName("jCBChan2")
@@ -316,14 +330,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.jCBChan2.addItem("")
         self.gridLayout_2.addWidget(self.jCBChan2, 6, 1, 1, 1)
 
-        self.invert = QtWidgets.QCheckBox(self.page_2)
-        self.invert.setObjectName("invert")
-        self.gridLayout_2.addWidget(self.invert, 7, 0, 1, 2)
 
-        self.ModelButton = QtWidgets.QPushButton(' run segmentation ')
-        self.ModelButton.clicked.connect(self.compute_model)
-        self.gridLayout_2.addWidget(self.ModelButton, 7, 0, 1, 4)
-        self.ModelButton.setEnabled(False)
 
         self.label_4 = QtWidgets.QLabel(self.page_2)
         self.label_4.setObjectName("label_4")
@@ -337,8 +344,66 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_6.setObjectName("label_6")
         self.gridLayout_2.addWidget(self.label_6, 6, 0, 1, 1)
 
-        spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem1, 8, 0, 1, 2)
+        self.invert = QtWidgets.QCheckBox(self.page_2)
+        self.invert.setObjectName("invert")
+        self.gridLayout_2.addWidget(self.invert, 7, 0, 1, 1)
+
+
+
+        self.label_7 = QtWidgets.QLabel(self.page_2)
+        self.label_7.setObjectName("label_7")
+        self.gridLayout_2.addWidget(self.label_7,8,0,1,1)
+
+        self.threshold = 0.4
+        self.threshslider = QtWidgets.QSlider(self.page_2)
+        self.threshslider.setOrientation(QtCore.Qt.Horizontal)
+        self.threshslider.setObjectName("threshslider")
+        self.threshslider.setMinimum(1.0)
+        self.threshslider.setMaximum(30.0)
+        self.threshslider.setValue(31 - 4)
+        self.threshslider.valueChanged.connect(self.compute_cprob)
+        self.threshslider.setEnabled(False)
+        self.gridLayout_2.addWidget(self.threshslider,9,0,1,2)
+
+        self.label_8 = QtWidgets.QLabel(self.page_2)
+        self.label_8.setObjectName("label_8")
+        self.gridLayout_2.addWidget(self.label_8,10,0,1,1)
+
+        self.probslider = QtWidgets.QSlider(self.page_2)
+        self.probslider.setOrientation(QtCore.Qt.Horizontal)
+        self.probslider.setObjectName("probslider")
+        self.gridLayout_2.addWidget(self.probslider,11,0,1,2)
+
+        self.probslider.setMinimum(-6.0)
+        self.probslider.setMaximum(6.0)
+        self.probslider.setValue(0.0)
+        self.cellprob = 0.0
+        self.probslider.valueChanged.connect(self.compute_cprob)
+        self.probslider.setEnabled(False)
+
+        self.autobtn = QtGui.QCheckBox('Auto-adjust              Z:')
+        self.autobtn.setChecked(True)
+        self.gridLayout_2.addWidget(self.autobtn,12,0,1,1)
+
+        self.ModelButton = QtWidgets.QPushButton(' Run segmentation ')
+        self.ModelButton.clicked.connect(self.compute_model)
+        self.gridLayout_2.addWidget(self.ModelButton, 13, 0, 1, 2)
+        self.ModelButton.setEnabled(False)
+
+
+        self.currentZ = 0
+        # self.labelz = QtGui.QLabel('Z:')
+        # self.gridLayout_2.addWidget(self.labelz,12,1,1,1)
+        self.zpos = QtGui.QLineEdit()
+        self.zpos.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
+        self.zpos.setText(str(self.currentZ))
+        self.zpos.returnPressed.connect(self.compute_scale)
+        self.zpos.setFixedWidth(20)
+        self.gridLayout_2.addWidget(self.zpos,12,1,1,1)
+
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem2,14,0,1,2)
+
 
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setGeometry(QtCore.QRect(0, 0, 712, 487))
@@ -355,58 +420,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.verticalLayout_3.addWidget(self.progress)
 
 
-        self.label_7 = QtWidgets.QLabel(self.page_3)
-        self.label_7.setObjectName("label_7")
-        self.verticalLayout_3.addWidget(self.label_7)
 
-        self.threshold = 0.4
-        self.threshslider = QtWidgets.QSlider(self.page_3)
-        self.threshslider.setOrientation(QtCore.Qt.Horizontal)
-        self.threshslider.setObjectName("threshslider")
-        self.threshslider.setMinimum(1.0)
-        self.threshslider.setMaximum(30.0)
-        self.threshslider.setValue(31 - 4)
-        self.threshslider.valueChanged.connect(self.compute_cprob)
-        self.threshslider.setEnabled(False)
-        self.verticalLayout_3.addWidget(self.threshslider)
-
-        self.label_8 = QtWidgets.QLabel(self.page_3)
-        self.label_8.setObjectName("label_8")
-        self.verticalLayout_3.addWidget(self.label_8)
-
-        self.probslider = QtWidgets.QSlider(self.page_3)
-        self.probslider.setOrientation(QtCore.Qt.Horizontal)
-        self.probslider.setObjectName("probslider")
-
-        self.verticalLayout_3.addWidget(self.probslider)
-        self.probslider.setMinimum(-6.0)
-        self.probslider.setMaximum(6.0)
-        self.probslider.setValue(0.0)
-        self.cellprob = 0.0
-        self.probslider.valueChanged.connect(self.compute_cprob)
-        self.probslider.setEnabled(False)
-
-        self.autobtn = QtGui.QCheckBox('auto-adjust')
-        self.autobtn.setChecked(True)
-        self.verticalLayout_3.addWidget(self.autobtn)
-
-        self.slider = guiparts.RangeSlider(self)
-        self.slider.setMinimum(0)
-        self.slider.setMaximum(255)
-        self.slider.setLow(0)
-        self.slider.setHigh(255)
-        self.slider.setTickPosition(QtGui.QSlider.TicksRight)
-        self.verticalLayout_3.addWidget(self.slider)
-
-        self.currentZ = 0
-        self.labelz = QtGui.QLabel('Z:')
-        self.verticalLayout_3.addWidget(self.labelz)
-        self.zpos = QtGui.QLineEdit()
-        self.zpos.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.zpos.setText(str(self.currentZ))
-        self.zpos.returnPressed.connect(self.compute_scale)
-        self.zpos.setFixedWidth(20)
-        self.verticalLayout_3.addWidget(self.zpos)
 
         self.scroll = QtGui.QScrollBar(QtCore.Qt.Horizontal)
         self.scroll.setMaximum(10)
@@ -462,39 +476,39 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Cell Pose"))
-        self.SCheckBox.setText(_translate("MainWindow", "single stroke"))
-        self.CHCheckBox.setText(_translate("MainWindow", "cross-haris"))
-        self.MCheckBox.setText(_translate("MainWindow", "MASKS ON [X]"))
-        self.label_2.setText(_translate("MainWindow", "brush size"))
-        self.OCheckBox.setText(_translate("MainWindow", "outlines on [Z]"))
+        # self.SCheckBox.setText(_translate("MainWindow", "single stroke"))
+        self.CHCheckBox.setText(_translate("MainWindow", "Cross-haris"))
+        self.MCheckBox.setText(_translate("MainWindow", "Mask on [X]"))
+        self.label_2.setText(_translate("MainWindow", "Brush size"))
+        self.OCheckBox.setText(_translate("MainWindow", "Outlines on [Z]"))
         # self.ServerButton.setText(_translate("MainWindow", "send manual seg. to server"))
-        self.toolBox.setItemText(self.toolBox.indexOf(self.page), _translate("MainWindow", "Draw and View"))
-        self.SizeButton.setText(_translate("MainWindow", "calibrate"))
-        self.label_3.setText(_translate("MainWindow", "cell diameter (pixels) (click ENTER)"))
-        self.NetAvg.setItemText(0, _translate("MainWindow", "average 4 nets"))
-        self.NetAvg.setItemText(1, _translate("MainWindow", "+ resample (slow)"))
-        self.NetAvg.setItemText(2, _translate("MainWindow", "run 1 net (fast)"))
-        self.jCBChanToSegment.setItemText(0, _translate("MainWindow", "gray"))
-        self.jCBChanToSegment.setItemText(1, _translate("MainWindow", "red"))
-        self.jCBChanToSegment.setItemText(2, _translate("MainWindow", "green"))
-        self.jCBChanToSegment.setItemText(3, _translate("MainWindow", "blue"))
-        self.useGPU.setText(_translate("MainWindow", "use GPU"))
-        self.checkBox.setText(_translate("MainWindow", "scale disk on"))
-        self.eraser_button.setText(_translate("MainWindow","eraser model"))
-        self.ModelChoose.setItemText(0, _translate("MainWindow", "cyto"))
-        self.ModelChoose.setItemText(1, _translate("MainWindow", "nuclei"))
-        self.ModelChoose.setItemText(2, _translate("MainWindow", "cyto2"))
-        self.jCBChan2.setItemText(0, _translate("MainWindow", "none"))
-        self.jCBChan2.setItemText(1, _translate("MainWindow", "red"))
-        self.jCBChan2.setItemText(2, _translate("MainWindow", "green"))
-        self.jCBChan2.setItemText(3, _translate("MainWindow", "blue"))
-        self.invert.setText(_translate("MainWindow", "invert grayscale"))
-        self.label_4.setText(_translate("MainWindow", "model"))
-        self.label_5.setText(_translate("MainWindow", "chan to segment"))
-        self.label_6.setText(_translate("MainWindow", "chan2 (optional)"))
+        self.toolBox.setItemText(self.toolBox.indexOf(self.page), _translate("MainWindow", "View and Draw"))
+        self.SizeButton.setText(_translate("MainWindow", "Calibrate"))
+        self.label_3.setText(_translate("MainWindow", "Cell diameter (pixels) (click ENTER)"))
+        self.NetAvg.setItemText(0, _translate("MainWindow", "Average 4 nets"))
+        self.NetAvg.setItemText(1, _translate("MainWindow", "Resample (slow)"))
+        self.NetAvg.setItemText(2, _translate("MainWindow", "Run 1 net (fast)"))
+        self.jCBChanToSegment.setItemText(0, _translate("MainWindow", "Gray"))
+        self.jCBChanToSegment.setItemText(1, _translate("MainWindow", "Red"))
+        self.jCBChanToSegment.setItemText(2, _translate("MainWindow", "Green"))
+        self.jCBChanToSegment.setItemText(3, _translate("MainWindow", "Blue"))
+        self.useGPU.setText(_translate("MainWindow", "Use GPU"))
+        self.checkBox.setText(_translate("MainWindow", "Scale disk on"))
+        self.eraser_button.setText(_translate("MainWindow","Eraser model"))
+        self.ModelChoose.setItemText(0, _translate("MainWindow", "Cyto"))
+        self.ModelChoose.setItemText(1, _translate("MainWindow", "Nuclei"))
+        self.ModelChoose.setItemText(2, _translate("MainWindow", "Cyto2"))
+        self.jCBChan2.setItemText(0, _translate("MainWindow", "None"))
+        self.jCBChan2.setItemText(1, _translate("MainWindow", "Red"))
+        self.jCBChan2.setItemText(2, _translate("MainWindow", "Green"))
+        self.jCBChan2.setItemText(3, _translate("MainWindow", "Blue"))
+        self.invert.setText(_translate("MainWindow", "Invert grayscale"))
+        self.label_4.setText(_translate("MainWindow", "Model"))
+        self.label_5.setText(_translate("MainWindow", "Chan to segment"))
+        self.label_6.setText(_translate("MainWindow", "Chan2 (optional)"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_2), _translate("MainWindow", "Inference"))
-        self.label_7.setText(_translate("MainWindow", "model match threshold"))
-        self.label_8.setText(_translate("MainWindow", "cell prob threshold"))
+        self.label_7.setText(_translate("MainWindow", "Model match threshold"))
+        self.label_8.setText(_translate("MainWindow", "Cell prob threshold"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_3), _translate("MainWindow", "Fine-tune"))
         # self.menuFile.setTitle(_translate("MainWindow", "File"))
         # self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
@@ -613,10 +627,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         EG.show()
 
     def autosave_on(self):
-        if self.SCheckBox.isChecked():
-            self.autosave = True
-        else:
-            self.autosave = False
+        # if self.SCheckBox.isChecked():
+        self.autosave = True
+        # else:
+        #     self.autosave = False
 
     def cross_hairs(self):
         if self.CHCheckBox.isChecked():
@@ -1114,7 +1128,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.BrushChoose.setCurrentIndex(1)
         self.CHCheckBox.setChecked(False)
         self.OCheckBox.setEnabled(True)
-        self.SCheckBox.setChecked(True)
+        # self.SCheckBox.setChecked(True)
 
         # -- zero out image stack -- #
         self.opacity = 200  # how opaque masks should be
