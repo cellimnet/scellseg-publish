@@ -1,0 +1,384 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Settings &mdash; cellpose 0.7.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Outputs" href="outputs.html" />
+    <link rel="prev" title="Inputs" href="inputs.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cellpose
+          
+
+          
+            
+            <img src="_static/favicon.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Basics:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Inputs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Settings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#channels">Channels</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#cytoplasm-model-cyto">Cytoplasm model (<cite>‘cyto’</cite>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#nucleus-model-nuclei">Nucleus model (<cite>‘nuclei’</cite>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#diameter">Diameter</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#resample">Resample</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#flow-threshold-aka-model-fit-threshold-in-gui">Flow threshold (aka model fit threshold in GUI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cell-probability-threshold">Cell probability threshold</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-settings">3D settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Training</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebook.html">In a notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command.html">Command line</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Cellpose API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cellpose</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Settings</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/settings.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="outputs.html" class="btn btn-neutral float-right" title="Outputs" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="inputs.html" class="btn btn-neutral float-left" title="Inputs" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="settings">
+<h1>Settings<a class="headerlink" href="#settings" title="Permalink to this headline">¶</a></h1>
+<p>The important settings are described on this page.
+See the <a class="reference internal" href="api.html#cpclass"><span class="std std-ref">Cellpose class</span></a> for all run options.</p>
+<p>Here is an example of calling the Cellpose class and
+running a list of images for reference:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">cellpose</span> <span class="kn">import</span> <span class="n">models</span>
+<span class="kn">import</span> <span class="nn">skimage.io</span>
+
+<span class="c1"># model_type=&#39;cyto&#39; or model_type=&#39;nuclei&#39;</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Cellpose</span><span class="p">(</span><span class="n">gpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">model_type</span><span class="o">=</span><span class="s1">&#39;cyto&#39;</span><span class="p">)</span>
+
+<span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;img0.tif&#39;</span><span class="p">,</span> <span class="s1">&#39;img1.tif&#39;</span><span class="p">]</span>
+<span class="n">imgs</span> <span class="o">=</span> <span class="p">[</span><span class="n">skimage</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">]</span>
+<span class="n">masks</span><span class="p">,</span> <span class="n">flows</span><span class="p">,</span> <span class="n">styles</span><span class="p">,</span> <span class="n">diams</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">eval</span><span class="p">(</span><span class="n">imgs</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span>
+                                         <span class="n">threshold</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">do_3D</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can make lists of channels/diameter for each image, or set the same channels/diameter for all images
+as shown in the example above.</p>
+<div class="section" id="channels">
+<h2>Channels<a class="headerlink" href="#channels" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="cytoplasm-model-cyto">
+<h3>Cytoplasm model (<cite>‘cyto’</cite>)<a class="headerlink" href="#cytoplasm-model-cyto" title="Permalink to this headline">¶</a></h3>
+<p>The cytoplasm model in cellpose is trained on two-channel images, where
+the first channel is the channel to segment, and the second channel is
+an optional nuclear channel. Here are the options for each:
+1. 0=grayscale, 1=red, 2=green, 3=blue
+2. 0=None (will set to zero), 1=red, 2=green, 3=blue</p>
+<p>Set channels to a list with each of these elements, e.g.
+<code class="docutils literal notranslate"><span class="pre">channels</span> <span class="pre">=</span> <span class="pre">[0,0]</span></code> if you want to segment cells in grayscale or for single channel images, or
+<code class="docutils literal notranslate"><span class="pre">channels</span> <span class="pre">=</span> <span class="pre">[2,3]</span></code> if you green cells with blue nuclei.</p>
+</div>
+<div class="section" id="nucleus-model-nuclei">
+<h3>Nucleus model (<cite>‘nuclei’</cite>)<a class="headerlink" href="#nucleus-model-nuclei" title="Permalink to this headline">¶</a></h3>
+<p>The nuclear model in cellpose is trained on two-channel images, where
+the first channel is the channel to segment, and the second channel is
+always set to an array of zeros. Therefore set the first channel as
+0=grayscale, 1=red, 2=green, 3=blue; and set the second channel to zero, e.g.
+<code class="docutils literal notranslate"><span class="pre">channels</span> <span class="pre">=</span> <span class="pre">[0,0]</span></code> if you want to segment nuclei in grayscale or for single channel images, or
+<code class="docutils literal notranslate"><span class="pre">channels</span> <span class="pre">=</span> <span class="pre">[3,0]</span></code> if you want to segment blue nuclei.</p>
+</div>
+</div>
+<div class="section" id="diameter">
+<h2>Diameter<a class="headerlink" href="#diameter" title="Permalink to this headline">¶</a></h2>
+<p>The cellpose models have been trained on images which were rescaled
+to all have the same diameter (30 pixels in the case of the <cite>cyto</cite>
+model and 17 pixels in the case of the <cite>nuclei</cite> model). Therefore,
+cellpose needs a user-defined cell diameter (in pixels) as input, or to estimate
+the object size of an image-by-image basis.</p>
+<p>The automated estimation of the diameter is a two-step process using the <cite>style</cite> vector
+from the network, a 64-dimensional summary of the input image. We trained a
+linear regression model to predict the size of objects from these style vectors
+on the training data. On a new image the procedure is as follows.</p>
+<ol class="arabic simple">
+<li><p>Run the image through the cellpose network and obtain the style vector. Predict the size using the linear regression model from the style vector.</p></li>
+<li><p>Resize the image based on the predicted size and run cellpose again, and produce masks. Take the final estimated size as the median diameter of the predicted masks.</p></li>
+</ol>
+<p>For automated estimation set <code class="docutils literal notranslate"><span class="pre">diameter</span> <span class="pre">=</span> <span class="pre">None</span></code>.
+However, if this estimate is incorrect please set the diameter by hand.</p>
+<p>Changing the diameter will change the results that the algorithm
+outputs. When the diameter is set smaller than the true size
+then cellpose may over-split cells. Similarly, if the diameter
+is set too big then cellpose may over-merge cells.</p>
+</div>
+<div class="section" id="resample">
+<h2>Resample<a class="headerlink" href="#resample" title="Permalink to this headline">¶</a></h2>
+<p>The cellpose network is run on your rescaled image – where the rescaling factor is determined
+by the diameter you input (or determined automatically as above). For instance, if you have
+an image with 60 pixel diameter cells, the rescaling factor is 30./60. = 0.5. After determining
+the flows (dX, dY, cellprob), the model runs the dynamics. The dynamics can be run at the rescaled
+size (<code class="docutils literal notranslate"><span class="pre">resample=False</span></code>), or the dynamics can be run on the resampled, interpolated flows
+at the true image size (<code class="docutils literal notranslate"><span class="pre">resample=True</span></code>). <code class="docutils literal notranslate"><span class="pre">resample=True</span></code> will create smoother masks when the
+cells are large but will be slower in case; <code class="docutils literal notranslate"><span class="pre">resample=False</span></code> will find more masks when the cells
+are small but will be slower in this case. By default in v0.5 <code class="docutils literal notranslate"><span class="pre">resample=False</span></code>, but in
+previous releases the default was <code class="docutils literal notranslate"><span class="pre">resample=True</span></code>.</p>
+<p>The nuclear model in cellpose is trained on two-channel images, where
+the first channel is the channel to segment, and the second channel is
+always set to an array of zeros. Therefore set the first channel as
+0=grayscale, 1=red, 2=green, 3=blue; and set the second channel to zero, e.g.
+<code class="docutils literal notranslate"><span class="pre">channels</span> <span class="pre">=</span> <span class="pre">[0,0]</span></code> if you want to segment nuclei in grayscale or for single channel images, or
+<code class="docutils literal notranslate"><span class="pre">channels</span> <span class="pre">=</span> <span class="pre">[3,0]</span></code> if you want to segment blue nuclei.</p>
+<p>If the nuclear model isn’t working well, try the cytoplasmic model.</p>
+</div>
+<div class="section" id="flow-threshold-aka-model-fit-threshold-in-gui">
+<h2>Flow threshold (aka model fit threshold in GUI)<a class="headerlink" href="#flow-threshold-aka-model-fit-threshold-in-gui" title="Permalink to this headline">¶</a></h2>
+<p>Note there is nothing keeping the neural network from predicting
+horizontal and vertical flows that do not correspond to any real
+shapes at all. In practice, most predicted flows are consistent with
+real shapes, because the network was only trained on image flows
+that are consistent with real shapes, but sometimes when the network
+is uncertain it may output inconsistent flows. To check that the
+recovered shapes after the flow dynamics step are consistent with
+real masks, we recompute the flow gradients for these putative
+predicted masks, and compute the mean squared error between them and
+the flows predicted by the network.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">flow_threshold</span></code> parameter is the maximum allowed error of the flows
+for each mask. The default is <code class="docutils literal notranslate"><span class="pre">flow_threshold=0.4</span></code>. Increase this threshold
+if cellpose is not returning as many masks as you’d expect.
+Similarly, decrease this threshold if cellpose is returning too many
+ill-shaped masks.</p>
+</div>
+<div class="section" id="cell-probability-threshold">
+<h2>Cell probability threshold<a class="headerlink" href="#cell-probability-threshold" title="Permalink to this headline">¶</a></h2>
+<p>The network predicts 3 outputs: flows in X, flows in Y, and cell “probability”.
+The predictions the network makes of the probability are the inputs to a sigmoid
+centered at zero (1 / (1 + e^-x)),
+so they vary from around -6 to +6. The pixels greater than the
+<code class="docutils literal notranslate"><span class="pre">cellprob_threshold</span></code> are used to run dynamics and determine masks. The default
+is <code class="docutils literal notranslate"><span class="pre">cellprob_threshold=0.0</span></code>. Decrease this threshold if cellpose is not returning
+as many masks as you’d expect. Similarly, increase this threshold if cellpose is
+returning too masks particularly from dim areas.</p>
+</div>
+<div class="section" id="d-settings">
+<h2>3D settings<a class="headerlink" href="#d-settings" title="Permalink to this headline">¶</a></h2>
+<p>Volumetric stacks do not always have the same sampling in XY as they do in Z.
+Therefore you can set an <code class="docutils literal notranslate"><span class="pre">anisotropy</span></code> parameter to allow for differences in
+sampling, e.g. set to 2.0 if Z is sampled half as dense as X or Y.</p>
+<p>There may be additional differences in YZ and XZ slices
+that make them unable to be used for 3D segmentation.
+I’d recommend viewing the volume in those dimensions if
+the segmentation is failing. In those instances, you may want to turn off
+3D segmentation (<code class="docutils literal notranslate"><span class="pre">do_3D=False</span></code>) and run instead with <code class="docutils literal notranslate"><span class="pre">stitch_threshold&gt;0</span></code>.
+Cellpose will create masks in 2D on each XY slice and then stitch them across
+slices if the IoU between the mask on the current slice and the next slice is
+greater than or equal to the <code class="docutils literal notranslate"><span class="pre">stitch_threshold</span></code>.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Carsen Stringer &amp; Marius Pachitariu.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,387 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>GUI &mdash; cellpose 0.7.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Inputs" href="inputs.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cellpose
+          
+
+          
+            
+            <img src="_static/favicon.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Basics:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GUI</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#starting-the-gui">Starting the GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-the-gui">Using the GUI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#segmentation-options">Segmentation options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#contributing-training-data">Contributing training data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="train.html">Training</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebook.html">In a notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command.html">Command line</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Cellpose API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cellpose</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>GUI</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/gui.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="inputs.html" class="btn btn-neutral float-right" title="Inputs" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="gui">
+<h1>GUI<a class="headerlink" href="#gui" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="starting-the-gui">
+<h2>Starting the GUI<a class="headerlink" href="#starting-the-gui" title="Permalink to this headline">¶</a></h2>
+<p>The quickest way to start is to open the GUI from a command line terminal. You might need to open an anaconda prompt if you did not add anaconda to the path:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cellpose</span>
+</pre></div>
+</div>
+<p>The first time cellpose runs it downloads the latest available trained model weights from the website.</p>
+<p>You can <strong>drag and drop</strong> images (.tif, .png, .jpg, .gif) into the GUI and run Cellpose, and/or manually segment them. When the GUI is processing, you will see the progress bar fill up and during this time you cannot click on anything in the GUI. For more information about what the GUI is doing you can look at the terminal/prompt you opened the GUI with. For example data, See [website](<a class="reference external" href="http://www.cellpose.org">http://www.cellpose.org</a>). For best accuracy and runtime performance, resize images so cells are less than 100 pixels across.</p>
+<p>For multi-channel, multi-Z tiff’s, the expected format is Z x channels x Ly x Lx.</p>
+</div>
+<div class="section" id="using-the-gui">
+<h2>Using the GUI<a class="headerlink" href="#using-the-gui" title="Permalink to this headline">¶</a></h2>
+<p>The GUI serves two main functions:</p>
+<ol class="arabic simple">
+<li><p>Running the segmentation algorithm.</p></li>
+<li><p>Manually labelling data.</p></li>
+</ol>
+<p>Main GUI mouse controls (works in all views):</p>
+<ul class="simple">
+<li><p>Pan = left-click + drag</p></li>
+<li><p>Zoom = scroll wheel (or +/= and - buttons)</p></li>
+<li><p>Full view = double left-click</p></li>
+<li><p>Select mask = left-click on mask</p></li>
+<li><p>Delete mask = Ctrl (or Command on Mac) + left-click</p></li>
+<li><p>Merge masks = Alt + left-click (will merge last two)</p></li>
+<li><p>Start draw mask = right-click</p></li>
+<li><p>End draw mask = right-click, or return to circle at beginning</p></li>
+</ul>
+<p>Overlaps in masks are NOT allowed. If you draw a mask on top of another
+mask, it is cropped so that it doesn’t overlap with the old mask. Masks
+in 2D should be single strokes (if <em>single_stroke</em> is checked).</p>
+<p>If you want to draw masks in 3D, then you can turn <em>single_stroke</em>
+option off and draw a stroke on each plane with the cell and then press
+ENTER. 3D labelling will fill in unlabelled z-planes so that you do not
+have to as densely label.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The GUI automatically saves after you draw a mask but NOT after
+segmentation and NOT after 3D mask drawing (too slow). Save in the file
+menu or with Ctrl+S. The output file is in the same folder as the loaded
+image with <code class="docutils literal notranslate"><span class="pre">_seg.npy</span></code> appended.</p>
+</div>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31%" />
+<col style="width: 69%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Keyboard shortcuts</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CTRL+H</p></td>
+<td><p>help</p></td>
+</tr>
+<tr class="row-odd"><td><p>=/+  // -</p></td>
+<td><p>zoom in // zoom out</p></td>
+</tr>
+<tr class="row-even"><td><p>CTRL+Z</p></td>
+<td><p>undo previously drawn mask/stroke</p></td>
+</tr>
+<tr class="row-odd"><td><p>CTRL+0</p></td>
+<td><p>clear all masks</p></td>
+</tr>
+<tr class="row-even"><td><p>CTRL+L</p></td>
+<td><p>load image (can alternatively drag and drop
+image)</p></td>
+</tr>
+<tr class="row-odd"><td><p>CTRL+S</p></td>
+<td><p>SAVE MASKS IN IMAGE to <code class="docutils literal notranslate"><span class="pre">_seg.npy</span></code> file</p></td>
+</tr>
+<tr class="row-even"><td><p>CTRL+P</p></td>
+<td><p>load <code class="docutils literal notranslate"><span class="pre">_seg.npy</span></code> file (note: it will load
+automatically with image if it exists)</p></td>
+</tr>
+<tr class="row-odd"><td><p>CTRL+M</p></td>
+<td><p>load masks file (must be same size as image
+with 0 for NO mask, and 1,2,3… for masks)</p></td>
+</tr>
+<tr class="row-even"><td><p>CTRL+N</p></td>
+<td><p>load numpy stack (NOT WORKING ATM)</p></td>
+</tr>
+<tr class="row-odd"><td><p>A/D or LEFT/RIGHT</p></td>
+<td><p>cycle through images in current directory</p></td>
+</tr>
+<tr class="row-even"><td><p>W/S or UP/DOWN</p></td>
+<td><p>change color (RGB/gray/red/green/blue)</p></td>
+</tr>
+<tr class="row-odd"><td><p>PAGE-UP / PAGE-DOWN</p></td>
+<td><p>change to flows and cell prob views (if
+segmentation computed)</p></td>
+</tr>
+<tr class="row-even"><td><p>, / .</p></td>
+<td><p>increase / decrease brush size for drawing
+masks</p></td>
+</tr>
+<tr class="row-odd"><td><p>X</p></td>
+<td><p>turn masks ON or OFF</p></td>
+</tr>
+<tr class="row-even"><td><p>Z</p></td>
+<td><p>toggle outlines ON or OFF</p></td>
+</tr>
+<tr class="row-odd"><td><p>C</p></td>
+<td><p>cycle through labels for image type (saved to
+<code class="docutils literal notranslate"><span class="pre">_seg.npy</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="segmentation-options">
+<h2>Segmentation options<a class="headerlink" href="#segmentation-options" title="Permalink to this headline">¶</a></h2>
+<p>SIZE: you can manually enter the approximate diameter for your cells, or
+press “calibrate” to let the model estimate it. The size is represented
+by a disk at the bottom of the view window (can turn this disk off by
+unchecking “scale disk on”).</p>
+<p>use GPU: if you have installed the cuda version of mxnet, then you can activate this, but it won’t give huge speedups when running single images in the GUI.</p>
+<p>MODEL: there is a <em>cytoplasm</em> model and a <em>nuclei</em> model, choose what you want to segment</p>
+<p>CHAN TO SEG: this is the channel in which the cytoplasm or nuclei exist</p>
+<p>CHAN2 (OPT): if <em>cytoplasm</em> model is chosen, then choose the nuclear channel for this option</p>
+</div>
+<div class="section" id="contributing-training-data">
+<h2>Contributing training data<a class="headerlink" href="#contributing-training-data" title="Permalink to this headline">¶</a></h2>
+<p>We are very excited about receiving community contributions to the training data and re-training the cytoplasm model to make it better. Please follow these guidelines:</p>
+<ol class="arabic simple">
+<li><p>Run cellpose on your data to see how well it does. Try varying the diameter, which can change results a little.</p></li>
+<li><p>If there are relatively few mistakes, it won’t help much to contribute labelled data.</p></li>
+<li><p>If there are consistent mistakes, your data is likely very different from anything in the training set, and you should expect major improvements from contributing even just a few manually segmented images.</p></li>
+<li><p>For images that you contribute, the cells should be at least 10 pixels in diameter, and there should be <strong>at least</strong> several dozens of cells per image, ideally ~100. If your images are too small, consider combining multiple images into a single big one and then manually segmenting that. If they are too big, consider splitting them into smaller crops.</p></li>
+<li><p>For the manual segmentation, please try to outline the boundaries of the cell, so that everything (membrane, cytoplasm, nucleus) is inside the boundaries. Do not just outline the cytoplasm and exclude the membrane, because that would be inconsistent with our own labelling and we wouldn’t be able to use that.</p></li>
+<li><p>Do not use the results of the algorithm in any way to do contributed manual segmentations. This can reinforce a vicious circle of mistakes, and compromise the dataset for further algorithm development.</p></li>
+</ol>
+<p>If you are having problems with the nucleus model, please open an issue before contributing data. Nucleus images are generally much less diverse, and we think the current training dataset already covers a very large set of modalities.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Carsen Stringer &amp; Marius Pachitariu.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,293 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Training &mdash; cellpose 0.7.2 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="In a notebook" href="notebook.html" />
+    <link rel="prev" title="Outputs" href="outputs.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: black" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> cellpose
+          
+
+          
+            
+            <img src="_static/favicon.ico" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Basics:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gui.html">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="inputs.html">Inputs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="settings.html">Settings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="outputs.html">Outputs</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Training</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Examples:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="notebook.html">In a notebook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="command.html">Command line</a></li>
+</ul>
+<p class="caption"><span class="caption-text">API Reference:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Cellpose API Guide</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">cellpose</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Training</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/train.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <div class="rst-breadcrumbs-buttons" role="navigation" aria-label="breadcrumb navigation">
+      
+        <a href="notebook.html" class="btn btn-neutral float-right" title="In a notebook" accesskey="n">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+      
+      
+        <a href="outputs.html" class="btn btn-neutral float-left" title="Outputs" accesskey="p"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+      
+  </div>
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="training">
+<h1>Training<a class="headerlink" href="#training" title="Permalink to this headline">¶</a></h1>
+<p>At the beginning of training, cellpose computes the flow field representation for each
+mask image (<code class="docutils literal notranslate"><span class="pre">dynamics.labels_to_flows</span></code>).</p>
+<p>The cellpose pretrained models are trained using resized images so that the cells have the same median diameter across all images.
+If you choose to use a pretrained model, then this fixed median diameter is used.</p>
+<p>If you choose to train from scratch, you can set the median diameter you want to use for rescaling with the <code class="docutils literal notranslate"><span class="pre">--diameter</span></code> flag, or set it to 0 to disable rescaling.
+We trained the <cite>cyto</cite> model with a diameter of 30 pixels and the <cite>nuclei</cite> model with a diameter of 17 pixels.</p>
+<p>When you rescale everything to 30. pixel diameter, if you have images with varying diameters
+you may also want to learn a <cite>SizeModel</cite> that predicts the diameter from the styles that the
+network outputs. Add the flag <code class="docutils literal notranslate"><span class="pre">--train_size</span></code> and this model will be trained and saved as an
+<code class="docutils literal notranslate"><span class="pre">*.npy</span></code> file.</p>
+<p>The same channel settings apply for training models (see all Command line <a class="reference external" href="http://www.cellpose.org/static/docs/command.html">options</a>).</p>
+<p>Note Cellpose expects the labelled masks (0=no mask, 1,2…=masks) in a separate file, e.g:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wells_000</span><span class="o">.</span><span class="n">tif</span>
+<span class="n">wells_000_masks</span><span class="o">.</span><span class="n">tif</span>
+</pre></div>
+</div>
+<p>If you use the –img_filter option (<code class="docutils literal notranslate"><span class="pre">--img_filter</span> <span class="pre">img</span></code> in this case):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">wells_000_img</span><span class="o">.</span><span class="n">tif</span>
+<span class="n">wells_000_masks</span><span class="o">.</span><span class="n">tif</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The path given to <code class="docutils literal notranslate"><span class="pre">--dir</span></code> and <code class="docutils literal notranslate"><span class="pre">--test_dir</span></code> must be an absolute path.</p>
+</div>
+<p>Training-specific options</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">--</span><span class="n">test_dir</span> <span class="n">TEST_DIR</span>       <span class="n">folder</span> <span class="n">containing</span> <span class="n">test</span> <span class="n">data</span> <span class="p">(</span><span class="n">optional</span><span class="p">)</span>
+<span class="o">--</span><span class="n">n_epochs</span> <span class="n">N_EPOCHS</span>       <span class="n">number</span> <span class="n">of</span> <span class="n">epochs</span> <span class="p">(</span><span class="n">default</span><span class="p">:</span> <span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To train on cytoplasmic images (green cyto and red nuclei) starting with a pretrained model from cellpose (cyto or nuclei):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cellpose</span> <span class="o">--</span><span class="n">train</span> <span class="o">--</span><span class="nb">dir</span> <span class="o">~/</span><span class="n">images_cyto</span><span class="o">/</span><span class="n">train</span><span class="o">/</span> <span class="o">--</span><span class="n">test_dir</span> <span class="o">~/</span><span class="n">images_cyto</span><span class="o">/</span><span class="n">test</span><span class="o">/</span> <span class="o">--</span><span class="n">pretrained_model</span> <span class="n">cyto</span> <span class="o">--</span><span class="n">chan</span> <span class="mi">2</span> <span class="o">--</span><span class="n">chan2</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>You can train from scratch as well:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cellpose</span> <span class="o">--</span><span class="n">train</span> <span class="o">--</span><span class="nb">dir</span> <span class="o">~/</span><span class="n">images_nuclei</span><span class="o">/</span><span class="n">train</span><span class="o">/</span> <span class="o">--</span><span class="n">pretrained_model</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>To train the cyto model from scratch using the same parameters we did, download the dataset and run</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cellpose</span> <span class="o">--</span><span class="n">train</span> <span class="o">--</span><span class="n">train_size</span> <span class="o">--</span><span class="n">use_gpu</span> <span class="o">--</span><span class="nb">dir</span> <span class="o">~/</span><span class="n">cellpose_dataset</span><span class="o">/</span><span class="n">train</span><span class="o">/</span> <span class="o">--</span><span class="n">test_dir</span> <span class="o">~/</span><span class="n">cellpose_dataset</span><span class="o">/</span><span class="n">test</span><span class="o">/</span> <span class="o">--</span><span class="n">img_filter</span> <span class="n">_img</span> <span class="o">--</span><span class="n">pretrained_model</span> <span class="kc">None</span> <span class="o">--</span><span class="n">chan</span> <span class="mi">2</span> <span class="o">--</span><span class="n">chan2</span> <span class="mi">1</span>
+</pre></div>
+</div>
+<p>You can also specify the full path to a pretrained model to use:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">cellpose</span> <span class="o">--</span><span class="nb">dir</span> <span class="o">~/</span><span class="n">images_cyto</span><span class="o">/</span><span class="n">test</span><span class="o">/</span> <span class="o">--</span><span class="n">pretrained_model</span> <span class="o">~/</span><span class="n">images_cyto</span><span class="o">/</span><span class="n">test</span><span class="o">/</span><span class="n">model</span><span class="o">/</span><span class="n">cellpose_35_0</span> <span class="o">--</span><span class="n">save_png</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2020, Carsen Stringer &amp; Marius Pachitariu.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>
