@@ -84,7 +84,6 @@ class Tasker(nn.Module):
             T0 = T0.to_dense()
         return T0
 
-
 class LossFn(nn.Module):
     def __init__(self, task_mode):
         super(LossFn, self).__init__()
@@ -144,18 +143,7 @@ class sCSnet(nn.Module):
                  residual_on=True, style_on=True, concatenation=False, mkldnn=False, update_step=1,
                  attn_on=False, dense_on=False, style_scale_on=True, phase='eval',
                  device=None, net_avg=False, task_mode='cellpose'):
-        """
-        默认是训练模式，此时网络架构和正常的Cellpose无差异
-        Args:
-            nbase:
-            nout:
-            sz:
-            residual_on:
-            style_on:
-            concatenation:
-            mkldnn:
-            mode:
-        """
+
         super(sCSnet, self).__init__()
         self.nbase = nbase  # [2, 32, 64, 128, 256]
         self.nout = nout  # 3
