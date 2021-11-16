@@ -485,7 +485,7 @@ class sCellSeg(UnetModel):
 
         self.net.save_model(finetune_model_path)
         self.net.mkldnn = self.mkldnn
-        print('\033[1;32m>>>> saved model at: \033[0m', finetune_model_path)
+        print('\033[1;32m>>>> model fine-tuned and saved to: \033[0m', finetune_model_path)
 
 
     def inference(self, finetune_model=None, query_image_names=None, query_images=None, eval_batch_size=8,
