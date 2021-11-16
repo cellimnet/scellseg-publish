@@ -75,37 +75,35 @@ def dx_to_circ(dP):
 
 class sCellSeg(UnetModel):
     """
+    Parameters:
 
-    Parameters
-    -------------------
-
-    gpu: bool (optional, default False)
-        whether or not to save model to GPU, will check if GPU available
-
-    pretrained_model: str or list of strings (optional, default False)
-        path to pretrained scellseg model(s), if False, no model loaded;
-        if None, built-in 'cyto' model loaded
-
+    pretrained_model: string (default, None)
+        path to model file, if False, no model loaded
+        this pretrained model parameter is used in pre-train or fine-tuning process
     net_avg: bool (optional, default True)
-        loads the 4 built-in networks and averages them if True, loads one network if False
-
-    diam_mean: float (optional, default 27.)
-        mean 'diameter', 27. is built in value for 'cyto' model
-
+        loads the model file in the pretrained model folder and averages them if True, loads one network if False
+        (here the pretrained model parameter is provided in inference process, we set two pretrained model parameter to adapt to more different conditions)
+    diam_mean: float (optional, default 30.)
+        mean 'diameter', 30. is built in value for 'cyto' model
     device: torch device (optional, default None)
+    attn_on: bool (optional, default True)
+        choose to use attention gates
+    dense_on: bool (optional, default True)
+        choose to use dense unit
+    style_scale_on: bool (optional, default True)
+        choose to use hierarchical style information, for Scellseg, attn_on, dense_on, style_scale_on are set to Ture as a default
+    task_mode: string (default, None)
+        different instance representation, "cellpose", "hover", "unet3", "unet2" can be chosen
+    model: nn.Module (default, None)
+        you can input your designed model architecture like class sCSnet(nn.Module) in net_desc.py
 
     """
-
     def __init__(self, gpu=False, pretrained_model=False,
-                 diam_mean=30., net_avg=True, device=None,
+                 diam_mean=30., net_avg=True, device=None, nclasses=3,
                  residual_on=True, style_on=True, concatenation=False, update_step=1,
                  last_conv_on=True, attn_on=False, dense_on=False, style_scale_on=True,
-                 nclasses=3, task_mode='cellpose', model=None):
-        """
-        use_branch: 是否使用use_branch
-        ndecoder: 有多少个decoder分支，默认一个分支只对应tasker，class是自动加一个decoder
-        ntasker_seg：tasker_seg的map和cellprob是否要分开，class是默认加一个tasker
-        """
+                 task_mode='cellpose', model=None):
+
         self.net_avg = net_avg
 
         self.task_mode = task_mode

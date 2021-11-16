@@ -21,6 +21,6 @@ model = models.sCellSeg(diam_mean=30, gpu=use_GPU, pretrained_model=False, nclas
                         task_mode=task_mode)
 cpmodel_path = model.pretrain(train_data=images, train_labels=labels, train_files=files,
                            test_data=test_images, test_labels=test_labels, test_files=test_files,
-                           channels=[2, 1], save_path=output_path, n_epochs=5, learning_rate=0.002)
+                           channels=[2, 1], save_path=output_path, n_epochs=5, learning_rate=0.2)
 
 print('>>>> model trained and saved to %s'%cpmodel_path)

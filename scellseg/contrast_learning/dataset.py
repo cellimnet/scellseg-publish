@@ -11,10 +11,6 @@ from scellseg.dynamics import labels_to_flows
 import torch
 
 
-"""
-20210331：该版本重构了shot数据的读取
-"""
-
 class DatasetPairEval():
     """The class to load the shot data of mdataset"""
 
@@ -29,8 +25,7 @@ class DatasetPairEval():
         self.gpu = gpu
         self.use_negative_masks = use_negative_masks
 
-        # 获取文件夹名字，读取图片，label用于放缩
-        # 正样本图片，选用待迁移数据的未标注数据
+        # postive data, unlabelled images from a new experiment
         positive_path = os.path.join(positive_dir, 'query')
         positive_img_names = get_image_files(positive_path, mask_filter, image_filter)
         positive_imgs = []
@@ -48,12 +43,12 @@ class DatasetPairEval():
                 if md < 5.0:
                     md = 5.0
                 mds.append(md)
-            positive_md_mean = np.array(mds).mean()  # 对多张图片的中位数进行平均
+            positive_md_mean = np.array(mds).mean()
         rescale = (self.diam_mean / positive_md_mean) * np.ones(len(positive_imgs))
-        positive_imgs, _, _ = resize_image(positive_imgs, rsc=rescale)  # 这一步之后image的shape变为(nchan, Ly, Lx)
+        positive_imgs, _, _ = resize_image(positive_imgs, rsc=rescale)  # (nchan, Ly, Lx)
         self.positive_md_mean = positive_md_mean
 
-        # 负样本图片，选用cellpose提供的数据
+        # negtive data, subset of cellpose train set
         if negative_dir is None:
             project_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + ".")
             negative_dirs = os.path.join(project_path, 'assets', 'contrast_data')
@@ -67,29 +62,29 @@ class DatasetPairEval():
             negative_img_names.append(negative_img_namesi)
             negative_mask_names.append(get_label_files(negative_img_namesi, mask_filter, imf=image_filter)[0])
         negative_imgs = []
-        if self.use_negative_masks: negative_masks = []  #
+        if self.use_negative_masks: negative_masks = []
         negative_md_means = []
         for nclass in range(len(negative_dir)):
             negative_imgn = []
-            if self.use_negative_masks: negative_maskn = []  #
+            if self.use_negative_masks: negative_maskn = []
             for negative_img_name in negative_img_names[nclass]:
                 negative_img = imread(negative_img_name)
                 negative_imgn.append(negative_img)
             mdsn = []
             for negative_mask_name in negative_mask_names[nclass]:
                 negative_mask = imread(negative_mask_name)
-                if self.use_negative_masks: negative_maskn.append(negative_mask) #
+                if self.use_negative_masks: negative_maskn.append(negative_mask)
                 md = diameters(negative_mask)[0]
                 if md < 5.0:
                     md = 5.0
                 mdsn.append(md)
-            negative_md_mean = np.array(mdsn).mean()  # 对多张图片的中位数进行平均
+            negative_md_mean = np.array(mdsn).mean()
             negative_md_means.append(negative_md_mean)
             rescale = (self.diam_mean / negative_md_mean) * np.ones(len(negative_imgn))
             if self.use_negative_masks:
-                negative_imgn, negative_maskn, _ = resize_image(negative_imgn, M=negative_maskn, rsc=rescale)  # 这一步之后image的shape变为(nchan, Ly, Lx)        #
+                negative_imgn, negative_maskn, _ = resize_image(negative_imgn, M=negative_maskn, rsc=rescale)  # (nchan, Ly, Lx)
             else:
-                negative_imgn, _, _ = resize_image(negative_imgn, rsc=rescale)  # 这一步之后image的shape变为(nchan, Ly, Lx)        #
+                negative_imgn, _, _ = resize_image(negative_imgn, rsc=rescale)  # (nchan, Ly, Lx)
 
             negative_imgs.append(negative_imgn)
             if self.use_negative_masks: negative_masks.append(negative_maskn)
@@ -100,7 +95,11 @@ class DatasetPairEval():
         if self.use_negative_masks: self.negative_masks = negative_masks  #
 
     def get_pair(self, n_sample1class):
-        # 1. 随机选择n_sample1class张shot图片
+        """
+        n_sample1class: int
+            the number of positive_imgs and negative_imgs, here we set it equal to the batch of shot data
+        """
+        # random choose n_sample1class data
         positive_imgs = []
         negative_imgs = []
         if self.use_negative_masks: negative_masks = []
@@ -120,14 +119,13 @@ class DatasetPairEval():
             if self.use_negative_masks: negative_masks.append(self.negative_masks[negclass_ind][neg_ind])
         negative_md_mean = self.negative_md_means[negclass_ind]
 
-        # 1.5 在前面reshape
-        positive_imgs, _, _ = reshape_and_normalize_data(positive_imgs, channels=self.channels, normalize=True)  # 返回的是list，这里的channels要分析一下
-        negative_imgs, _, _ = reshape_and_normalize_data(negative_imgs, channels=self.channels, normalize=True)  # 返回的是list，这里的channels要分析一下
+        # reshape
+        positive_imgs, _, _ = reshape_and_normalize_data(positive_imgs, channels=self.channels, normalize=True)
+        negative_imgs, _, _ = reshape_and_normalize_data(negative_imgs, channels=self.channels, normalize=True)
 
-        # 随机切出224的区域, 随机旋转
+        # random crop, rotate
         scale_range = 0.5 if self.rescale else 1.
         crop_size = random.randrange(156, 291)  # 0.7*224, 1.3*224
-
         positive_imgs = random_clip(X=positive_imgs, xy=(crop_size, crop_size))[0]
         rsc = np.array([1.]*n_sample1class, np.float32) if self.rescale else np.ones(n_sample1class, np.float32)
         positive_imgs = random_rotate_and_resize(positive_imgs, rescale=rsc, scale_range=scale_range)[0]

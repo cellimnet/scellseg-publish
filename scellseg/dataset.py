@@ -14,9 +14,6 @@ import math
 from scipy.ndimage.filters import gaussian_filter
 from scipy.ndimage.interpolation import map_coordinates
 
-"""
-20210331：该版本重构了shot数据的读取
-"""
 
 class DatasetShot(Dataset):
     """The class to load the shot data of mdataset"""
@@ -52,7 +49,7 @@ class DatasetShot(Dataset):
             self.shot_img_names = shot_img_names
             self.shot_mask_names = shot_mask_names
 
-            # 读取shot图片和label
+            # read images and lbl of shot data
             shot_images = []
             for shot_img_name in shot_img_names:
                 shot_image = imread(shot_img_name)
@@ -62,7 +59,7 @@ class DatasetShot(Dataset):
             for maski, shot_mask_name in enumerate(shot_mask_names):
                 shot_mask = imread(shot_mask_name)
                 if active_ind is not None:
-                    if isinstance(active_ind, int): active_ind = [active_ind] # 针对active_ind只有一个的情况
+                    if isinstance(active_ind, int): active_ind = [active_ind] # for condition: type(active_ind) = int
                     if maski in active_ind:
                         md = diameters(shot_mask)[0]
                         if md < 5.0:
@@ -108,28 +105,18 @@ class DatasetShot(Dataset):
                         md = 5.0
                     mds.append(md)
 
-        # self.shot_flow_names = shot_flow_names
-        # if shot_flow_names is not None:  # 图片过大的情况,读取预先保存的
-        #     shot_flows = []
-        #     for shot_flow_name in shot_flow_names:
-        #         shot_flow = imread(shot_flow_name)
-        #         shot_flows.append(shot_flow)
-        # else:
-        #     shot_flows = dynamics.labels_to_flows(shot_masks, shot_img_names)  # 如果没有flows，则生成flows
-        # self.shot_flows = shot_flows
-
-        md_mean = np.array(mds).mean()  # 对多张图片的中位数进行平均
+        md_mean = np.array(mds).mean()
         self.md = md_mean
         rescale = (self.diam_mean / md_mean) * np.ones(len(shot_images))
 
         if self.multi_class:
-            shot_images, shot_masks, _, shot_classes = resize_image(shot_images , M=shot_masks, C=shot_classes, rsc=rescale)  # 这一步之后image的shape变为(nchan, Ly, Lx)
+            shot_images, shot_masks, _, shot_classes = resize_image(shot_images , M=shot_masks, C=shot_classes, rsc=rescale)  # (nchan, Ly, Lx)
             self.shot_classes = shot_classes
         else:
-            shot_images, shot_masks, _ = resize_image(shot_images , M=shot_masks, rsc=rescale)  # 这一步之后image的shape变为(nchan, Ly, Lx)
+            shot_images, shot_masks, _ = resize_image(shot_images , M=shot_masks, rsc=rescale)  # (nchan, Ly, Lx)
 
         shot_images, shot_masks, _, _, _ = reshape_train_test(shot_images, shot_masks, test_data=None, test_labels=None,
-                            channels=self.channels, normalize=True)  # 返回的是list，这里的channels要分析一下
+                            channels=self.channels, normalize=True)
 
         shot_lbls = None
         if self.task_mode == 'cellpose':
@@ -177,7 +164,7 @@ class DatasetShot(Dataset):
         shot_lbl=[self.shot_lbls[choose_img_ind]]
 
         # random rotatet
-        if i>=0:  # and i%2==0
+        if i>=0:
             md = diameters(shot_mask[0])[0]
             scale_range = 0.5 if self.rescale else 1.
             rsc = np.array([md / self.diam_mean], np.float32) if self.rescale else np.ones(1, np.float32)
@@ -332,74 +319,6 @@ def random_clip(X, M=None, xy = (224,224), C=None):
 
     if C is not None:
         return imgs, masks, classes
-    return imgs, masks
-
-
-def random_elastic(X, M=None, alpha_w=8, sigma_w=0.08, alpha_affine_w=0.08, random_state=None, C=None):
-    if random_state is None:
-        random_state = np.random.RandomState(None)
-
-    nimg = len(X)
-    imgs = []
-    masks = []
-    if C is not None:
-        classes = []
-    for i in range(nimg):
-        shape = X[i].shape
-        shape_size = shape[-2:]
-        alpha = shape_size[-1] * alpha_w
-        sigma = shape_size[-1] * sigma_w
-        alpha_affine = shape_size[-1] * alpha_affine_w
-
-        # Random affine
-        center_square = np.float32(shape_size) // 2
-        square_size = min(shape_size) // 3
-        # pts1: 仿射变换前的点(3个点)
-        pts1 = np.float32([center_square + square_size,
-                           [center_square[0] + square_size,
-                            center_square[1] - square_size],
-                           center_square - square_size])
-        # pts2: 仿射变换后的点
-        pts2 = pts1 + random_state.uniform(-alpha_affine, alpha_affine,
-                                           size=pts1.shape).astype(np.float32)
-        # 仿射变换矩阵
-        MT = cv2.getAffineTransform(pts1, pts2)
-
-        # 弹性处理
-        # generate random displacement fields
-        # random_state.rand(*shape)会产生一个和shape一样打的服从[0,1]均匀分布的矩阵
-        # *2-1是为了将分布平移到[-1, 1]的区间, alpha是控制变形强度的变形因子
-        dx = gaussian_filter((random_state.rand(*shape_size) * 2 - 1), sigma) * alpha
-        dy = gaussian_filter((random_state.rand(*shape_size) * 2 - 1), sigma) * alpha
-        # generate meshgrid
-        x, y = np.meshgrid(np.arange(shape_size[1]), np.arange(shape_size[0]))
-        # x+dx,y+dy
-        indices = np.reshape(y + dy, (-1, 1)), np.reshape(x + dx, (-1, 1))
-
-        # 对image进行仿射变换.
-        if X[i].ndim == 3:
-            nchan = X[0].shape[0]
-            imgi = np.zeros((nchan, shape_size[0], shape_size[1]), np.float32)
-            for m in range(nchan):
-                img0 = cv2.warpAffine(X[i][m], MT, shape_size[::-1], flags=cv2.INTER_LINEAR)
-                imgi[m] = map_coordinates(img0, indices, order=0, mode='constant').reshape(shape_size)
-        elif X[i].ndim == 2:
-            img0 = cv2.warpAffine(X[i], MT, shape_size[::-1], flags=cv2.INTER_LINEAR)
-            imgi = map_coordinates(img0, indices, order=0, mode='constant').reshape(shape_size)
-        imgs.append(imgi)
-
-        maski = cv2.warpAffine(M[i], MT, shape_size[::-1], flags=cv2.INTER_NEAREST)
-        maski = map_coordinates(maski, indices, order=0, mode='constant').reshape(shape_size)
-        masks.append(maski)
-
-        if C is not None:
-            classi = cv2.warpAffine(C[i], MT, shape_size[::-1], flags=cv2.INTER_NEAREST)
-            classi = map_coordinates(classi, indices, order=0, mode='constant').reshape(shape_size)
-            classes.append(classi)
-
-    if C is not None:
-        return imgs, masks, classes
-
     return imgs, masks
 
 

@@ -271,7 +271,7 @@ def get_masks_unet(output, cell_threshold=0, boundary_threshold=0):
         slices = find_objects(labels)
         dists = 10000*np.ones(labels.shape, np.float32)
         mins = np.zeros(labels.shape, np.int32)
-        borders = np.logical_and(~(labels>0), output[...,2]>boundary_threshold)  # 这里为啥不直接取labels=0
+        borders = np.logical_and(~(labels>0), output[...,2]>boundary_threshold)
         pad = 10
         for i,slc in enumerate(slices):
             if slc is not None:
@@ -281,7 +281,7 @@ def get_masks_unet(output, cell_threshold=0, boundary_threshold=0):
                 msk = 1 - gaussian_filter(msk, 5)
                 dists[slc_pad] = np.minimum(dists[slc_pad], msk)
                 mins[slc_pad][dists[slc_pad]==msk] = (i+1)
-        labels[labels==0] = borders[labels==0] * mins[labels==0]  # 这里只对背景区域进行修正吗
+        labels[labels==0] = borders[labels==0] * mins[labels==0]
         
     masks = labels
     shape0 = masks.shape
@@ -308,10 +308,10 @@ def diameters(masks):
     """ get median 'diameter' of masks """
     _, counts = np.unique(np.int32(masks), return_counts=True)
     counts = counts[1:]
-    md = np.median(counts**0.5)  # 这里选的是中位数
+    md = np.median(counts**0.5)
     if np.isnan(md):
         md = 0
-    md /= (np.pi**0.5)/2  # 这里md求的是平均直径
+    md /= (np.pi**0.5)/2
     return md, counts**0.5
 
 def radius_distribution(masks, bins):
@@ -386,7 +386,7 @@ def fill_holes_and_remove_small_masks(masks, min_size=15):
                         msk[k] = binary_fill_holes(msk[k])
                 else:
                     msk = binary_fill_holes(msk)
-                masks[slc][msk] = (j+1)  # 这边做了防跳值处理
+                masks[slc][msk] = (j+1)
                 j+=1
     return masks
 

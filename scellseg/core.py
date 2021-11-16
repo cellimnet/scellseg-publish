@@ -153,10 +153,10 @@ class UnetModel():
         self.pretrained_model = pretrained_model
         self.diam_mean = diam_mean
 
-        # if pretrained_model:
-        #     params = parse_model_string(pretrained_model)
-        #     if params is not None:
-        #         nclasses, residual_on, style_on, concatenation = params
+        if pretrained_model:
+            params = parse_model_string(pretrained_model)
+            if params is not None:
+                nclasses, residual_on, style_on, concatenation = params
         
         ostr = ['off', 'on']
         self.net_type = 'unet{}_residual_{}_style_{}_concatenation_{}'.format(nclasses,
@@ -171,7 +171,6 @@ class UnetModel():
 
         nchan = 2
         nbase = [nchan, 32, 64, 128, 256]
-        # nbase = [nchan, 256, 128, 64, 32]  # 用来测试倒过来的特征数是否有意义，训练了300批不知道为什么就内存炸了
         if model is None:
             self.net = net_desc.sCSnet(nbase=nbase,
                                        nout=nout,
@@ -300,7 +299,7 @@ class UnetModel():
         cell_threshold = 2.0 if cell_threshold is None else cell_threshold
         boundary_threshold = 0.5 if boundary_threshold is None else boundary_threshold
 
-        if not do_3D:  # 2D情况下
+        if not do_3D:  # 2D images
             for i in iterator:
                 img = x[i].copy()
                 shape = img.shape
@@ -467,7 +466,7 @@ class UnetModel():
         slc[0] = slice(0, self.nclasses)
         slc = tuple(slc)
 
-        # run network, 如果要tile或aug或有batch都是走的_run_tiled()
+        # run network
         if tile or augment or imgs.ndim==4:
             y,style = self._run_tiled(imgs, augment=augment, bsize=bsize, tile_overlap=tile_overlap)
         else:
@@ -517,7 +516,7 @@ class UnetModel():
 
         """
 
-        if imgi.ndim==4:  # 3D图片，有z-stack情况下
+        if imgi.ndim==4:  # 3D images
             batch_size = self.batch_size
             Lz, nchan = imgi.shape[:2]
             IMG, ysub, xsub, Ly, Lx = transforms.make_tiles(imgi[0], bsize=bsize, 
@@ -528,9 +527,9 @@ class UnetModel():
             yf = np.zeros((Lz, self.nclasses, imgi.shape[-2], imgi.shape[-1]), np.float32)
 
             styles = []
-            if ny*nx > batch_size:  # 如果分出来的个数超过计算出来的batch_size,那么
+            if ny*nx > batch_size:
                 ziterator = trange(Lz)
-                for i in ziterator:  # 图片单张处理，应该有应对超过batch_size的能力
+                for i in ziterator:
                     yfi, stylei = self._run_tiled(imgi[i], augment=augment, 
                                                   bsize=bsize, tile_overlap=tile_overlap)
                     yf[i] = yfi
@@ -538,30 +537,30 @@ class UnetModel():
             else:
                 # run multiple slices at the same time
                 ntiles = ny*nx
-                nimgs = max(2, int(np.round(batch_size / ntiles)))  # 肯定大于1的，一个batch可以跑几张图片，这里为什么是至少两张？
-                niter = int(np.ceil(Lz/nimgs))  # 原来的batch数现在是多少
+                nimgs = max(2, int(np.round(batch_size / ntiles)))
+                niter = int(np.ceil(Lz/nimgs))
                 ziterator = trange(niter)
                 for k in ziterator:
                     IMGa = np.zeros((ntiles*nimgs, nchan, ly, lx), np.float32)
                     for i in range(min(Lz-k*nimgs, nimgs)):
                         IMG, ysub, xsub, Ly, Lx = transforms.make_tiles(imgi[k*nimgs+i], bsize=bsize, 
                                                                         augment=augment, tile_overlap=tile_overlap)
-                        IMGa[i*ntiles:(i+1)*ntiles] = np.reshape(IMG, (ny*nx, nchan, ly, lx))  # 一张图片一张图片的放进去
+                        IMGa[i*ntiles:(i+1)*ntiles] = np.reshape(IMG, (ny*nx, nchan, ly, lx))
                     ya, stylea = self.network(IMGa)
                     for i in range(min(Lz-k*nimgs, nimgs)):
-                        y = ya[i*ntiles:(i+1)*ntiles]  # 分开了
+                        y = ya[i*ntiles:(i+1)*ntiles]
                         if augment:
                             y = np.reshape(y, (ny, nx, 3, ly, lx))
                             y = transforms.unaugment_tiles(y, self.unet)
                             y = np.reshape(y, (-1, 3, ly, lx))
-                        yfi = transforms.average_tiles(y, ysub, xsub, Ly, Lx)  # 在tiles的基础上做了平均
+                        yfi = transforms.average_tiles(y, ysub, xsub, Ly, Lx)
                         yfi = yfi[:,:imgi.shape[2],:imgi.shape[3]]
                         yf[k*nimgs+i] = yfi
                         stylei = stylea[i*ntiles:(i+1)*ntiles].sum(axis=0)
                         stylei /= (stylei**2).sum()**0.5
                         styles.append(stylei)
             return yf, np.array(styles)
-        else:  # 2D图片
+        else:  # 2D images
             IMG, ysub, xsub, Ly, Lx = transforms.make_tiles(imgi, bsize=bsize, 
                                                             augment=augment, tile_overlap=tile_overlap)
             ny, nx, nchan, ly, lx = IMG.shape
@@ -768,7 +767,7 @@ class UnetModel():
         loss.backward()
         train_loss = loss.item()
         self.optimizer.step()
-        train_loss *= len(x)  # loss是乘了batch的
+        train_loss *= len(x)  # loss*batch
         return train_loss
 
     def _test_eval(self, x, lbl):
@@ -794,13 +793,13 @@ class UnetModel():
             param_group['lr'] = lr
 
     def _set_criterion(self):
-        if self.unet or ('unet' in self.task_mode):  # 在cellposeModel中会被关掉
+        if self.unet or ('unet' in self.task_mode):
             # self.criterion = nn.SoftmaxCrossEntropyLoss(axis=1)
             self.criterion = nn.CrossEntropyLoss()
 
         else:
-            self.criterion  = nn.MSELoss(reduction='mean')  # 回归问题常用loss
-            self.criterion2 = nn.BCEWithLogitsLoss(reduction='mean')  # 分类问题常用loss
+            self.criterion  = nn.MSELoss(reduction='mean')
+            self.criterion2 = nn.BCEWithLogitsLoss(reduction='mean')
 
     def _train_net(self, train_data, train_labels, 
               test_data=None, test_labels=None,
@@ -882,12 +881,12 @@ class UnetModel():
 
         for iepoch in range(self.n_epochs):
             np.random.seed(iepoch)
-            rperm = np.random.permutation(nimg)  # 随机打乱图像
+            rperm = np.random.permutation(nimg)
             self._set_learning_rate(LR[iepoch])
 
             for ibatch in range(0,nimg,batch_size):
-                inds = rperm[ibatch:ibatch+batch_size]  # 取batch个图像
-                rsc = diam_train[inds] / self.diam_mean if rescale else np.ones(len(inds), np.float32)  # 每个图像的平均直径与平均直径的比值
+                inds = rperm[ibatch:ibatch+batch_size]
+                rsc = diam_train[inds] / self.diam_mean if rescale else np.ones(len(inds), np.float32)
                 # print('rsc', rsc)
                 # print('scale_range', scale_range)
                 imgi, lbl, scale = transforms.random_rotate_and_resize(
@@ -896,12 +895,12 @@ class UnetModel():
                 # if self.unet and lbl.shape[1]>1 and rescale:
                     # lbl[:,1] /= diam_batch[:,np.newaxis,np.newaxis]**2
 
-                train_loss = self._train_step(imgi, lbl)  ########
-                lavg += train_loss  # 储存在所有图像上的loss
-                nsum += len(imgi)  # 储存一共的图片张数
+                train_loss = self._train_step(imgi, lbl)
+                lavg += train_loss
+                nsum += len(imgi)
             
-            if iepoch%10==0 or iepoch<10:  # 测试前10批和10的整数倍的
-                lavg = lavg / nsum  # 平均的loss
+            if iepoch%10==0 or iepoch<10:
+                lavg = lavg / nsum
                 if test_data is not None:
                     lavgt, nsum = 0., 0
                     np.random.seed(42)
@@ -916,7 +915,7 @@ class UnetModel():
                         if self.unet and lbl.shape[1]>1 and rescale:
                             lbl[:,1] *= scale[0]**2
 
-                        test_loss = self._test_eval(imgi, lbl)  # 这里只返回了loss，可以补个metrics
+                        test_loss = self._test_eval(imgi, lbl)
                         lavgt += test_loss
                         nsum += len(imgi)
                     log_writer.add_scalars('train_scellseg', {'train_loss':lavg, 'val_loss':lavgt/nsum}, iepoch)

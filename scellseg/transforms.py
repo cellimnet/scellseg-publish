@@ -126,7 +126,6 @@ def make_tiles(imgi, bsize=224, augment=False, tile_overlap=0.1):
 
     nchan, Ly, Lx = imgi.shape
     if augment:
-        # aug模式没有用到tile_overlap
 
         bsize = np.int32(bsize)
         # pad if image smaller than bsize
@@ -154,7 +153,7 @@ def make_tiles(imgi, bsize=224, augment=False, tile_overlap=0.1):
                 IMG[j, i] = imgi[:, ysub[-1][0]:ysub[-1][1],  xsub[-1][0]:xsub[-1][1]]
                 # flip tiles to allow for augmentation of overlapping segments
                 if j%2==0 and i%2==1:
-                    IMG[j,i] = IMG[j,i, :,::-1, :]  # 翻转
+                    IMG[j,i] = IMG[j,i, :,::-1, :]
                 elif j%2==1 and i%2==0:
                     IMG[j,i] = IMG[j,i, :,:, ::-1]
                 elif j%2==1 and i%2==1:
@@ -281,14 +280,14 @@ def reshape_train_test(train_data, train_labels, test_data, test_labels, channel
     """ check sizes and reshape train and test data for training """
     nimg = len(train_data)
     # check that arrays are correct size
-    if nimg != len(train_labels):  # 检查img和mask数量是否相等
+    if nimg != len(train_labels):
         raise ValueError('train data and labels not same length')
         return
-    if train_labels[0].ndim < 2 or train_data[0].ndim < 2:  # 至少保证有两维
+    if train_labels[0].ndim < 2 or train_data[0].ndim < 2:
         raise ValueError('training data or labels are not at least two-dimensional')
         return
 
-    if train_data[0].ndim > 3:  # 最多3维的图像（通道或z轴），暂不考虑3维图像
+    if train_data[0].ndim > 3:
         raise ValueError('training data is more than three-dimensional (should be 2D or 3D array)')
         return
 
@@ -518,7 +517,7 @@ def random_rotate_and_resize(X, Y=None, scale_range=1., xy = (224,224),
             amount each image was resized by
 
     """
-    scale_range = max(0, min(2, float(scale_range)))  # 最小是0，最大是2
+    scale_range = max(0, min(2, float(scale_range)))
     nimg = len(X)
     if X[0].ndim>2:
         nchan = X[0].shape[0]
@@ -543,8 +542,8 @@ def random_rotate_and_resize(X, Y=None, scale_range=1., xy = (224,224),
 
         # generate random augmentation parameters
         flip = np.random.rand()>.5
-        theta = np.random.rand() * np.pi * 2  # 0-360之间的任意角
-        scale[n] = (1-scale_range/2) + scale_range * np.random.rand()  # 每个图像的放缩比例不一样，scale_range为1的时候也是任意的
+        theta = np.random.rand() * np.pi * 2
+        scale[n] = (1-scale_range/2) + scale_range * np.random.rand()
         if rescale is not None:
             scale[n] *= 1. / rescale[n]
         dxy = np.maximum(0, np.array([Lx*scale[n]-xy[1],Ly*scale[n]-xy[0]]))
@@ -563,10 +562,10 @@ def random_rotate_and_resize(X, Y=None, scale_range=1., xy = (224,224),
         if Y is not None:
             labels = Y[n].copy()
             if labels.ndim<3:
-                labels = labels[np.newaxis,:,:]  # 还不是flows只是mask的情况
+                labels = labels[np.newaxis,:,:]
         if C is not None:
             classes = C[n].copy()
-            classes = classes[np.newaxis,:,:]  # 还不是flows只是mask的情况
+            classes = classes[np.newaxis,:,:]
 
         if flip and do_flip:
             img = img[..., ::-1]

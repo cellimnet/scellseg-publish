@@ -1,8 +1,3 @@
-"""
-这里定义了计算图
-最后一层Conv要分离做Tasker
-"""
-
 import os, copy, sys, time, shutil, tempfile, datetime, pathlib, subprocess
 import numpy as np
 import torch
@@ -22,7 +17,7 @@ class Extractor(nn.Module):
                  concatenation=False, attn_on=False, dense_on=False, style_scale_on=True):
         super(Extractor, self).__init__()
         self.choose_layers = [3, 3, 3, 3]
-        self.style_channels = [256, 256, 256, 256]  # 只使用高维的
+        self.style_channels = [256, 256, 256, 256]  # only use the last feature map of conv unit, shape
 
         self.downsample = downsample(nbase, sz, residual_on=residual_on)
         nbaseup = nbase[1:]
@@ -77,7 +72,7 @@ class Tasker(nn.Module):
 
         self.base_bn = nn.BatchNorm2d(nin, eps=1e-5)
         self.base_relu = nn.ReLU(inplace=True)
-        self.base_conv = nn.Conv2d(nin, nout, 1, padding=1 // 2)  # 这里的参数再看一下kernel_size=3，padding=1??
+        self.base_conv = nn.Conv2d(nin, nout, 1, padding=1 // 2)
 
     def forward(self, T0, the_vars=None, mkldnn=False):
         if the_vars is not None:
@@ -91,13 +86,11 @@ class Tasker(nn.Module):
 
 
 class LossFn(nn.Module):
-    def __init__(self, task_mode, multi_class=False):
+    def __init__(self, task_mode):
         super(LossFn, self).__init__()
         self.task_mode = task_mode
-        self.multi_class = multi_class
         if task_mode == 'cellpose' or self.task_mode == 'hover':
-            self.criterion = nn.MSELoss(reduction='mean', size_average=True)  # 能把背景去除的很干净
-            # self.criterion = nn.SmoothL1Loss(reduction='mean', size_average=True)  # 理论上学的更准一点
+            self.criterion = nn.MSELoss(reduction='mean', size_average=True)
             self.criterion2 = nn.BCEWithLogitsLoss(reduction='mean')
             self.criterion3 = nn.CrossEntropyLoss()
 
@@ -108,30 +101,16 @@ class LossFn(nn.Module):
 
     def forward(self, lbl, y, device, styles=None):
         if self.task_mode == 'cellpose' or self.task_mode == 'hover':
-            # norm_size = torch.max(y[:, :2])
-            # if norm_size < 5:
-            #     norm_size = 5
             veci = (5. * lbl[:, 1:3]).float().to(device)
-            cellprob = (lbl[:, 0] > .5).float().to(device)  # lbl第一个通道是概率
-            # loss = self.criterion(y[:, :2], veci)  # 梯度计算上的loss
-            # y_expand = normalization(torch.unsqueeze(y[:, -1], dim=1))  # 改
+            cellprob = (lbl[:, 0] > .5).float().to(device)
             loss_map = self.criterion(y[:, :2], veci)
             loss_map /= 2.
-            loss_cellprob = self.criterion2(y[:, 2], cellprob)  # 细胞概率上的loss, y[:, -1] or y[:, 2:]
-
-            loss_class = 0
-            if self.multi_class:
-                loss_class = self.criterion3(y[:, 3:], lbl[:, 3].float().to(device).long())
-
-                # true_class = F.one_hot(lbl[:, 3].float().to(device).long())  # 使用自定义的loss，这里onehot肯定没有问题,
-                # pred_class = torch.transpose(y[:, 3:], 1, 3)
-                # loss_class = dice_loss(pred_class, true_class)
-                # loss_class = xentropy_loss(pred_class, true_class)
+            loss_cellprob = self.criterion2(y[:, 2], cellprob)
 
             loss_contrast = 0
             if styles is not None:
                 style, style_pos, style_neg = styles
-                # target_pos=torch.ones(style.shape[0]).to(device)  # 余弦相似性效果确实不好
+                # target_pos=torch.ones(style.shape[0]).to(device)
                 # target_neg=(torch.ones(style.shape[0])).to(device)
                 # loss_pos = nn.functional.cosine_embedding_loss(style, style_pos, target=target_pos)
                 # loss_neg = nn.functional.cosine_embedding_loss(style, style_neg, target=target_neg)
@@ -146,12 +125,12 @@ class LossFn(nn.Module):
                     loss_neg = mse_pairs(style, style_neg, self.criterion)
                     loss_contrast = torch.pow(loss_pos, 1) / (torch.pow(loss_neg, 1) + torch.tensor(1e-5))
 
-            loss = loss_map * 1. + loss_cellprob * 1. + loss_class * 1. + loss_contrast * nn.functional.sigmoid(self.alpha) # 系数影响的是对应loss更新的速度
+            loss = loss_map * 1. + loss_cellprob * 1. + loss_contrast * nn.functional.sigmoid(self.alpha) # 系数影响的是对应loss更新的速度
         elif 'unet' in self.task_mode:
             nclasses = int(self.task_mode.split('-')[-1])
             if lbl.shape[1] > 1 and nclasses > 2:
                 boundary = lbl[:, 1] <= 4
-                lbl = lbl[:, 0]  # lbl是一张图上的像素级分类
+                lbl = lbl[:, 0]
                 lbl[boundary] *= 2
             else:
                 lbl = lbl[:, 0]
@@ -163,7 +142,7 @@ class LossFn(nn.Module):
 class sCSnet(nn.Module):
     def __init__(self, nbase, nout, sz,
                  residual_on=True, style_on=True, concatenation=False, mkldnn=False, update_step=1,
-                 attn_on=False, dense_on=False, style_scale_on=True, phase='eval', multi_class=False,
+                 attn_on=False, dense_on=False, style_scale_on=True, phase='eval',
                  device=None, net_avg=False, task_mode='cellpose'):
         """
         默认是训练模式，此时网络架构和正常的Cellpose无差异
@@ -178,7 +157,7 @@ class sCSnet(nn.Module):
             mode:
         """
         super(sCSnet, self).__init__()
-        self.nbase = nbase  # [2, 32, 64, 128, 256] 2是指图像有两个通道，舍弃第三维通道，减少计算量
+        self.nbase = nbase  # [2, 32, 64, 128, 256]
         self.nout = nout  # 3
         self.sz = sz
         self.residual_on = residual_on
@@ -191,17 +170,16 @@ class sCSnet(nn.Module):
         self.task_mode = task_mode
         self.update_step = update_step
 
-        if 'unet' in task_mode:  # classic模式下loss计算只能一次，不然会报错
+        if 'unet' in task_mode:
             self.update_step = 1
 
         self.last_result = -np.inf
-        self.multi_class = multi_class
 
         # TODO: 未适配CPU模式下mkldnn加速
         self.extractor = Extractor(nbase, sz, residual_on=residual_on, style_on=style_on, style_scale_on=style_scale_on,
-             concatenation=concatenation, attn_on=attn_on, dense_on=dense_on)  # TODO：加self后续可以改变，不加仅在初始化的时候可以改变
+             concatenation=concatenation, attn_on=attn_on, dense_on=dense_on)
         self.tasker = Tasker(nbase[1], nout, task_mode=task_mode)
-        self.loss_fn = LossFn(task_mode=task_mode, multi_class=multi_class)
+        self.loss_fn = LossFn(task_mode=task_mode)
 
     def forward(self, inp):
         """
@@ -237,7 +215,7 @@ class sCSnet(nn.Module):
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
-        model_dict = self.state_dict()
+        # model_dict = self.state_dict()
 
         # save_path = r'G:\Python\9-Project\1-flurSeg\sCellSeg\output\models\preeval'
         # transfer_path = os.path.join(save_path, 'transfer_cellpose')
@@ -256,38 +234,37 @@ class sCSnet(nn.Module):
     def eval_forward(self, data):
         embedding, style = self.extractor(data, mkldnn=self.mkldnn)
         logits_q = self.tasker(embedding, mkldnn=self.mkldnn)
-        if self.multi_class:
-            logits_class = torch.argmax(logits_q[:, 3:], dim=1, keepdim=True)
-            logits_q = torch.cat((logits_q[:, :3], logits_class), dim=1)
         return logits_q, style
 
     def save_model(self, filename):
         torch.save(self.state_dict(), filename)
 
     def load_model(self, filename, cpu=False, last_conv_on=True):
+        """
+        Because we re-divided the Cellpose architecture,
+            1. besides provide a way to load the model file pre-trianed by our Scellseg model
+            2. we also design the way to load model file pre-trained by Cellpose model
+        last_conv_on: bool (optional, default True)
+            if Flase, the weights for last conv in pre-trained model will not be loaded
+        """
         if not cpu:
             premodel_dict_0 = torch.load(filename)
         else:
             # self.__init__(self.nbase,self.nout,self.sz,self.residual_on,self.style_on,self.concatenation,self.mkldnn)
             premodel_dict_0 = torch.load(filename, map_location=torch.device('cpu'))
 
-        # 参数适配
-        premodel_dict_1 = copy.deepcopy(premodel_dict_0)  # 拷贝一份用于迭代
-        is_cellpose_provide = True  # 这里指的是原本cellpose的模型
+        # parameter adaptation
+        premodel_dict_1 = copy.deepcopy(premodel_dict_0)
+        is_cellpose_provide = True
         for k, v in premodel_dict_1.items():
             if ('extractor' in k):
                 is_cellpose_provide = False
                 break
 
-        # if is_cellpose_provide:  # 可以用于研究是否读取unsample参数对模型参数的影响
-        #     premodel_dict = {'extractor.' + k: v for k, v in premodel_dict_1.items() if 'downsample' in k}  # 改名
-        # else:
-        #     premodel_dict = {k: v for k, v in premodel_dict_1.items() if 'downsample' in k}  # 改名
-
         if is_cellpose_provide:
             premodel_dict = {'extractor.' + k: v for k, v in premodel_dict_1.items() if 'output' not in k}  # 改名
 
-            for k, v in premodel_dict_1.items():  # 这里针对的是：读取的cellpose模型，可以开关cellpose最后一层
+            for k, v in premodel_dict_1.items():  # for model file pre-trained by Cellpose model
                 k_new = None
                 if 'output.0' in k:
                     k_new = k.replace('output.0', 'tasker.base_bn')
@@ -299,35 +276,14 @@ class sCSnet(nn.Module):
         else:
             premodel_dict = copy.deepcopy(premodel_dict_0)
 
-        # 试一下不同的encoder,使用scellclass的encoder会降低性能
-        # use_class = False
-        # if use_class:
-        #     model_name_class = r'mtl_20210528-16H_Epoch-74_LossTr-0.08_LossVal-0.012'
-        #     pretrained_model_class = os.path.join(r'G:\Python\9-Project\1-flurSeg\scellseg\output\models\scellclass_train',
-        #                                     model_name_class)
-        #     if not cpu:
-        #         premodel_dict_class = torch.load(pretrained_model_class)
-        #     else:
-        #         premodel_dict_class = torch.load(pretrained_model_class, map_location=torch.device('cpu'))
-        #     premodel_dict =  {k: v for k, v in premodel_dict_class.items() if 'downsample' in k}
-        #     for k, v in premodel_dict_1.items():
-        #         if 'upsample' in k:
-        #             if is_cellpose_provide:
-        #                 k_new = 'extractor.' + k
-        #                 premodel_dict[k_new] = premodel_dict_0.pop(k)
-        #             else:
-        #                 premodel_dict[k] = premodel_dict_0.pop(k)
-        #         if 'tasker' in k:
-        #             premodel_dict[k] = premodel_dict_0.pop(k)
-
-        if (not last_conv_on):  # 对mtl模式进行后处理,控制最后conv的读取
+        if (not last_conv_on):
             for k, v in premodel_dict_1.items():
                 if 'base_conv' in k:
                     premodel_dict.pop(k)
 
         model_dict = self.state_dict()
-        model_dict.update(premodel_dict)  # 更新premodel_dict中有的参数
-        self.load_state_dict(model_dict, strict=False)  # 加载模型参数，此时会进行形状验证
+        model_dict.update(premodel_dict)
+        self.load_state_dict(model_dict, strict=False)
 
 
 def adam(params, states, hyperparams):

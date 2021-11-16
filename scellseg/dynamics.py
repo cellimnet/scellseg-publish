@@ -91,7 +91,6 @@ def labels_to_flows(labels, files=None):
         labels = [labels[n][np.newaxis,:,:] for n in range(nimg)]
 
     if labels[0].shape[0] == 1 or labels[0].ndim < 3:
-        # 这里会对传入的label进行计算，如果本身有flows，就不生成，如果只是mask，则生成flows，这里默认一个batch里的是一样的
         # print('NOTE: computing flows for labels (could be done before to save time)')
         # compute flows        
         veci = [masks_to_flows(labels[n][0])[0] for n in range(nimg)]
@@ -158,17 +157,17 @@ def masks_to_flows(masks):
     for i,si in enumerate(slices):
         if si is not None:
             sr,sc = si
-            ly, lx = sr.stop - sr.start + 1, sc.stop - sc.start + 1  # 计算长， 宽
-            y,x = np.nonzero(masks[sr, sc] == (i+1))  # 取出
-            y = y.astype(np.int32) + 1  # 防止质心在边界
+            ly, lx = sr.stop - sr.start + 1, sc.stop - sc.start + 1
+            y,x = np.nonzero(masks[sr, sc] == (i+1))
+            y = y.astype(np.int32) + 1
             x = x.astype(np.int32) + 1
             ymed = np.median(y)
             xmed = np.median(x)
-            imin = np.argmin((x-xmed)**2 + (y-ymed)**2)  # 防止中位数是小数
+            imin = np.argmin((x-xmed)**2 + (y-ymed)**2)
             xmed = x[imin]
             ymed = y[imin]
 
-            d2 = (x-xmed)**2 + (y-ymed)**2  # 计算到质心的距离
+            d2 = (x-xmed)**2 + (y-ymed)**2
             mu_c[sr.start+y-1, sc.start+x-1] = np.exp(-d2/s2)
 
             niter = 2*np.int32(np.ptp(x) + np.ptp(y))
@@ -185,7 +184,7 @@ def masks_to_flows(masks):
     return mu, mu_c
 
 @njit(['(int16[:,:,:],float32[:], float32[:], float32[:,:])',
-        '(float32[:,:,:],float32[:], float32[:], float32[:,:])'], cache=False)  # 会出现pickle问题，改成了False
+        '(float32[:,:,:],float32[:], float32[:], float32[:,:])'], cache=False)
 def map_coordinates(I, yc, xc, Y):
     """
     bilinear interpolation of image 'I' in-place with ycoordinates yc and xcoordinates xc to Y
@@ -525,7 +524,7 @@ def get_masks(p, iscell=None, rpad=20, flows=None, threshold=0.4):
     # remove big masks
     # print('shape0', shape0)
     # _,counts = np.unique(M0, return_counts=True)
-    # big = np.prod(shape0) * 0.6  # 这里把0.4改成了0.6
+    # big = np.prod(shape0) * 0.6  # change 0.4 to 0.6
     # for i in np.nonzero(counts > big)[0]:
     #     M0[M0==i] = 0
     _,M0 = np.unique(M0, return_inverse=True)
@@ -563,7 +562,6 @@ def labels_to_hovers(labels, files=None):
         labels = [labels[n][np.newaxis,:,:] for n in range(nimg)]
 
     if labels[0].shape[0] == 1 or labels[0].ndim < 3:
-        # 这里会对传入的label进行计算，如果本身有flows，就不生成，如果只是mask，则生成flows，这里默认一个batch里的是一样的
         # print('NOTE: computing flows for labels (could be done before to save time) --- hover')
         # compute flows
         veci = [masks_to_hovers(labels[n][0]) for n in range(nimg)]
@@ -575,7 +573,7 @@ def labels_to_hovers(labels, files=None):
                 file_name = os.path.splitext(file)[0]
                 tifffile.imsave(file_name+'_hovers.tif', flow)
     else:
-        # print('flows precomputed')  # TODO：这里可以修改一下，做一个用户反馈机制
+        # print('flows precomputed')
         hovers = [labels[n].astype(np.float32) for n in range(nimg)]
     return hovers
 
@@ -615,7 +613,7 @@ def masks_to_hovers(masks):
     inst_list = list(np.unique(orig_mask))
     inst_list.remove(0)  # 0 is background
     for inst_id in inst_list:
-        inst_map = np.array(orig_mask == inst_id, np.uint8)  # 拿到单个实例
+        inst_map = np.array(orig_mask == inst_id, np.uint8)  # get single instance
         inst_box = get_bounding_box(inst_map) # bbox
 
         # expand the box by 2px
@@ -626,7 +624,7 @@ def masks_to_hovers(masks):
         inst_box[1] += 2
         inst_box[3] += 2
 
-        inst_map = inst_map[inst_box[0] : inst_box[1], inst_box[2] : inst_box[3]]  # 截出来
+        inst_map = inst_map[inst_box[0] : inst_box[1], inst_box[2] : inst_box[3]]  # crop
 
         if inst_map.shape[0] < 2 or inst_map.shape[1] < 2:
             continue
@@ -770,14 +768,14 @@ def get_masks_watershed(pred, cellprob_threshold=0.5, min_size=15):
     )
 
     overall = np.maximum(sobelh, sobelv)
-    overall = overall - (1 - blb)  # 减掉背景区域
+    overall = overall - (1 - blb)  # minus background
     overall[overall < 0] = 0
-    overall = np.array(overall >= 0.6, dtype=np.int32)  # 这里拿到的类似边缘，是为了获得masker
-    marker = blb - overall  # 得到内部区域
+    overall = np.array(overall >= 0.6, dtype=np.int32)  # get masker
+    marker = blb - overall  # get inner
     marker[marker < 0] = 0
-    marker = binary_fill_holes(marker).astype("uint8")  # 填洞
+    marker = binary_fill_holes(marker).astype("uint8")
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-    marker = cv2.morphologyEx(marker, cv2.MORPH_OPEN, kernel)  # 开处理，对区域进行缩小
+    marker = cv2.morphologyEx(marker, cv2.MORPH_OPEN, kernel)  # open
     marker = measurements.label(marker)[0]
     marker = remove_small_objects(marker, min_size=min_size)
 
@@ -787,7 +785,7 @@ def get_masks_watershed(pred, cellprob_threshold=0.5, min_size=15):
     proced_pred = watershed(dist, markers=marker, mask=blb)
     pred_masks = np.zeros_like(proced_pred)
     proced_ids = np.unique(proced_pred)
-    for proced_id in range(1, len(proced_ids)):  # 默认0为背景
+    for proced_id in range(1, len(proced_ids)):  # 0 donate backgound
         proced_id_0 = proced_ids[proced_id]
         pred_masks[proced_pred == proced_id_0] = proced_id
 
