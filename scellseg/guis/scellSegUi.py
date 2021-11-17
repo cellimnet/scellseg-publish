@@ -124,7 +124,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.toolBox = QtWidgets.QToolBox(self.splitter)
         self.toolBox.setObjectName("toolBox")
-        self.toolBox.setFixedWidth(300)
+        self.toolBox.setMaximumWidth(300)
 
         self.page = QtWidgets.QWidget()
         self.page.setFixedWidth(300)
