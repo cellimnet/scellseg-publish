@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-
-# -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'cellPoseUI.ui'
 #
@@ -13,11 +10,7 @@ import sys, os, pathlib, warnings, datetime, tempfile, glob, time
 from natsort import natsorted
 from PyQt5 import QtCore, QtGui, QtWidgets
 import pyqtgraph as pg
-
 import cv2
-
-
-import guiparts, iopart, plot, models, utils, transforms, menus, dynamics
 
 
 from PyQt5 import QtWidgets

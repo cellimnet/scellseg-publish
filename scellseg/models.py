@@ -56,7 +56,8 @@ def download_model_weights(urls=urls):
 
 
 download_model_weights()
-model_dir = pathlib.Path.home().joinpath('.scellseg', 'models')
+project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
+model_dir = os.path.join(project_path, 'assets', 'pretrained_models')
 
 def dx_to_circ(dP):
     """ dP is 2 x Y x X => 'optic' flow representation """
@@ -98,13 +99,22 @@ class sCellSeg(UnetModel):
         you can input your designed model architecture like class sCSnet(nn.Module) in net_desc.py
 
     """
-    def __init__(self, gpu=False, pretrained_model=False,
+    def __init__(self, gpu=False, pretrained_model=False, model_type='scellseg',
                  diam_mean=30., net_avg=True, device=None, nclasses=3,
                  residual_on=True, style_on=True, concatenation=False, update_step=1,
                  last_conv_on=True, attn_on=False, dense_on=False, style_scale_on=True,
                  task_mode='cellpose', model=None):
 
+        model_type = utils.process_model_type(model_type)
+        model_types = ['scellseg', 'cellpose', 'hover', 'unet3', 'unet2']
+        if model_type not in model_types:
+            print(model_type, 'not in pre-designed model, you can design your own model in this mode')
+        else:
+            task_mode, postproc_mode, attn_on, dense_on, style_scale_on = utils.process_different_model(model_type)  # task_mode mean different instance representation
+            pretrained_model = os.path.join(model_dir, model_type)
+
         self.net_avg = net_avg
+        self.postproc_mode = postproc_mode
 
         self.task_mode = task_mode
         if task_mode=='unet2':
@@ -490,7 +500,7 @@ class sCellSeg(UnetModel):
 
     def inference(self, finetune_model=None, query_image_names=None, query_images=None, eval_batch_size=8,
             channel=None, diameter=None, normalize=True, invert=False,
-            augment=False, tile=True, tile_overlap=0.5,
+            augment=False, tile=True, tile_overlap=0.5, net_avg=False,
             resample=False, interp=True, do_3D=False, anisotropy=None, stitch_threshold=0,
             postproc_mode='cellpose', flow_threshold=0.4, cellprob_threshold=0.5, compute_masks=True, min_size=15,
             progress=None, shot_pairs=None):
@@ -515,7 +525,7 @@ class sCellSeg(UnetModel):
         if np.array(channel).ndim==1:
             channels = [channel for n in range(len(query_images))]
         if self.task_mode=='cellpose' or self.task_mode == 'hover':
-            masks, flows, styles = self.cellpose_eval(query_images, batch_size=eval_batch_size, net_avg=self.net_avg,
+            masks, flows, styles = self.cellpose_eval(query_images, batch_size=eval_batch_size, net_avg=net_avg,
                      channels=channels, normalize=normalize, invert=invert, rescale=None, diameter=diameter,
                      do_3D=do_3D, anisotropy=anisotropy, stitch_threshold=stitch_threshold,
                      augment=augment, tile=tile, tile_overlap=tile_overlap,
@@ -523,7 +533,7 @@ class sCellSeg(UnetModel):
                      progress=progress)
 
         elif 'unet' in self.task_mode:
-            masks, flows, styles = self.classic_eval(query_images, batch_size=eval_batch_size, net_avg=self.net_avg,
+            masks, flows, styles = self.classic_eval(query_images, batch_size=eval_batch_size, net_avg=net_avg,
                      channels=channels, invert=invert, normalize=normalize, rescale=None, diameter=diameter,
                      do_3D=do_3D, anisotropy=anisotropy,
                      augment=augment, tile=tile,

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'cellPoseUI.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.3
 #
@@ -10,13 +9,11 @@ import sys, os, pathlib, warnings, datetime, tempfile, glob, time
 from natsort import natsorted
 from PyQt5 import QtCore, QtGui, QtWidgets
 import pyqtgraph as pg
-
 import cv2
+import guiparts, menus
+from scellseg import  plot, models, utils, transforms, dynamics, dataset
 
-
-import guiparts, iopart, plot, models, utils, transforms, menus, dynamics
-
-
+import iopart as io
 
 try:
     import matplotlib.pyplot as plt
@@ -38,7 +35,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         super(Ui_MainWindow, self).__init__()
         if image is not None:
             self.filename = image
-            iopart._load_image(self, self.filename)
+            io._load_image(self, self.filename)
 
 
     def setupUi(self, MainWindow,image=None):
@@ -47,7 +44,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icon/Resource/back.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
-
 
         menus.mainmenu(self)
         menus.editmenu(self)
@@ -163,7 +159,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # if called with image, load it
         # if image is not None:
         #     self.filename = image
-        #     iopart._load_image(self, self.filename)
+        #     io._load_image(self, self.filename)
 
         self.setAcceptDrops(True)
         self.win.show()
@@ -241,7 +237,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         # self.ServerButton = QtWidgets.QPushButton(self.page)
         # self.ServerButton.setObjectName("ServerButton")
-        # self.ServerButton.clicked.connect(lambda: iopart.save_server(self))
+        # self.ServerButton.clicked.connect(lambda: io.save_server(self))
         # self.ServerButton.setEnabled(False)
         # self.gridLayout.addWidget(self.ServerButton, 7, 0, 1, 2)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -287,9 +283,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.NetAvg.addItem("")
         self.gridLayout_2.addWidget(self.NetAvg, 3, 1, 1, 1)
 
-
-
-
         self.scale_on = True
 
         self.useGPU = QtWidgets.QCheckBox(self.page_2)
@@ -304,10 +297,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.checkBox.toggled.connect(self.toggle_scale)
         # self.gridLayout_2.addWidget(self.checkBox, 2, 0, 1, 1)
 
-
         self.ModelChoose = QtWidgets.QComboBox(self.page_2)
         self.ModelChoose.setObjectName("ModelChoose")
-        self.model_dir = pathlib.Path.home().joinpath('.cellpose', 'models')
+        self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
+        self.model_dir = os.path.join(self.project_path, 'assets', 'pretrained_models')
         self.ModelChoose.addItem("")
         self.ModelChoose.addItem("")
         self.ModelChoose.addItem("")
@@ -495,9 +488,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.useGPU.setText(_translate("MainWindow", "Use GPU"))
         self.checkBox.setText(_translate("MainWindow", "Scale disk on"))
         self.eraser_button.setText(_translate("MainWindow","Eraser model"))
-        self.ModelChoose.setItemText(0, _translate("MainWindow", "Cyto"))
-        self.ModelChoose.setItemText(1, _translate("MainWindow", "Nuclei"))
-        self.ModelChoose.setItemText(2, _translate("MainWindow", "Cyto2"))
+        self.ModelChoose.setItemText(0, _translate("MainWindow", "scellseg"))
+        self.ModelChoose.setItemText(1, _translate("MainWindow", "cellpose"))
+        self.ModelChoose.setItemText(2, _translate("MainWindow", "hover"))
         self.jCBChan2.setItemText(0, _translate("MainWindow", "None"))
         self.jCBChan2.setItemText(1, _translate("MainWindow", "Red"))
         self.jCBChan2.setItemText(2, _translate("MainWindow", "Green"))
@@ -539,7 +532,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             # pix = QtGui.QPixmap(self.ImPath)
             # self.ImShowLabel.setPixmap(pix)
             self.CurImId = 0
-            iopart._load_image(self, filename=self.ImPath)
+            io._load_image(self, filename=self.ImPath)
             self.initialize_listView()
 
         else:
@@ -561,7 +554,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             # pix = QtGui.QPixmap(self.ImPath)
             # self.ImShowLabel.setPixmap(pix)
             self.CurImId = 0
-            iopart._load_image(self, filename=self.ImPath)
+            io._load_image(self, filename=self.ImPath)
             self.initialize_listView()
 
         else:
@@ -577,7 +570,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if self.CurImId > 0:  # 第一张图片没有前一张
             self.ImPath = self.ImFolder + r'/'+self.ImNameSet[self.CurImId - 1]
             self.CurImId = self.CurImId - 1
-            iopart._load_image(self, filename=self.ImPath)
+            io._load_image(self, filename=self.ImPath)
             self.initialize_listView()
 
 
@@ -592,7 +585,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ImNum = len(self.ImNameSet)
         if self.CurImId < self.ImNum - 1:
             self.ImPath = self.ImFolder + r'/'+self.ImNameSet[self.CurImId + 1]
-            iopart._load_image(self, filename=self.ImPath)
+            io._load_image(self, filename=self.ImPath)
             self.initialize_listView()
             self.CurImId = self.CurImId + 1
 
@@ -605,14 +598,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.update_plot()
 
 
-
-
     def showChoosen(self, item):
         temp_cell_idx = int(item.row())
         # print(temp_cell_idx)
         self.list_select_cell(int(temp_cell_idx))
-
-
 
     def save_cell_list(self):
         self.cell_list_name =self.filename + "-cell_list.txt"
@@ -734,7 +723,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.ismanual = np.append(self.ismanual, True)
                     if self.NZ==1:
                         # only save after each cell if single image
-                        iopart._save_sets(self)
+                        io._save_sets(self)
 
             self.current_stroke = []
             self.strokes = []
@@ -981,16 +970,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def initialize_model(self):
         self.current_model = self.ModelChoose.currentText()
-        print(self.current_model)
-        self.model = models.Cellpose(gpu=self.useGPU.isChecked(),
-                                     torch=self.torch,
-                                     model_type=self.current_model)
+        self.model = models.sCellSeg(model_type=self.current_model, gpu=self.useGPU.isChecked())
 
     def compute_model(self):
         self.progress.setValue(0)
         self.state_label.setText("now working on compute the mask>>>>>>>>>>")
         self.update_plot()
-
 
         if True:
             tic = time.time()
@@ -1011,10 +996,44 @@ class Ui_MainWindow(QtGui.QMainWindow):
             try:
                 net_avg = self.NetAvg.currentIndex() < 2
                 resample = self.NetAvg.currentIndex() == 1
-                masks, flows, _, _ = self.model.eval(data, channels=channels,
-                                                     diameter=self.diameter, invert=self.invert.isChecked(),
-                                                     net_avg=net_avg, augment=False, resample=resample,
-                                                     do_3D=do_3D, progress=self.progress)
+
+                min_size = ((30. // 2) ** 2) * np.pi * 0.05
+
+                self.finetune_model = None  # TODO: 设一个读取模型路径的按钮
+                self.dataset_path = None  # TODO：设一个读取batch处理的路径
+
+                if self.dataset_path is not None:
+                    # batch inference
+                    save_name = self.current_model + '_' + self.dataset_path.split('\\')[-1]
+                    utils.set_manual_seed(5)
+                    shotset = dataset.DatasetShot(eval_dir=self.dataset_path, class_name=None, image_filter='_img',
+                                          mask_filter='_masks',
+                                          channels=channels, task_mode=self.model.task_mode, active_ind=None, rescale=True)
+                    queryset = dataset.DatasetQuery(self.dataset_path, class_name=None, image_filter='_img', mask_filter='_masks')
+                    query_image_names = queryset.query_image_names
+                    diameter = shotset.md
+                    print('>>>> mean diameter of this style,', round(diameter, 3))
+                    self.model.net.save_name = save_name
+
+                    masks, flows, _ = self.model.inference(finetune_model=self.finetune_model, net_avg=net_avg,
+                                                       query_image_names=query_image_names, channel=channels,
+                                                       diameter=diameter,
+                                                       resample=False, flow_threshold=self.threshold,
+                                                       cellprob_threshold=self.cellprob,
+                                                       min_size=min_size, eval_batch_size=8,
+                                                       postproc_mode=self.model.postproc_mode,
+                                                       progress=self.progress)
+                else:
+                    # inference
+                    masks, flows, _ = self.model.inference(finetune_model=self.finetune_model, net_avg=net_avg,
+                                                           query_image=data, channel=channels,
+                                                           diameter=self.diameter,
+                                                           resample=resample, flow_threshold=self.threshold,
+                                                           cellprob_threshold=self.cellprob,
+                                                           min_size=min_size, eval_batch_size=8,
+                                                           postproc_mode=self.model.postproc_mode,
+                                                           progress=self.progress)
+
 
                 self.masks_for_save = masks
 
@@ -1056,7 +1075,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
 
 
-            iopart._masks_to_gui(self, masks, outlines=None)
+            io._masks_to_gui(self, masks, outlines=None)
             self.progress.setValue(100)
             self.initialize_listView()
 
@@ -1100,7 +1119,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if maski.ndim < 3:
             maski = maski[np.newaxis, ...]
         print('%d cells found' % (len(np.unique(maski)[1:])))
-        iopart._masks_to_gui(self, maski, outlines=None)
+        io._masks_to_gui(self, maski, outlines=None)
         self.initialize_listView()
         self.show()
 
@@ -1160,23 +1179,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def check_gpu(self, torch=True):
         # also decide whether or not to use torch
-        self.torch = torch
         self.useGPU.setChecked(False)
         self.useGPU.setEnabled(False)
-        if self.torch and models.use_gpu(istorch=True):
+        if models.use_gpu():
             self.useGPU.setEnabled(True)
             self.useGPU.setChecked(True)
-        elif models.MXNET_ENABLED:
-            if models.use_gpu(istorch=False):
-                print('>>> will run model on GPU in mxnet <<<')
-                self.torch = False
-                self.useGPU.setEnabled(True)
-                self.useGPU.setChecked(True)
-            elif models.check_mkl(istorch=False):
-                print('>>> will run model on CPU (MKL-accelerated) in mxnet <<<')
-                self.torch = False
-            elif not self.torch:
-                print('>>> will run model on CPU (not MKL-accelerated) in mxnet <<<')
 
 
     def clear_all(self):
@@ -1257,7 +1264,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if self.ncells==0:
             self.ClearButton.setEnabled(False)
         if self.NZ==1:
-            iopart._save_sets(self)
+            io._save_sets(self)
 
     def merge_cells(self, idx):
         self.prev_selected = self.selected
@@ -1287,7 +1294,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.remove_cell(self.selected)
             print('merged two cells')
             self.update_plot()
-            iopart._save_sets(self)
+            io._save_sets(self)
 
             self.undo.setEnabled(False)
             self.redo.setEnabled(False)
@@ -1307,7 +1314,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.zdraw.append([])
             print('added back removed cell')
             self.update_plot()
-            iopart._save_sets(self)
+            io._save_sets(self)
             self.removed_cell = []
             self.redo.setEnabled(False)
 
@@ -1413,12 +1420,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def get_prev_image(self):
         images, idx = self.get_files()
         idx = (idx-1)%len(images)
-        iopart._load_image(self, filename=images[idx])
+        io._load_image(self, filename=images[idx])
 
     def get_next_image(self):
         images, idx = self.get_files()
         idx = (idx+1)%len(images)
-        iopart._load_image(self, filename=images[idx])
+        io._load_image(self, filename=images[idx])
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
@@ -1431,7 +1438,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         print(files)
 
         if os.path.splitext(files[0])[-1] == '.npy':
-            iopart._load_seg(self, filename=files[0])
+            io._load_seg(self, filename=files[0])
             self.initialize_listView()
         if os.path.isdir(files[0]):
             print("loading a folder")
@@ -1440,7 +1447,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:
             # print(len(files))
             # print(files[0])
-            iopart._load_image(self, filename=files[0])
+            io._load_image(self, filename=files[0])
             self.initialize_listView()
 
 
@@ -1665,8 +1672,6 @@ def make_spectral():
     spectral = pg.ColorMap(pos=np.linspace(0.0,255,256), color=color)
     return spectral
 
-
-import png_rc
 
 if __name__ == '__main__':
     pass

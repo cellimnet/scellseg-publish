@@ -65,7 +65,7 @@ for dataset_name in dataset_names:
     model.net.save_name = save_name
 
     shot_pairs = (np.array(shotset.shot_img_names), np.array(shotset.shot_mask_names), True)  # 第三个参数为是否根据shot重新计算
-    masks, flows, styles = model.inference(finetune_model=finetune_model,
+    masks, flows, styles = model.inference(finetune_model=finetune_model, net_avg=net_avg,
                                    query_image_names=query_image_names, channel=channel, diameter=diameter,
                                    resample=False, flow_threshold=flow_threshold, cellprob_threshold=cellprob_threshold,
                                    min_size=min_size, tile_overlap=0.5, eval_batch_size=16, tile=True,

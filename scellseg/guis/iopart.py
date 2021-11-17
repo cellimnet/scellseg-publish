@@ -4,7 +4,7 @@ import numpy as np
 import cv2
 import tifffile
 
-import utils, plot, transforms
+from scellseg import utils, plot, transforms
 
 try:
     from PyQt5 import QtGui, QtCore, Qt, QtWidgets

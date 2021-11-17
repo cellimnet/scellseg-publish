@@ -497,4 +497,20 @@ def process_different_model(model_name):
     elif 'unet2' in model_name:
         task_mode = 'unet2'
         postproc_mode = None
+
     return task_mode, postproc_mode, attn_on, dense_on, style_scale_on
+
+
+def process_model_type(model_name):
+    if 'scellseg' in model_name:
+        model_type = 'scellseg'
+    elif 'cellpose' in model_name:
+        model_type = 'cellpose'
+    elif 'hover' in model_name:
+        model_type = 'hover'
+    elif 'unet3' in model_name:
+        model_type = 'unet3'
+    elif 'unet2' in model_name:
+        model_type = 'unet2'
+
+    return model_type

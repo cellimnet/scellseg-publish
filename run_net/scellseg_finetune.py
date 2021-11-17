@@ -26,8 +26,8 @@ make_folder(output_excel_path)
 train_epoch = 100
 dataset_dir_root = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval'
 dataset_names = ['BBBC010_elegans']  # 'BBBC010_elegans', 'mito', 'bv2'
-contrast_on = 1 
-model_name = 'scellseg'  # unet2, unet3, hover, cellpose, scellseg, scellseg_sneuro, scellseg_sfluor, scellseg_scell, scellseg_smicro
+contrast_on = 1
+model_name = 'scellseg'  # scellseg, cellpose, hover, unet3, unet2, scellseg_sneuro, scellseg_sfluor, scellseg_scell, scellseg_smicro
 
 
 sample_times = 1
