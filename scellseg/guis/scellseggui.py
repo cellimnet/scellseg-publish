@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'cellPoseUI.ui'
+# Form implementation generated from reading ui file 'scellsegui.ui'
 #
 # Created by: PyQt5 UI code generator 5.11.3
 #
@@ -17,7 +17,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase
 
-from cellPoseUI import Ui_MainWindow
+from scellsegui import Ui_MainWindow
 
 
 class CellPoseGUI(Ui_MainWindow):

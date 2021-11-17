@@ -1026,7 +1026,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 else:
                     # inference
                     masks, flows, _ = self.model.inference(finetune_model=self.finetune_model, net_avg=net_avg,
-                                                           query_image=data, channel=channels,
+                                                           query_images=data, channel=channels,
                                                            diameter=self.diameter,
                                                            resample=resample, flow_threshold=self.threshold,
                                                            cellprob_threshold=self.cellprob,
