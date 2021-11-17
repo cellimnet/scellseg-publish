@@ -557,7 +557,7 @@ class RangeSlider(QtGui.QSlider):
 
         self.setOrientation(QtCore.Qt.Horizontal)
         self.setTickPosition(QtGui.QSlider.TicksRight)
-        #self.setStyleSheet(\
+        # self.setStyleSheet(\
         #        "QSlider::handle:vertical {\
         #        background-color: cyan;\
         #        border: 1px solid white;\

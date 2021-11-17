@@ -3,8 +3,8 @@ from natsort import natsorted
 import numpy as np
 import cv2
 import tifffile
-
-from scellseg import utils, plot, transforms
+from scellseg.guis import plot
+from scellseg import utils, transforms
 
 try:
     from PyQt5 import QtGui, QtCore, Qt, QtWidgets
