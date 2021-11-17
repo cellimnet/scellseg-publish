@@ -26,27 +26,40 @@ This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out
 ​	Except the  basic function of Cellpose,
 
 ​	a) You can modify the mask of instance directly in pixel level without deleting it and drawing it from scratch (Find "edit mask", choose "add" or "minus" to edit your mask)
-​	b) You can also take an overall look at of masks you have labelled with a list for each image, each index corresponds to a instance, you can pitch on and add notes to it, besides, the list can be saved and read next time
+
+​	b) You can also take an overall look at of masks you have labelled with a list for each image, each index corresponds to a instance, you can pitch on and add notes to it, besides, the list can be saved and read next time.
+
 ​	c) You can drag a folder into the GUI directly to conduct batch annotation.
+
 ​	b) You can save the mask in .png format
 
 #### 2. Fine-tuning
 
 ​	a) You should prepare your data in one folder with your experiment name like "mito-20211116". Into this folder, it should contain a "shot" subfolder and a "query" subfolder. The "shot" subfolder contains the data you have labelled and the "query" subfolder contains the left images you want to segment. Into the "shot" subfolder, images should be named with "\_img" suffix
 and labels should be named as "\_masks" suffix.
+
 ​	b) Click "dataset path" to choose the root folder of your dataset, such as "mito-20211116"
+
 ​	c) Set the channel you want to segment, you can also provide a chan2 like nuclei channel for better learning
+
 ​	d) Set the epoch you want conduct, the default value is 100, which is used in our paper. You can increase the number for adequate training
+
 ​	e) You can select different pre-trained model ("Scellseg", "Cellpose", or "Hover", "unet3", "unet2") and fine-tuning strategy ("contrastive fine-tuning" or "classic fine-tuning")
+
 ​	f) Click "Start fine-tuning" to start fine-tuning your model. After the fine-tuning, it will show the saved path of the model file.
 
 #### 3. Inference
 
-​	a) If you want conduct batch inference, click "dataset path" to choose the root folder of your dataset, such as "mito-20211116" , else drag a image into the GUI directly
+​	a) If you want conduct batch inference, click "dataset path" to choose the root folder of your dataset, such as "mito-20211116"else drag a image into the GUI directly
+
 ​	b) You can choose your own model file for inference, the default is the pre-trained Scellseg model.
+
 ​	c) The default "model match threshold" is set to 0.4 and "cellprob threshold" is set to 0.5, which is used in our paper, you can change it for better performance.
+
 ​	d) Set the channel you want to segment, you can also provide a chan2 like nuclei channel for better learning, you'd better set the same setting as fine-tuning process.
+
 ​	e) Click "run segmentation" to start inference on your data.
+
 ​	f) You can get each instance image though clicking the "get each instance" button
 
 ### **Declaration**
