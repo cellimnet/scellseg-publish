@@ -115,7 +115,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView.setModel(self.listmodel)
         self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.listView.customContextMenuRequested.connect(self.show_menu)
-        self.listView.setStyleSheet('background-image: url(./Resource/1.jpg);')
+        # self.listView.setStyleSheet('background-image: url(./Resource/1.jpg);')
+        self.listView.setStyleSheet('backgroundcolor:#F0F0F0;')
 
         self.listView.clicked.connect(self.showChoosen)
         self.mainLayout.addWidget(self.listView,0,0,0,1)
@@ -438,12 +439,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_10,0,2,1,1)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
+        self.ftmodelchooseBnt.addItems(["Scellseg","cellpose","hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt,0,3,1,1)
 
         self.label_11 = QtWidgets.QLabel("Chan_segement")
         self.gridLayout_3.addWidget(self.label_11,1,0,1,2)
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
+        self.chan1chooseBnt.addItems(["Gray","Red","Green","Blue"])
         self.gridLayout_3.addWidget(self.chan1chooseBnt,1,2,1,2)
 
 
@@ -452,6 +455,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_12,2,0,1,2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
+        self.chan2chooseBnt.addItems(["None","Gray","Red","Green","Blue"])
+
         self.gridLayout_3.addWidget(self.chan2chooseBnt,2,2,1,2)
 
 
@@ -460,8 +465,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_13 = QtWidgets.QLabel("Fine tune strategy:")
         self.gridLayout_3.addWidget(self.label_13,3,0,1,2)
 
-        self.ftmodelchooseBnt = QtWidgets.QComboBox()
-        self.gridLayout_3.addWidget(self.ftmodelchooseBnt,3,2,1,2)
+        self.stmodelchooseBnt = QtWidgets.QComboBox()
+        self.stmodelchooseBnt.addItems(["Contrastive","classic"])
+        self.gridLayout_3.addWidget(self.stmodelchooseBnt,3,2,1,2)
 
         self.label_14 = QtWidgets.QLabel("Epoch for retraining:")
         self.gridLayout_3.addWidget(self.label_14,4,0,1,2)

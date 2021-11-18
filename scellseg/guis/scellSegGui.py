@@ -203,7 +203,9 @@ if __name__ == "__main__":
         '}',
         'QWidget#page,QWidget#page_2,QWidget#page_3',
         '{',
-        'background-image: url(./Resource/1.jpg);',
+        'backgroundcolor:#F0F0F0;',
+
+        # 'background-image: url(./Resource/1.jpg);',
         '}',
 
 
