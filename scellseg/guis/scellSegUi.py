@@ -109,7 +109,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.myCellList = []
         self.listmodel = QtCore.QStringListModel()
-
         self.listmodel.setStringList(self.myCellList)
         self.listView.setFixedWidth(100)
         self.listView.setModel(self.listmodel)
@@ -278,6 +277,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 2)
 
         self.diameter = 30
+        self.prev_selected = 0
         self.Diameter = QtWidgets.QSpinBox(self.page_2)
         self.Diameter.setObjectName("Diameter")
         self.Diameter.setValue(30)
@@ -518,23 +518,27 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # item = self.listView.itemAt(point)
         # print(item)
         temp_cell_idx = self.listView.rowAt(point.y())
+        # print("index",temp_cell_idx)
+
 
         # self.curRow = self.listView.currentRow()
         # item = self.listView.item(self.curRow)
         # print('will show the menu')
+        if self.listView.rowAt(point.y())>=0:
+            self.contextMenu = QtWidgets.QMenu()
+            self.actionA = QtGui.QAction("delete cell",self)
+            self.actionB = QtGui.QAction("save cell list",self)
+            self.actionC = QtGui.QAction("Edit this cell",self)
 
-        self.contextMenu = QtWidgets.QMenu()
-        self.actionA = QtGui.QAction("delete cell",self)
-        self.actionB = QtGui.QAction("save cell list",self)
+            self.contextMenu.addAction(self.actionA)
+            self.contextMenu.addAction(self.actionB)
+            self.contextMenu.addAction(self.actionC)
+            self.contextMenu.popup(QtGui.QCursor.pos())
 
-        self.contextMenu.addAction(self.actionA)
-        self.contextMenu.addAction(self.actionB)
-        self.contextMenu.popup(QtGui.QCursor.pos())
+            self.actionA.triggered.connect(lambda:self.remove_cell(temp_cell_idx+1))
+            self.actionB.triggered.connect(self.save_cell_list)
 
-        self.actionA.triggered.connect(lambda:self.remove_cell(temp_cell_idx))
-        self.actionB.triggered.connect(self.save_cell_list)
-
-        self.contextMenu.show()
+            self.contextMenu.show()
 
 
 
@@ -679,12 +683,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def showChoosen(self, item):
         temp_cell_idx = int(item.row())
-        # print(temp_cell_idx)
-        self.list_select_cell(int(temp_cell_idx))
+        self.list_select_cell(int(temp_cell_idx)+1)
 
 
 
     def save_cell_list(self):
+        self.myCellList = self.listmodel.stringList()
         self.cell_list_name =self.filename + "-cell_list.txt"
         np.savetxt(self.cell_list_name,np.array(self.myCellList),fmt="%s")
 
@@ -800,7 +804,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.toggle_mask_ops()
                     self.cellcolors.append(color)
                     self.ncells+=1
-                    self.initialize_listView()
+                    self.add_list_item()
                     self.ismanual = np.append(self.ismanual, True)
                     if self.NZ==1:
                         # only save after each cell if single image
@@ -1259,9 +1263,42 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
 
     def initialize_listView(self):
-        self.myCellList = ['cell' + str(i) for i in range(1,self.ncells+1)]
+        if os.path.isfile((self.filename) + '-cell_list.txt'):
+            print("loading cell list")
+            self.list_file_name = str(self.filename+'-cell_list.txt')
+            self.myCellList_array = np.loadtxt(self.list_file_name,dtype=str)
+            # print(type(self.myCellList))
+            self.myCellList = self.myCellList_array.tolist()
+            self.listmodel.setStringList(self.myCellList)
+            self.listView.setModel(self.listmodel)
+        else:
+            self.myCellList = ['cell' + str(i) for i in range(1,self.ncells+1)]
+            self.listmodel.setStringList(self.myCellList)
+            self.listView.setModel(self.listmodel)
+
+    def add_list_item(self):
+        # print(self.ncells)
+        self.myCellList =self.listmodel.stringList()
+        self.myCellList.append('cell'+str(self.ncells))
         self.listmodel.setStringList(self.myCellList)
         self.listView.setModel(self.listmodel)
+
+
+    def delete_list_item(self,index):
+
+        self.myCellList = self.listmodel.stringList()
+        self.last_remove_index = index
+        self.last_remove_item =  self.myCellList.pop(index-1)
+        print(self.last_remove_item)
+        print(self.last_remove_index)
+        self.listmodel.setStringList(self.myCellList)
+        self.listView.setModel(self.listmodel)
+
+    def undo_list_item(self):
+        pass
+
+
+
 
 
     def check_gpu(self, torch=True):
@@ -1290,6 +1327,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def list_select_cell(self, idx):
         self.prev_selected = self.selected
         self.selected = idx
+        print(idx)
+        print(self.prev_selected)
 
         if self.selected > 0:
             self.layers[self.cellpix==idx] = np.array([255,255,255,230])
@@ -1302,6 +1341,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def select_cell(self, idx):
         self.prev_selected = self.selected
         self.selected = idx
+        self.listView.selectRow(idx-1)
 
         # print('the prev-selected is ', self.prev_selected)
         if self.selected > 0:
@@ -1345,7 +1385,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         del self.zdraw[idx-1]
         self.ncells -= 1
         print('removed cell %d'%(idx-1))
-        self.initialize_listView()
+        self.delete_list_item(index=idx)
 
 
         if self.ncells==0:
@@ -1396,7 +1436,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.toggle_mask_ops()
             self.cellcolors.append(color)
             self.ncells+=1
-            self.initialize_listView()
+            self.undo_list_item()
             self.ismanual = np.append(self.ismanual, self.removed_cell[0])
             self.zdraw.append([])
             print('added back removed cell')
