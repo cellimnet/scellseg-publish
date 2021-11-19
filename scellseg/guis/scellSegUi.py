@@ -8,7 +8,7 @@
 import numpy as np
 import sys, os, pathlib, warnings, datetime, tempfile, glob, time
 from natsort import natsorted
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets,Qt
 import pyqtgraph as pg
 
 import cv2
@@ -51,6 +51,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icon/Resource/back.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
 
 
         menus.mainmenu(self)
@@ -217,7 +218,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.eraser_button = QtWidgets.QCheckBox(self.page)
         self.eraser_button.setObjectName("eraser model")
         self.eraser_button.setChecked(False)
-        self.eraser_button.setEnabled(False)
+        # self.eraser_button.setEnabled(False)
         self.eraser_button.toggled.connect(self.eraser_model_change)
         self.gridLayout.addWidget(self.eraser_button, 8, 0, 1, 1)
 
@@ -537,11 +538,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
             self.actionA.triggered.connect(lambda:self.remove_cell(temp_cell_idx+1))
             self.actionB.triggered.connect(self.save_cell_list)
+            self.actionC.triggered.connect(lambda:self.edit_cell(temp_cell_idx+1))
 
             self.contextMenu.show()
 
 
 
+    def edit_cell(self,index):
+        self.select_cell(index)
+        self.eraser_button.setChecked(True)
 
 
     def test_func(self):
@@ -676,7 +681,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.outlinesOn = False
             self.OCheckBox.setEnabled(False)
             self.OCheckBox.setChecked(False)
+
+            cursor = Qt.QPixmap("./Resource/eraser.png")
+            cursor_scaled = cursor.scaled(15, 15)
+            cursor_set = Qt.QCursor(cursor_scaled, 8, 8)
+            QtWidgets.QApplication.setOverrideCursor(cursor_set)
             self.update_plot()
+
+        else:
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
+
+
 
 
 
@@ -790,8 +805,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def add_set(self):
         if len(self.current_point_set) > 0:
-            print(self.current_point_set)
-            print(np.array(self.current_point_set).shape)
+            # print(self.current_point_set)
+            # print(np.array(self.current_point_set).shape)
             self.current_point_set = np.array(self.current_point_set)
             while len(self.strokes) > 0:
                 self.remove_stroke(delete_points=False)
@@ -815,7 +830,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.current_point_set = []
             self.update_plot()
 
-    def add_mask(self, points=None, color=(100,200,50)):
+    def add_mask(self, points=None, color=None):
         # loop over z values
         median = []
         if points.shape[1] < 3:
@@ -1169,7 +1184,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
             iopart._masks_to_gui(self, masks, outlines=None)
             self.progress.setValue(100)
-            self.initialize_listView()
+            self.first_load_listView()
 
             # self.toggle_server(off=True)
             if not do_3D:
@@ -1212,7 +1227,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             maski = maski[np.newaxis, ...]
         print('%d cells found' % (len(np.unique(maski)[1:])))
         iopart._masks_to_gui(self, maski, outlines=None)
-        self.initialize_listView()
+        self.first_load_listView()
         self.show()
 
     def reset(self):
@@ -1261,6 +1276,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.filename = []
         self.loaded = False
 
+    def first_load_listView(self):
+        self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+        self.listmodel.setStringList(self.myCellList)
+        self.listView.setModel(self.listmodel)
+
 
     def initialize_listView(self):
         if os.path.isfile((self.filename) + '-cell_list.txt'):
@@ -1269,8 +1289,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.myCellList_array = np.loadtxt(self.list_file_name,dtype=str)
             # print(type(self.myCellList))
             self.myCellList = self.myCellList_array.tolist()
-            self.listmodel.setStringList(self.myCellList)
-            self.listView.setModel(self.listmodel)
+            if len(self.myCellList) == self.ncells:
+                self.listmodel.setStringList(self.myCellList)
+                self.listView.setModel(self.listmodel)
+            else:
+
+                self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+                self.listmodel.setStringList(self.myCellList)
+                self.listView.setModel(self.listmodel)
         else:
             self.myCellList = ['cell' + str(i) for i in range(1,self.ncells+1)]
             self.listmodel.setStringList(self.myCellList)
@@ -1294,9 +1320,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listmodel.setStringList(self.myCellList)
         self.listView.setModel(self.listmodel)
 
-    def undo_list_item(self):
-        pass
-
 
 
 
@@ -1319,7 +1342,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.outpix = np.zeros((self.NZ,self.Ly,self.Lx), np.uint16)
         self.cellcolors = [np.array([255,255,255])]
         self.ncells = 0
-        self.initialize_listView()
+        self.first_load_listView()
         print('removed all cells')
         self.toggle_removals()
         self.update_plot()
@@ -1642,6 +1665,42 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 self.layers[...,3] = 0
             self.layers[self.outpix>0] = np.array(self.outcolor).astype(np.uint8)
 
+    def update_plot_without_mask(self):
+        self.Ly, self.Lx, _ = self.stack[self.currentZ].shape
+        if self.view==0:
+            image = self.stack[self.currentZ]
+            if self.color==0:
+                if self.onechan:
+                    # show single channel
+                    image = self.stack[self.currentZ][:,:,0]
+                self.img.setImage(image, autoLevels=False, lut=None)
+            elif self.color==1:
+                image = image.astype(np.float32).mean(axis=-1).astype(np.uint8)
+                self.img.setImage(image, autoLevels=False, lut=None)
+            elif self.color==2:
+                image = image.astype(np.float32).mean(axis=-1).astype(np.uint8)
+                self.img.setImage(image, autoLevels=False, lut=self.cmap[0])
+            elif self.color>2:
+                image = image[:,:,self.color-3]
+                self.img.setImage(image, autoLevels=False, lut=self.cmap[self.color-2])
+            self.img.setLevels(self.saturation[self.currentZ])
+        else:
+            image = np.zeros((self.Ly,self.Lx), np.uint8)
+            if len(self.flows)>=self.view-1 and len(self.flows[self.view-1])>0:
+                image = self.flows[self.view-1][self.currentZ]
+            if self.view>1:
+                self.img.setImage(image, autoLevels=False, lut=self.bwr)
+            else:
+                self.img.setImage(image, autoLevels=False, lut=None)
+            self.img.setLevels([0.0, 255.0])
+        self.scale.setImage(self.radii, autoLevels=False)
+        self.scale.setLevels([0.0,255.0])
+        if self.masksOn or self.outlinesOn:
+            self.layer.setImage(self.layers[self.currentZ], autoLevels=False)
+        self.win.show()
+        self.show()
+
+
 
     def update_plot(self):
         self.Ly, self.Lx, _ = self.stack[self.currentZ].shape
@@ -1673,11 +1732,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.img.setLevels([0.0, 255.0])
         self.scale.setImage(self.radii, autoLevels=False)
         self.scale.setLevels([0.0,255.0])
-        #self.img.set_ColorMap(self.bwr)
+
         if self.masksOn or self.outlinesOn:
             self.layer.setImage(self.layers[self.currentZ], autoLevels=False)
-        #self.slider.setLow(self.saturation[self.currentZ][0])
-        #self.slider.setHigh(self.saturation[self.currentZ][1])
+
         self.win.show()
         self.show()
 
@@ -1732,7 +1790,7 @@ def run(image=None):
     os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 
     models.download_model_weights()
-    Ui_MainWindow(image=image)
+    Ui_MainWindow()
     # ret = app.exec_()
     # sys.exit(ret)
 
@@ -1804,4 +1862,3 @@ import png_rc
 
 if __name__ == '__main__':
     pass
-

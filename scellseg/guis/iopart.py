@@ -693,9 +693,11 @@ def _save_png(parent):
     base = os.path.splitext(filename)[0]
     if parent.NZ==1:
         print('saving 2D masks to png')
-        # imsave(base + '_cp_masks.png', parent.cellpix[0])
-        print(type(parent.masks_for_save))
-        imsave(base + '_cp_masks.png', parent.masks_for_save)
+        imsave(base + '_cp_masks.png', parent.cellpix[0])
+        # imsave(base + '_cp_masks.png', parent.layers[0])
+
+        # print(type(parent.masks_for_save))
+        # imsave(base + '_cp_masks.png', parent.masks_for_save)
 
     else:
         print('saving 3D masks to tiff')
@@ -704,6 +706,7 @@ def _save_png(parent):
 def _save_outlines(parent):
     filename = parent.filename
     base = os.path.splitext(filename)[0]
+
     if parent.NZ==1:
         print('saving 2D outlines to text file, see docs for info to load into ImageJ')    
         outlines = utils.outlines_list(parent.cellpix[0])

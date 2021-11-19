@@ -371,34 +371,55 @@ class ImageDraw(pg.ImageItem):
                         ev.accept()
                         self.end_stroke()
                         self.parent.in_stroke = False
-                elif not self.parent.in_stroke:
-                    y,x = int(ev.pos().y()), int(ev.pos().x())
-                    if y>=0 and y<self.parent.Ly and x>=0 and x<self.parent.Lx:
-                        if ev.button()==QtCore.Qt.LeftButton and not ev.double():
-                            idx = self.parent.cellpix[self.parent.currentZ][y,x]
-                            if idx > 0:
-                                if ev.modifiers()==QtCore.Qt.ControlModifier:
-                                    # delete mask selected
-                                    self.parent.remove_cell(idx)
-                                elif ev.modifiers()==QtCore.Qt.AltModifier:
-                                    self.parent.merge_cells(idx)
-                                elif self.parent.masksOn:
-                                    self.parent.unselect_cell()
-                                    self.parent.select_cell(idx)
-                            elif self.parent.masksOn:
-                                self.parent.unselect_cell()
-                        else:
-                            ev.ignore()
-                            return
+
 
         if self.eraser_model:
-            if self.parent.loaded == True:
                 if self.parent.loaded and ev.button() == QtCore.Qt.RightButton:
-                    # print('in eraser_model')
-                    # print(ev.pos())
-                    # print(self.parent.layers[0][int(ev.pos().y()),int(ev.pos().x()),-1])
-                    self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+1, int(ev.pos().x())-1:int(ev.pos().x())+1, -1] = 0
-                    self.parent.update_plot()
+                    if ev.modifiers() == QtCore.Qt.ShiftModifier:
+                        print(self.parent.selected)
+                        if self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] == self.parent.selected:
+                            # print('in eraser_model')
+                            # print(ev.pos())
+                            # print(self.parent.layers[0][int(ev.pos().y()),int(ev.pos().x()),-1])
+                            # self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] = 0
+                            # self.parent.layers[0][int(ev.pos().y()), int(ev.pos().x()),-1] = 0
+                            # print(type(self.parent.layers))
+                            # print(self.parent.layers.shape)
+                            self.parent.cellpix[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4] = 0
+                            # print(self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+2, int(ev.pos().x())-1:int(ev.pos().x())+2,-1])
+                            self.parent.layers[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4,-1] = 0
+
+                            self.parent.update_plot()
+
+                    elif self.parent.selected>0:
+                        print(self.parent.cellcolors[self.parent.selected])
+                        self.parent.cellpix[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4] = self.parent.selected
+                        self.parent.layers[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4,0:3] = self.parent.cellcolors[self.parent.selected].tolist()
+                        self.parent.layers[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4,-1] = 255
+                        self.parent.update_plot()
+
+
+
+
+        if not self.parent.in_stroke:
+            y, x = int(ev.pos().y()), int(ev.pos().x())
+            if y >= 0 and y < self.parent.Ly and x >= 0 and x < self.parent.Lx:
+                if ev.button() == QtCore.Qt.LeftButton and not ev.double():
+                    idx = self.parent.cellpix[self.parent.currentZ][y, x]
+                    if idx > 0:
+                        if ev.modifiers() == QtCore.Qt.ControlModifier:
+                            # delete mask selected
+                            self.parent.remove_cell(idx)
+                        elif ev.modifiers() == QtCore.Qt.AltModifier:
+                            self.parent.merge_cells(idx)
+                        elif self.parent.masksOn:
+                            self.parent.unselect_cell()
+                            self.parent.select_cell(idx)
+                    elif self.parent.masksOn:
+                        self.parent.unselect_cell()
+                else:
+                    ev.ignore()
+                    return
 
 
 
@@ -409,7 +430,7 @@ class ImageDraw(pg.ImageItem):
         return
 
     def hoverEvent(self, ev):
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
+        # QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
         if self.parent.in_stroke:
             if self.parent.in_stroke:
                 # continue stroke if not at start

@@ -39,21 +39,25 @@ def mainmenu(parent):
     file_menu.addAction(parent.savePNG)
     parent.savePNG.setEnabled(True)
 
+    parent.saveCellList = QtGui.QAction("Save Cell list as txt", parent)
+    parent.saveCellList.triggered.connect(lambda:parent.save_cell_list())
+    file_menu.addAction(parent.saveCellList)
+
     parent.saveOutlines = QtGui.QAction("Save &Outlines as text for imageJ", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")
     parent.saveOutlines.triggered.connect(lambda: io._save_outlines(parent))
     file_menu.addAction(parent.saveOutlines)
     parent.saveOutlines.setEnabled(False)
 
-    parent.saveServer = QtGui.QAction("Send manually labelled data to server", parent)
-    parent.saveServer.triggered.connect(lambda: io.save_server(parent))
-    file_menu.addAction(parent.saveServer)
-    parent.saveServer.setEnabled(False)
-
-    parent.switchBackend = QtGui.QAction("Switch backend to MXNET if installed", parent)
-    parent.switchBackend.triggered.connect(lambda: parent.check_gpu(False))
-    file_menu.addAction(parent.switchBackend)
-    parent.switchBackend.setEnabled(False)
+    # parent.saveServer = QtGui.QAction("Send manually labelled data to server", parent)
+    # parent.saveServer.triggered.connect(lambda: io.save_server(parent))
+    # file_menu.addAction(parent.saveServer)
+    # parent.saveServer.setEnabled(False)
+    #
+    # parent.switchBackend = QtGui.QAction("Switch backend to MXNET if installed", parent)
+    # parent.switchBackend.triggered.connect(lambda: parent.check_gpu(False))
+    # file_menu.addAction(parent.switchBackend)
+    # parent.switchBackend.setEnabled(False)
 
 def editmenu(parent):
     main_menu = parent.menuBar()
@@ -89,6 +93,7 @@ def helpmenu(parent):
     checkMKL = QtGui.QAction("Check CPU MKL -- see terminal", parent)
     checkMKL.triggered.connect(lambda: models.check_mkl(istorch=parent.torch))
     help_menu.addAction(checkMKL)
+
 
     openHelp = QtGui.QAction("&Help window", parent)
     openHelp.setShortcut("Ctrl+H")
