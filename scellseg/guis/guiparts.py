@@ -374,10 +374,13 @@ class ImageDraw(pg.ImageItem):
 
 
         if self.eraser_model:
-                if self.parent.loaded and ev.button() == QtCore.Qt.RightButton:
-                    if ev.modifiers() == QtCore.Qt.ShiftModifier:
-                        print(self.parent.selected)
-                        if self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] == self.parent.selected:
+            size = self.parent.brush_size
+            if self.parent.loaded and ev.button() == QtCore.Qt.RightButton:
+                if ev.modifiers() == QtCore.Qt.ShiftModifier:
+                    print(self.parent.selected)
+                    size = self.parent.brush_size
+
+                    if self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] == self.parent.selected:
                             # print('in eraser_model')
                             # print(ev.pos())
                             # print(self.parent.layers[0][int(ev.pos().y()),int(ev.pos().x()),-1])
@@ -385,18 +388,18 @@ class ImageDraw(pg.ImageItem):
                             # self.parent.layers[0][int(ev.pos().y()), int(ev.pos().x()),-1] = 0
                             # print(type(self.parent.layers))
                             # print(self.parent.layers.shape)
-                            self.parent.cellpix[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4] = 0
+                        self.parent.cellpix[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1] = 0
                             # print(self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+2, int(ev.pos().x())-1:int(ev.pos().x())+2,-1])
-                            self.parent.layers[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4,-1] = 0
+                        self.parent.layers[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1,-1] = 0
 
-                            self.parent.update_plot()
-
-                    elif self.parent.selected>0:
-                        print(self.parent.cellcolors[self.parent.selected])
-                        self.parent.cellpix[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4] = self.parent.selected
-                        self.parent.layers[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4,0:3] = self.parent.cellcolors[self.parent.selected].tolist()
-                        self.parent.layers[0][int(ev.pos().y())-3:int(ev.pos().y())+4, int(ev.pos().x())-3:int(ev.pos().x())+4,-1] = 255
                         self.parent.update_plot()
+
+                elif self.parent.selected>0:
+                    print(self.parent.cellcolors[self.parent.selected])
+                    self.parent.cellpix[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1] = self.parent.selected
+                    self.parent.layers[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1,0:3] = self.parent.cellcolors[self.parent.selected].tolist()
+                    self.parent.layers[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1,-1] = 255
+                    self.parent.update_plot()
 
 
 
