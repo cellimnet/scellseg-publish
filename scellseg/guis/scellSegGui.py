@@ -26,8 +26,6 @@ class CellPoseGUI(Ui_MainWindow):
         self.splitter.handle(1).setAttribute(Qt.WA_Hover, True)
 
 
-
-
     def autosave_on(self):
         if self.SCheckBox.isChecked():
             self.autosave = True

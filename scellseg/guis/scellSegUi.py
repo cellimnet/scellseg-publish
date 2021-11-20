@@ -216,7 +216,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout.addWidget(self.checkBox, 12, 0, 1, 1)
 
         self.eraser_button = QtWidgets.QCheckBox(self.page)
-        self.eraser_button.setObjectName("eraser model")
+        self.eraser_button.setObjectName("Edit mask")
         self.eraser_button.setChecked(False)
         # self.eraser_button.setEnabled(False)
         self.eraser_button.toggled.connect(self.eraser_model_change)
@@ -224,7 +224,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
 
         self.eraser_combobox = QtWidgets.QComboBox(self.page)
-        self.eraser_combobox.addItems(["Pixal delete","Pixal add"])
+        self.eraser_combobox.addItems(["Pixel delete","Pixel add"])
         self.gridLayout.addWidget(self.eraser_combobox,8,1,1,1)
 
         self.RGBChoose = guiparts.RGBRadioButtons(self, 3, 1)
@@ -236,7 +236,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.saturation_label = QtWidgets.QLabel("Saturation")
         self.gridLayout.addWidget(self.saturation_label,0,0,1,1)
 
-        self.autobtn = QtGui.QCheckBox('Auto-adjust    Z:')
+        self.autobtn = QtGui.QCheckBox('Auto-adjust   Z:')
         self.autobtn.setChecked(True)
         self.gridLayout.addWidget(self.autobtn,0,1,1,1)
 
@@ -440,7 +440,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_10,0,2,1,1)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
-        self.ftmodelchooseBnt.addItems(["Scellseg","cellpose","hover"])
+        self.ftmodelchooseBnt.addItems(["scellseg","cellpose","hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt,0,3,1,1)
 
         self.label_11 = QtWidgets.QLabel("Chan_segement")
@@ -467,10 +467,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_13,3,0,1,2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
-        self.stmodelchooseBnt.addItems(["Contrastive","classic"])
+        self.stmodelchooseBnt.addItems(["contrastive","classic"])
         self.gridLayout_3.addWidget(self.stmodelchooseBnt,3,2,1,2)
 
-        self.label_14 = QtWidgets.QLabel("Epoch for retraining:")
+        self.label_14 = QtWidgets.QLabel("Epoch for fine-tuning:")
         self.gridLayout_3.addWidget(self.label_14,4,0,1,2)
         self.epoch_line = QtWidgets.QLineEdit()
         self.gridLayout_3.addWidget(self.epoch_line,4,2,1,1)
@@ -527,18 +527,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # print('will show the menu')
         if self.listView.rowAt(point.y())>=0:
             self.contextMenu = QtWidgets.QMenu()
-            self.actionA = QtGui.QAction("delete cell",self)
-            self.actionB = QtGui.QAction("save cell list",self)
-            self.actionC = QtGui.QAction("Edit this cell",self)
+            self.actionA = QtGui.QAction("Delete this cell",self)
+            self.actionB = QtGui.QAction("Edit this cell",self)
 
             self.contextMenu.addAction(self.actionA)
             self.contextMenu.addAction(self.actionB)
-            self.contextMenu.addAction(self.actionC)
             self.contextMenu.popup(QtGui.QCursor.pos())
 
             self.actionA.triggered.connect(lambda:self.remove_cell(temp_cell_idx+1))
-            self.actionB.triggered.connect(self.save_cell_list)
-            self.actionC.triggered.connect(lambda:self.edit_cell(temp_cell_idx+1))
+            self.actionB.triggered.connect(lambda:self.edit_cell(temp_cell_idx+1))
 
             self.contextMenu.show()
 
@@ -573,7 +570,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.jCBChanToSegment.setItemText(3, _translate("MainWindow", "Blue"))
         self.useGPU.setText(_translate("MainWindow", "Use GPU"))
         self.checkBox.setText(_translate("MainWindow", "Scale disk on"))
-        self.eraser_button.setText(_translate("MainWindow","Eraser model"))
+        self.eraser_button.setText(_translate("MainWindow","Edit mask"))
         self.ModelChoose.setItemText(0, _translate("MainWindow", "scellseg"))
         self.ModelChoose.setItemText(1, _translate("MainWindow", "cellpose"))
         self.ModelChoose.setItemText(2, _translate("MainWindow", "hover"))
