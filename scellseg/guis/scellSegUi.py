@@ -99,17 +99,26 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.load_folder.clicked.connect(self.OpenDirBntClicked)
 
         self.listView = QtWidgets.QTableView()
-        self.header_model = QtCore.QStringListModel()
-        self.header = ["CELL LIST"]
-        self.header_model.setStringList(self.header)
+
+        # self.header_model = QtCore.QStringListModel()
+        # self.header = ["CELL LIST"]
+        # self.header_model.setStringList(self.header)
 
 
         self.myCellList = []
-        self.listmodel = QtCore.QStringListModel()
-        self.listmodel.setStringList(self.myCellList)
-        self.listView.setFixedWidth(100)
+        self.listmodel = Qt.QStandardItemModel(500,1)
+        # self.listmodel = Qt.QStringListModel()
+        self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+        for i in range(len(self.myCellList)):
+            self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
+
+        self.listView.setFixedWidth(140)
+
+        # self.listView.setHorizontalHeader(self.header)
+
+
         self.listView.setModel(self.listmodel)
-        self.listView.horizontalHeader().setModel(self.header_model)
+        # self.listView.horizontalHeader().setModel(self.header_model)
         self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.listView.customContextMenuRequested.connect(self.show_menu)
         # self.listView.setStyleSheet('background-image: url(./Resource/1.jpg);')
@@ -1192,8 +1201,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.loaded = False
 
     def first_load_listView(self):
+        self.listmodel = Qt.QStandardItemModel(self.ncells,1)
+        # self.listmodel = Qt.QStringListModel()
+        self.listmodel.setHorizontalHeaderLabels(["Annotation"])
         self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
-        self.listmodel.setStringList(self.myCellList)
+        for i in range(len(self.myCellList)):
+            self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
         self.listView.setModel(self.listmodel)
 
     def initialize_listView(self):
@@ -1204,33 +1217,63 @@ class Ui_MainWindow(QtGui.QMainWindow):
             # print(type(self.myCellList))
             self.myCellList = self.myCellList_array.tolist()
             if len(self.myCellList) == self.ncells:
-                self.listmodel.setStringList(self.myCellList)
+                self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+                # self.listmodel = Qt.QStringListModel()
+                self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+                self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+                for i in range(len(self.myCellList)):
+                    self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
                 self.listView.setModel(self.listmodel)
             else:
 
+                self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+                # self.listmodel = Qt.QStringListModel()
+                self.listmodel.setHorizontalHeaderLabels(["Annotation"])
                 self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
-                self.listmodel.setStringList(self.myCellList)
+                for i in range(len(self.myCellList)):
+                    self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
                 self.listView.setModel(self.listmodel)
         else:
             self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
-            self.listmodel.setStringList(self.myCellList)
+            self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+            # self.listmodel = Qt.QStringListModel()
+            self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+            self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+            for i in range(len(self.myCellList)):
+                self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
             self.listView.setModel(self.listmodel)
 
     def add_list_item(self):
         # print(self.ncells)
-        self.myCellList = self.listmodel.stringList()
+        # self.myCellList = self.listmodel.data()
+        self.listView.selectAll()
+        self.myCellList = []
+        for item in self.listView.selectedIndexes():
+            data = item.data()
+            self.myCellList.append(data)
         self.myCellList.append('cell' + str(self.ncells))
-        self.listmodel.setStringList(self.myCellList)
+        self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+        # self.listmodel = Qt.QStringListModel()
+        self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+        for i in range(len(self.myCellList)):
+            self.listmodel.setItem(i, Qt.QStandardItem(self.myCellList[i]))
         self.listView.setModel(self.listmodel)
 
     def delete_list_item(self, index):
 
-        self.myCellList = self.listmodel.stringList()
+        # self.myCellList = self.listmodel.data()
+        self.listView.selectAll()
+        self.myCellList = []
+        for item in self.listView.selectedIndexes():
+            data = item.data()
+            self.myCellList.append(data)
         self.last_remove_index = index
         self.last_remove_item = self.myCellList.pop(index - 1)
-        print(self.last_remove_item)
-        print(self.last_remove_index)
-        self.listmodel.setStringList(self.myCellList)
+        self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+        # self.listmodel = Qt.QStringListModel()
+        self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+        for i in range(len(self.myCellList)):
+            self.listmodel.setItem(i, Qt.QStandardItem(self.myCellList[i]))
         self.listView.setModel(self.listmodel)
 
     def check_gpu(self, torch=True):
