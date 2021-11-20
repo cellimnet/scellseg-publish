@@ -476,7 +476,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.epoch_line,4,2,1,1)
 
         self.interfercebnt = QtWidgets.QPushButton("Fine tune")
-        self.gridLayout_3.addWidget(self.interfercebnt,5,1,1,2)
+        self.gridLayout_3.addWidget(self.interfercebnt,5,0,1,4)
 
 
         spacerItem3 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
