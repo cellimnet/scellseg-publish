@@ -65,9 +65,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
 
-        self.splitter2 = QtWidgets.QSplitter(self.centralwidget)
+        self.splitter2 = QtWidgets.QSplitter()
         self.splitter2.setOrientation(QtCore.Qt.Horizontal)
         self.splitter2.setObjectName("splitter2")
+
 
         self.scrollArea = QtWidgets.QScrollArea(self.splitter)
         self.scrollArea.setWidgetResizable(True)
@@ -87,12 +88,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.mainLayout.setSpacing(0)
         self.mainLayout.setObjectName("mainLayout")
 
+
         self.previous_button = QtWidgets.QPushButton("previous image")
         self.load_folder = QtWidgets.QPushButton("load image folder ")
         self.next_button = QtWidgets.QPushButton("next image")
-        self.mainLayout.addWidget(self.previous_button, 1, 1)
-        self.mainLayout.addWidget(self.load_folder, 1, 2)
-        self.mainLayout.addWidget(self.next_button, 1, 3)
+        self.mainLayout.addWidget(self.previous_button, 1, 1, 1, 1)
+        self.mainLayout.addWidget(self.load_folder, 1, 2, 1, 1)
+        self.mainLayout.addWidget(self.next_button, 1, 3, 1, 1)
 
         self.previous_button.clicked.connect(self.PreImBntClicked)
         self.next_button.clicked.connect(self.NextImBntClicked)
@@ -109,10 +111,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listmodel = Qt.QStandardItemModel(500,1)
         # self.listmodel = Qt.QStringListModel()
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+        self.listView.verticalHeader().setVisible(False)
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setFixedWidth(140)
+        self.listView.setFixedWidth(110)
 
         # self.listView.setHorizontalHeader(self.header)
 
@@ -125,16 +128,16 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView.setStyleSheet('backgroundcolor:#F0F0F0;')
 
         self.listView.clicked.connect(self.showChoosen)
-        self.mainLayout.addWidget(self.listView, 0, 0, 0, 1)
+        # self.mainLayout.addWidget(self.listView, 0, 0, 0, 1)
+
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-
         self.toolBox = QtWidgets.QToolBox(self.splitter)
         self.toolBox.setObjectName("toolBox")
-        self.toolBox.setMaximumWidth(300)
+        self.toolBox.setMaximumWidth(330)
 
         self.page = QtWidgets.QWidget()
-        self.page.setFixedWidth(300)
+        self.page.setFixedWidth(330)
         # self.page.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page.setObjectName("page")
 
@@ -153,7 +156,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.state_label = pg.LabelItem("Canvas has been initialized!")
         self.win.addItem(self.state_label, 3, 0)
 
-        self.mainLayout.addWidget(self.win, 0, 1, 1, 3)
+        # self.mainLayout.addWidget(self.win, 0, 1, 1, 5)
 
         self.win.scene().sigMouseClicked.connect(self.plot_clicked)
         self.win.scene().sigMouseMoved.connect(self.mouse_moved)
@@ -181,6 +184,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.setAcceptDrops(True)
         self.win.show()
         self.show()
+
+        self.splitter2.addWidget(self.listView)
+        self.splitter2.addWidget(self.win)
+        self.mainLayout.addWidget(self.splitter2,0,1,1,3)
 
         self.CHCheckBox = QtWidgets.QCheckBox(self.page)
         self.CHCheckBox.setObjectName("CHCheckBox")
@@ -224,9 +231,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.eraser_button.toggled.connect(self.eraser_model_change)
         self.gridLayout.addWidget(self.eraser_button, 8, 0, 1, 1)
 
-        self.eraser_combobox = QtWidgets.QComboBox(self.page)
-        self.eraser_combobox.addItems(["Pixel delete", "Pixel add"])
-        self.gridLayout.addWidget(self.eraser_combobox, 8, 1, 1, 1)
+        self.eraser_combobox = QtWidgets.QComboBox()
+        self.eraser_combobox.addItems(["Pixal delete", "Pixal add"])
+        # self.gridLayout.addWidget(self.eraser_combobox, 8, 1, 1, 1)
 
         self.RGBChoose = guiparts.RGBRadioButtons(self, 3, 1)
         self.RGBDropDown = QtGui.QComboBox()
@@ -237,9 +244,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.saturation_label = QtWidgets.QLabel("Saturation")
         self.gridLayout.addWidget(self.saturation_label, 0, 0, 1, 1)
 
-        self.autobtn = QtGui.QCheckBox('Auto-adjust   Z:')
+        self.autobtn = QtGui.QCheckBox('Auto-adjust')
         self.autobtn.setChecked(True)
         self.gridLayout.addWidget(self.autobtn, 0, 1, 1, 1)
+
 
         self.currentZ = 0
         self.zpos = QtGui.QLineEdit()
@@ -247,7 +255,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.zpos.setText(str(self.currentZ))
         self.zpos.returnPressed.connect(self.compute_scale)
         self.zpos.setFixedWidth(20)
-        self.gridLayout.addWidget(self.zpos, 0, 2, 1, 1)
+        # self.gridLayout.addWidget(self.zpos, 0, 2, 1, 1)
 
         self.slider = guiparts.RangeSlider(self)
         self.slider.setMinimum(0)
@@ -255,14 +263,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.slider.setLow(0)
         self.slider.setHigh(255)
         self.slider.setTickPosition(QtGui.QSlider.TicksRight)
-        self.slider.setStyleSheet("background:rgba(128,128,128,0.5);")
+        # self.slider.setStyleSheet("background:#F0F0F0;")
         self.gridLayout.addWidget(self.slider, 2, 0, 1, 4)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem, 14, 0, 1, 2)
 
         self.page_2 = QtWidgets.QWidget()
-        self.page_2.setFixedWidth(300)
+        self.page_2.setFixedWidth(330)
         # self.page_2.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_2.setObjectName("page_2")
 
@@ -313,6 +321,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.model_dir = pathlib.Path.home().joinpath('.cellpose', 'models')
 
         self.model_choose_btn = QtWidgets.QPushButton("Model File")
+        self.model_choose_btn.clicked.connect(self.model_file_path_choose)
         self.gridLayout_2.addWidget(self.model_choose_btn, 4, 0, 1, 2)
 
         self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
@@ -394,12 +403,29 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.dataset_inference_bnt = QtWidgets.QPushButton("Dataset path")
         self.gridLayout_2.addWidget(self.dataset_inference_bnt, 13, 0, 1, 2)
+        self.dataset_inference_bnt.clicked.connect(self.batch_inference_dir_choose)
 
         self.batch_inference_bnt = QtWidgets.QPushButton("Batch inference")
+        self.batch_inference_bnt.clicked.connect(self.batch_inference)
         self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 0, 1, 2)
 
+        self.label_15 = QtWidgets.QLabel("                              CELL INSTANCE                            ")
+        self.label_15.setStyleSheet("text-decoration:overline;")
+        self.gridLayout_2.addWidget(self.label_15,15,0,1,2)
+
+        self.single_dir_bnt = QtWidgets.QPushButton("Single dir choose")
+        self.single_dir_bnt.clicked.connect(self.single_dir_choose)
+        self.gridLayout_2.addWidget(self.single_dir_bnt,16,0,1,1)
+
+        self.single_cell_btn = QtWidgets.QPushButton("Get cell instance")
+        self.single_cell_btn.clicked.connect(self.get_single_cell)
+        self.gridLayout_2.addWidget(self.single_cell_btn,16,1,1,1)
+
+        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout_2.addItem(spacerItem2, 18, 0, 1, 2)
+
         self.page_3 = QtWidgets.QWidget()
-        self.page_3.setFixedWidth(300)
+        self.page_3.setFixedWidth(330)
         # self.page_3.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_3.setObjectName("page_3")
 
@@ -409,14 +435,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.progress.setObjectName("progress")
         # self.gridLayout_2.addWidget(self.progress,14,0,1,2)
 
-        spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem2, 15, 0, 1, 2)
+
 
         self.gridLayout_3 = QtWidgets.QGridLayout(self.page_3)
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setObjectName("gridLayout_3")
 
         self.datasetbnt = QtWidgets.QPushButton("Dataset path")
+        self.datasetbnt.clicked.connect(self.dataset_path)
         self.gridLayout_3.addWidget(self.datasetbnt, 0, 0, 1, 2)
 
         self.label_10 = QtWidgets.QLabel("       Model:")
@@ -426,27 +452,26 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ftmodelchooseBnt.addItems(["scellseg", "cellpose", "hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 0, 3, 1, 1)
 
-        self.label_11 = QtWidgets.QLabel("Chan_segement")
+        self.label_11 = QtWidgets.QLabel("Chan_fine_tune")
         self.gridLayout_3.addWidget(self.label_11, 1, 0, 1, 2)
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
         self.chan1chooseBnt.addItems(["Gray", "Red", "Green", "Blue"])
-        self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 2)
+        self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 1)
 
         self.label_12 = QtWidgets.QLabel("Chan2(optional)")
         self.gridLayout_3.addWidget(self.label_12, 2, 0, 1, 2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
         self.chan2chooseBnt.addItems(["None", "Gray", "Red", "Green", "Blue"])
-
-        self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 2)
+        self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 1)
 
         self.label_13 = QtWidgets.QLabel("Fine tune strategy:")
         self.gridLayout_3.addWidget(self.label_13, 3, 0, 1, 2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
-        self.stmodelchooseBnt.addItems(["contrastive", "classic"])
-        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 2)
+        self.stmodelchooseBnt.addItems(["Contrast", "Classic"])
+        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 1)
 
         self.label_14 = QtWidgets.QLabel("Epoch for fine-tuning:")
         self.gridLayout_3.addWidget(self.label_14, 4, 0, 1, 2)
@@ -454,6 +479,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.epoch_line, 4, 2, 1, 1)
 
         self.interfercebnt = QtWidgets.QPushButton("Fine tune")
+        self.interfercebnt.clicked.connect(self.fine_tune)
         self.gridLayout_3.addWidget(self.interfercebnt, 5, 0, 1, 4)
 
         spacerItem3 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -549,11 +575,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         # self.menuHelp.setTitle(_translate("MainWindow", "Help"))
 
-        ################定义相关变量并初始化################
 
-        self.ImFolder = ''  # 图片文件夹路径
-        self.ImNameSet = []  # 图片集合
-        self.CurImId = 0  # 当前显示图在集合中的编号
+
+        self.ImFolder = ''
+        self.ImNameSet = []
+        self.CurImId = 0
 
         self.CurFolder = os.getcwd()
         self.DefaultImFolder = self.CurFolder
@@ -633,10 +659,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.outlinesOn = False
             self.OCheckBox.setEnabled(False)
             self.OCheckBox.setChecked(False)
-
+            self.cur_size = self.brush_size * 6
             cursor = Qt.QPixmap("./Resource/eraser.png")
-            cursor_scaled = cursor.scaled(15, 15)
-            cursor_set = Qt.QCursor(cursor_scaled, 8, 8)
+            cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
+            cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
             QtWidgets.QApplication.setOverrideCursor(cursor_set)
             self.update_plot()
 
@@ -1419,6 +1445,27 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.removed_cell = []
             self.redo.setEnabled(False)
 
+    def dataset_path(self):
+        self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(None,"select folder",self.DefaultImFolder)
+
+    def fine_tune(self):
+        pass
+
+    def get_single_cell(self):
+        pass
+
+    def batch_inference(self):
+        pass
+
+    def batch_inference_dir_choose(self):
+        self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
+
+    def single_dir_choose(self):
+        self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
+
+    def model_file_path_choose(self):
+        self.model_file_path = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
+
     def remove_stroke(self, delete_points=True):
         # self.current_stroke = get_unique_points(self.current_stroke)
         stroke = np.array(self.strokes[-1])
@@ -1440,13 +1487,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
         del self.strokes[-1]
         self.update_plot()
 
-    def draw_pixal(self, env):
-        pass
 
     def brush_choose(self):
         self.brush_size = self.BrushChoose.currentIndex() * 2 + 1
         if self.loaded:
             self.layer.setDrawKernel(kernel_size=self.brush_size)
+            self.update_plot()
+        if self.eraser_button.isChecked():
+            print("will change")
+            self.cur_size = self.brush_size * 6
+            cursor = Qt.QPixmap("./Resource/eraser.png")
+            cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
+            cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
+            QtWidgets.QApplication.setOverrideCursor(cursor_set)
             self.update_plot()
 
     #

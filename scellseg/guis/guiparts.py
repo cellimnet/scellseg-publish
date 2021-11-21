@@ -351,15 +351,11 @@ class ImageDraw(pg.ImageItem):
         self.parent.in_stroke = False
 
     def mouseClickEvent(self, ev):
-        print(type(self.parent.layers))
-        print("we can get acces to the layers!")
-
         self.eraser_model = self.parent.eraser_button.isChecked()
 
         if not self.eraser_model:
             if self.parent.masksOn or self.parent.outlinesOn:
-                if  self.parent.loaded and (ev.button()==QtCore.Qt.RightButton or
-                        ev.modifiers() == QtCore.Qt.ShiftModifier and not ev.double()):
+                if  self.parent.loaded and (ev.button()==QtCore.Qt.RightButton):
                     if not self.parent.in_stroke:
                         ev.accept()
                         self.create_start(ev.pos())
@@ -388,7 +384,7 @@ class ImageDraw(pg.ImageItem):
                             # self.parent.layers[0][int(ev.pos().y()), int(ev.pos().x()),-1] = 0
                             # print(type(self.parent.layers))
                             # print(self.parent.layers.shape)
-                        self.parent.cellpix[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1] = 0
+                        self.parent.cellpix[0][int(ev.pos().y())- size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1] = 0
                             # print(self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+2, int(ev.pos().x())-1:int(ev.pos().x())+2,-1])
                         self.parent.layers[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1,-1] = 0
 
@@ -591,8 +587,6 @@ class RangeSlider(QtGui.QSlider):
         #        width: 3px;\
         #        margin: 8px 2; \
         #        }")
-
-        # set groove color
         
         self.opt = QtGui.QStyleOptionSlider()
         self.opt.orientation=QtCore.Qt.Vertical
@@ -654,11 +648,11 @@ class RangeSlider(QtGui.QSlider):
 
             if i==0:
                 pen = QtGui.QPen()
-                pen.setBrush(QtGui.QColor('#2e4f37'))
+                pen.setBrush(QtGui.QColor('#F0F0F0'))
                 pen.setCapStyle(QtCore.Qt.RoundCap)
                 pen.setWidth(3)
                 painter.setPen(pen)
-                painter.setBrush(QtGui.QColor('#2e4f37'))
+                painter.setBrush(QtGui.QColor('#F0F0F0'))
                 x1,y1,x2,y2 = event.rect().getCoords()
                 painter.drawRect(event.rect())
             style.drawComplexControl(QtWidgets.QStyle.CC_Slider, opt, painter, self)

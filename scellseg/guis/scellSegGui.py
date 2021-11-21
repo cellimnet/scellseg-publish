@@ -118,7 +118,7 @@ if __name__ == "__main__":
         #
         'QSlider::sub-page:horizontal',
         '{',
-        'background:rgba(255,255,255,1);',
+        'background:rgba(0,255,0,0.3);',
         '}',
 
         'QSplitter::handle:horizontal',
