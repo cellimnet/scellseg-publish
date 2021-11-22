@@ -447,40 +447,40 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.datasetbnt.clicked.connect(self.dataset_path)
         self.gridLayout_3.addWidget(self.datasetbnt, 0, 0, 1, 2)
 
-        self.label_10 = QtWidgets.QLabel("       Model:")
+        self.label_10 = QtWidgets.QLabel("  Model:")
         self.gridLayout_3.addWidget(self.label_10, 0, 2, 1, 1)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
         self.ftmodelchooseBnt.addItems(["scellseg", "cellpose", "hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 0, 3, 1, 1)
 
-        self.label_11 = QtWidgets.QLabel("Chan_fine_tune")
+        self.label_11 = QtWidgets.QLabel("Chan to segment")
         self.gridLayout_3.addWidget(self.label_11, 1, 0, 1, 2)
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
         self.chan1chooseBnt.addItems(["Gray", "Red", "Green", "Blue"])
         self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 1)
 
-        self.label_12 = QtWidgets.QLabel("Chan2(optional)")
+        self.label_12 = QtWidgets.QLabel("Chan2 (optional)")
         self.gridLayout_3.addWidget(self.label_12, 2, 0, 1, 2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
         self.chan2chooseBnt.addItems(["None", "Gray", "Red", "Green", "Blue"])
         self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 1)
 
-        self.label_13 = QtWidgets.QLabel("Fine-tune strategy:")
+        self.label_13 = QtWidgets.QLabel("Fine-tune strategy")
         self.gridLayout_3.addWidget(self.label_13, 3, 0, 1, 2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
         self.stmodelchooseBnt.addItems(["Contrastive", "Classic"])
         self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 1)
 
-        self.label_14 = QtWidgets.QLabel("Epoch for fine-tuning:")
+        self.label_14 = QtWidgets.QLabel("Epoch")
         self.gridLayout_3.addWidget(self.label_14, 4, 0, 1, 2)
         self.epoch_line = QtWidgets.QLineEdit()
         self.gridLayout_3.addWidget(self.epoch_line, 4, 2, 1, 1)
 
-        self.interfercebnt = QtWidgets.QPushButton("Fine tune")
+        self.interfercebnt = QtWidgets.QPushButton("Fine-tune")
         self.interfercebnt.clicked.connect(self.fine_tune)
         self.gridLayout_3.addWidget(self.interfercebnt, 5, 0, 1, 4)
 
