@@ -27,7 +27,7 @@ def mainmenu(parent):
     #loadStack.triggered.connect(lambda: parent.load_zstack(None))
     #file_menu.addAction(loadStack)
 
-    parent.saveSet = QtGui.QAction("&Save masks and image (as *_seg.npy)", parent)
+    parent.saveSet = QtGui.QAction("&Save masks and image (*_seg.npy)", parent)
     parent.saveSet.setShortcut("Ctrl+S")
     parent.saveSet.triggered.connect(lambda: io._save_sets(parent))
     file_menu.addAction(parent.saveSet)
@@ -39,11 +39,12 @@ def mainmenu(parent):
     file_menu.addAction(parent.savePNG)
     parent.savePNG.setEnabled(True)
 
-    parent.saveCellList = QtGui.QAction("Save Cell list as txt", parent)
+    parent.saveCellList = QtGui.QAction("Save &instance list (*_instance_list.txt)", parent)
+    parent.saveCellList.setShortcut("Ctrl+I")
     parent.saveCellList.triggered.connect(lambda:parent.save_cell_list())
     file_menu.addAction(parent.saveCellList)
 
-    parent.saveOutlines = QtGui.QAction("Save &Outlines as text for imageJ", parent)
+    parent.saveOutlines = QtGui.QAction("Save &outlines as text for imageJ", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")
     parent.saveOutlines.triggered.connect(lambda: io._save_outlines(parent))
     file_menu.addAction(parent.saveOutlines)

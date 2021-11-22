@@ -14,12 +14,12 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase
 
-from scellSegUi  import Ui_MainWindow
+from scellsegUi  import Ui_MainWindow
 
 
-class CellPoseGUI(Ui_MainWindow):
+class scellsegGui(Ui_MainWindow):
     def __init__(self, image=None, parent = None):
-        super(CellPoseGUI, self).__init__(parent)
+        super(scellsegGui, self).__init__(parent)
         self.setupUi(self)
         self.splitter.setSizes([500, 250])
         self.autosave = True
@@ -34,7 +34,7 @@ class CellPoseGUI(Ui_MainWindow):
 
     def closeEvent(self, event):
         # 在关闭程序时弹出确认对话框让用户进行确认是否退出程序。
-        answer = QtWidgets.QMessageBox.question(self, '确认', '确认退出',
+        answer = QtWidgets.QMessageBox.question(self, 'Close', 'Close Scellseg',
                                                 QtWidgets.QMessageBox.Yes |
                                                 QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
         if answer == QtWidgets.QMessageBox.Yes:
@@ -262,7 +262,7 @@ if __name__ == "__main__":
 
     print("Opening environment…")
 
-    gui = CellPoseGUI()
+    gui = scellsegGui()
     app.setStyleSheet('\n'.join(sheet))
     gui.show()
     sys.exit(app.exec_())

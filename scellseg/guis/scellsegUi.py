@@ -43,7 +43,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def setupUi(self, MainWindow, image=None):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1600, 800)
+        MainWindow.resize(1420, 800)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/icon/Resource/back.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -89,9 +89,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.mainLayout.setObjectName("mainLayout")
 
 
-        self.previous_button = QtWidgets.QPushButton("previous image")
+        self.previous_button = QtWidgets.QPushButton("previous image [Ctrl + ←]")
         self.load_folder = QtWidgets.QPushButton("load image folder ")
-        self.next_button = QtWidgets.QPushButton("next image")
+        self.next_button = QtWidgets.QPushButton("next image [Ctrl + →]")
+        self.previous_button.setShortcut(Qt.QKeySequence.MoveToPreviousWord)
+        self.next_button.setShortcut(Qt.QKeySequence.MoveToNextWord)
         self.mainLayout.addWidget(self.previous_button, 1, 1, 1, 1)
         self.mainLayout.addWidget(self.load_folder, 1, 2, 1, 1)
         self.mainLayout.addWidget(self.next_button, 1, 3, 1, 1)
@@ -115,7 +117,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setFixedWidth(110)
+        self.listView.setFixedWidth(135)
 
         # self.listView.setHorizontalHeader(self.header)
 
@@ -125,7 +127,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.listView.customContextMenuRequested.connect(self.show_menu)
         # self.listView.setStyleSheet('background-image: url(./Resource/1.jpg);')
-        self.listView.setStyleSheet('backgroundcolor:#F0F0F0;')
+        # self.listView.setStyleSheet('backgroundcolor:#F0F0F0;')
 
         self.listView.clicked.connect(self.showChoosen)
         # self.mainLayout.addWidget(self.listView, 0, 0, 0, 1)
@@ -153,7 +155,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.masksOn = True
         self.win = pg.GraphicsLayoutWidget()
         # self.win.setBackground(background='#292929')
-        self.state_label = pg.LabelItem("Canvas has been initialized!")
+        self.state_label = pg.LabelItem("Scellseg has been initialized!")
         self.win.addItem(self.state_label, 3, 0)
 
         # self.mainLayout.addWidget(self.win, 0, 1, 1, 5)
@@ -466,11 +468,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.chan2chooseBnt.addItems(["None", "Gray", "Red", "Green", "Blue"])
         self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 1)
 
-        self.label_13 = QtWidgets.QLabel("Fine tune strategy:")
+        self.label_13 = QtWidgets.QLabel("Fine-tune strategy:")
         self.gridLayout_3.addWidget(self.label_13, 3, 0, 1, 2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
-        self.stmodelchooseBnt.addItems(["Contrast", "Classic"])
+        self.stmodelchooseBnt.addItems(["Contrastive", "Classic"])
         self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 1)
 
         self.label_14 = QtWidgets.QLabel("Epoch for fine-tuning:")
@@ -536,7 +538,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "Cell Pose"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Scellseg"))
         # self.SCheckBox.setText(_translate("MainWindow", "single stroke"))
         self.CHCheckBox.setText(_translate("MainWindow", "Cross-haris"))
         self.MCheckBox.setText(_translate("MainWindow", "Mask on "))
