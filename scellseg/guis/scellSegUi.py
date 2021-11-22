@@ -1244,21 +1244,16 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def initialize_listView(self):
         if os.path.isfile((self.filename) + '_instance_list.txt'):
-            print("loading cell list")
             self.list_file_name = str(self.filename + '_instance_list.txt')
             self.myCellList_array = np.loadtxt(self.list_file_name, dtype=str)
-            # print(type(self.myCellList))
             self.myCellList = self.myCellList_array.tolist()
             if len(self.myCellList) == self.ncells:
                 self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
-                # self.listmodel = Qt.QStringListModel()
                 self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-                self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
                 for i in range(len(self.myCellList)):
                     self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
                 self.listView.setModel(self.listmodel)
             else:
-
                 self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
                 # self.listmodel = Qt.QStringListModel()
                 self.listmodel.setHorizontalHeaderLabels(["Annotation"])
@@ -1326,7 +1321,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.outpix = np.zeros((self.NZ, self.Ly, self.Lx), np.uint16)
         self.cellcolors = [np.array([255, 255, 255])]
         self.ncells = 0
-        self.first_load_listView()
+        self.initialize_listView()
         print('removed all cells')
         self.toggle_removals()
         self.update_plot()
