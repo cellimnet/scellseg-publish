@@ -117,7 +117,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setFixedWidth(120)
+        self.listView.setFixedWidth(110)
 
         # self.listView.setHorizontalHeader(self.header)
 
@@ -260,11 +260,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.gridLayout.addWidget(self.zpos, 0, 2, 1, 1)
 
         self.slider = guiparts.RangeSlider(self)
-        self.slider.setMinimum(0)
+
         self.slider.setMaximum(255)
-        self.slider.setLow(0)
+        self.slider.setMinimum(0)
         self.slider.setHigh(255)
-        self.slider.setTickPosition(QtGui.QSlider.TicksRight)
+        self.slider.setLow(0)
+
+        # self.slider.setTickPosition(QtGui.QSlider.TicksBelow)
         # self.slider.setStyleSheet("background:#F0F0F0;")
         self.gridLayout.addWidget(self.slider, 2, 0, 1, 4)
 
@@ -452,6 +454,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_10, 0, 2, 1, 1)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
+        self.ftmodelchooseBnt.setFixedWidth(100)
         self.ftmodelchooseBnt.addItems(["Scellseg", "Cellpose", "Hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 0, 3, 1, 1)
 
@@ -460,21 +463,21 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
         self.chan1chooseBnt.addItems(["Gray", "Red", "Green", "Blue"])
-        self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 2)
 
         self.label_12 = QtWidgets.QLabel("Chan2 (optional)")
         self.gridLayout_3.addWidget(self.label_12, 2, 0, 1, 2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
         self.chan2chooseBnt.addItems(["None", "Gray", "Red", "Green", "Blue"])
-        self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 2)
 
         self.label_13 = QtWidgets.QLabel("Fine-tune strategy")
         self.gridLayout_3.addWidget(self.label_13, 3, 0, 1, 2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
         self.stmodelchooseBnt.addItems(["Contrastive", "Classic"])
-        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 2)
 
         self.label_14 = QtWidgets.QLabel("Epoch")
         self.gridLayout_3.addWidget(self.label_14, 4, 0, 1, 2)
@@ -662,11 +665,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.outlinesOn = False
             self.OCheckBox.setEnabled(False)
             self.OCheckBox.setChecked(False)
-            self.cur_size = self.brush_size * 6
-            cursor = Qt.QPixmap("./Resource/eraser.png")
-            cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
-            cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
-            QtWidgets.QApplication.setOverrideCursor(cursor_set)
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
+            # self.cur_size = self.brush_size * 6
+            # cursor = Qt.QPixmap("./Resource/eraser.png")
+            # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
+            # cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
+            # QtWidgets.QApplication.setOverrideCursor(cursor_set)
             self.update_plot()
 
         else:
@@ -1451,7 +1455,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(None,"select folder",self.DefaultImFolder)
 
     def fine_tune(self):
-        
         pass
 
     def get_single_cell(self):
@@ -1467,7 +1470,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
 
     def model_file_path_choose(self):
-        self.model_file_path = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
+        self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "select folder", self.DefaultImFolder)
 
     def remove_stroke(self, delete_points=True):
         # self.current_stroke = get_unique_points(self.current_stroke)
@@ -1496,14 +1499,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if self.loaded:
             self.layer.setDrawKernel(kernel_size=self.brush_size)
             self.update_plot()
-        if self.eraser_button.isChecked():
-            print("will change")
-            self.cur_size = self.brush_size * 6
-            cursor = Qt.QPixmap("./Resource/eraser.png")
-            cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
-            cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
-            QtWidgets.QApplication.setOverrideCursor(cursor_set)
-            self.update_plot()
+        # if self.eraser_button.isChecked():
+            # print("will change")
+            # self.cur_size = self.brush_size * 6
+            # cursor = Qt.QPixmap("./Resource/eraser.png")
+            # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
+            # cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
+            # QtWidgets.QApplication.setOverrideCursor(cursor_set)
+            # self.update_plot()
 
     #
     # def toggle_server(self, off=False):
@@ -1519,6 +1522,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def toggle_mask_ops(self):
         self.toggle_removals()
         # self.toggle_server()
+
+    def load_cell_list(self):
+        self.list_file_name = QtWidgets.QFileDialog.getOpenFileName(None, "select folder", self.DefaultImFolder)
+        # print(self.list_file_name[0])
+        self.myCellList_array = np.loadtxt(self.list_file_name[0], dtype=str)
+        self.myCellList = self.myCellList_array.tolist()
+        if len(self.myCellList) == self.ncells:
+            self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+            self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+            for i in range(len(self.myCellList)):
+                self.listmodel.setItem(i, Qt.QStandardItem(self.myCellList[i]))
+            self.listView.setModel(self.listmodel)
 
     def toggle_scale(self):
         if self.scale_on:
