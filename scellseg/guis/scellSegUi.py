@@ -260,11 +260,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.gridLayout.addWidget(self.zpos, 0, 2, 1, 1)
 
         self.slider = guiparts.RangeSlider(self)
-        self.slider.setMinimum(0)
+
         self.slider.setMaximum(255)
-        self.slider.setLow(0)
+        self.slider.setMinimum(0)
         self.slider.setHigh(255)
-        self.slider.setTickPosition(QtGui.QSlider.TicksRight)
+        self.slider.setLow(0)
+
+        # self.slider.setTickPosition(QtGui.QSlider.TicksBelow)
         # self.slider.setStyleSheet("background:#F0F0F0;")
         self.gridLayout.addWidget(self.slider, 2, 0, 1, 4)
 
@@ -452,6 +454,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_10, 0, 2, 1, 1)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
+        self.ftmodelchooseBnt.setFixedWidth(100)
         self.ftmodelchooseBnt.addItems(["Scellseg", "Cellpose", "Hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 0, 3, 1, 1)
 
@@ -460,21 +463,21 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
         self.chan1chooseBnt.addItems(["Gray", "Red", "Green", "Blue"])
-        self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 2)
 
         self.label_12 = QtWidgets.QLabel("Chan2 (optional)")
         self.gridLayout_3.addWidget(self.label_12, 2, 0, 1, 2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
         self.chan2chooseBnt.addItems(["None", "Gray", "Red", "Green", "Blue"])
-        self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 2)
 
         self.label_13 = QtWidgets.QLabel("Fine-tune strategy")
         self.gridLayout_3.addWidget(self.label_13, 3, 0, 1, 2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
         self.stmodelchooseBnt.addItems(["Contrastive", "Classic"])
-        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 2)
 
         self.label_14 = QtWidgets.QLabel("Epoch")
         self.gridLayout_3.addWidget(self.label_14, 4, 0, 1, 2)
@@ -662,6 +665,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.outlinesOn = False
             self.OCheckBox.setEnabled(False)
             self.OCheckBox.setChecked(False)
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
             # self.cur_size = self.brush_size * 6
             # cursor = Qt.QPixmap("./Resource/eraser.png")
             # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)

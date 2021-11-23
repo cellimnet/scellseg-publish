@@ -14,7 +14,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase
 
-from scellSegUi  import Ui_MainWindow
+from scellsegUi  import Ui_MainWindow
 
 
 class scellsegGui(Ui_MainWindow):
