@@ -110,9 +110,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
 
         self.myCellList = []
-        self.listmodel = Qt.QStandardItemModel(500,1)
+        self.listmodel = Qt.QStandardItemModel (0,1)
         # self.listmodel = Qt.QStringListModel()
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+        self.listView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
         self.listView.verticalHeader().setVisible(False)
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
