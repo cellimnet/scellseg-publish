@@ -38,6 +38,7 @@ for dataset_name in dataset_names:
     dataset_dir = os.path.join(dataset_dir_root, dataset_name)
 
     save_name = model_name+'_'+dataset_name
+    print(save_name)
     if contrast_on:
         save_name += '-cft'
     t0 = time.time()

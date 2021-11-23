@@ -15,7 +15,14 @@ import cv2
 import png_rc
 
 import guiparts, iopart, menus, plot
-from scellseg import models, utils, transforms, dynamics, dataset
+from scellseg import models, utils, transforms, dynamics, dataset, io
+from scellseg.dataset import DatasetShot, DatasetQuery
+from scellseg.contrast_learning.dataset import DatasetPairEval
+from skimage.measure import regionprops
+from tqdm import trange
+from math import floor, ceil
+
+from torch.utils.data import DataLoader
 
 try:
     import matplotlib.pyplot as plt
@@ -88,7 +95,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.mainLayout.setSpacing(0)
         self.mainLayout.setObjectName("mainLayout")
 
-
         self.previous_button = QtWidgets.QPushButton("previous image [Ctrl + ←]")
         self.load_folder = QtWidgets.QPushButton("load image folder ")
         self.next_button = QtWidgets.QPushButton("next image [Ctrl + →]")
@@ -118,7 +124,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setFixedWidth(110)
+        self.listView.setFixedWidth(124)
 
         # self.listView.setHorizontalHeader(self.header)
 
@@ -414,7 +420,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.dataset_inference_bnt.clicked.connect(self.batch_inference_dir_choose)
 
         self.batch_inference_bnt = QtWidgets.QPushButton("Batch inference")
-        self.batch_inference_bnt.clicked.connect(self.batch_inference)
+        self.batch_inference_bnt.clicked.connect(self.compute_model)
         self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 1, 1, 1)
 
         self.label_15 = QtWidgets.QLabel("CELL INSTANCE")
@@ -456,7 +462,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
         self.ftmodelchooseBnt.setFixedWidth(100)
-        self.ftmodelchooseBnt.addItems(["Scellseg", "Cellpose", "Hover"])
+        self.ftmodelchooseBnt.addItems(["scellseg", "cellpose", "hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 0, 3, 1, 1)
 
         self.label_11 = QtWidgets.QLabel("Chan to segment")
@@ -485,9 +491,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.epoch_line = QtWidgets.QLineEdit()
         self.gridLayout_3.addWidget(self.epoch_line, 4, 2, 1, 1)
 
-        self.interfercebnt = QtWidgets.QPushButton("Fine-tune")
-        self.interfercebnt.clicked.connect(self.fine_tune)
-        self.gridLayout_3.addWidget(self.interfercebnt, 5, 0, 1, 4)
+        self.ftbnt = QtWidgets.QPushButton("Fine-tune")
+        self.ftbnt.clicked.connect(self.fine_tune)
+        self.gridLayout_3.addWidget(self.ftbnt, 5, 0, 1, 4)
 
         spacerItem3 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_3.addItem(spacerItem3, 6, 0, 1, 1)
@@ -1066,18 +1072,25 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
                 min_size = ((30. // 2) ** 2) * np.pi * 0.05
 
-                self.finetune_model = None  # TODO: 设一个读取模型路径的按钮
-                self.dataset_path = None  # TODO：设一个读取batch处理的路径
+                try:
+                    finetune_model = self.model_file_path[0]
+                    print('ft_model', finetune_model)
+                except:
+                    finetune_model = None
+                try:
+                    dataset_path = self.batch_inference_dir
+                except:
+                    dataset_path = None
 
-                if self.dataset_path is not None:
+                if dataset_path is not None:
                     # batch inference
-                    save_name = self.current_model + '_' + self.dataset_path.split('\\')[-1]
+                    save_name = self.current_model + '_' + dataset_path.split('\\')[-1]
                     utils.set_manual_seed(5)
-                    shotset = dataset.DatasetShot(eval_dir=self.dataset_path, class_name=None, image_filter='_img',
+                    shotset = dataset.DatasetShot(eval_dir=dataset_path, class_name=None, image_filter='_img',
                                                   mask_filter='_masks',
                                                   channels=channels, task_mode=self.model.task_mode, active_ind=None,
                                                   rescale=True)
-                    queryset = dataset.DatasetQuery(self.dataset_path, class_name=None, image_filter='_img',
+                    queryset = dataset.DatasetQuery(dataset_path, class_name=None, image_filter='_img',
                                                     mask_filter='_masks')
                     query_image_names = queryset.query_image_names
                     diameter = shotset.md
@@ -1085,7 +1098,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.model.net.save_name = save_name
                     self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
-                    masks, flows, _ = self.model.inference(finetune_model=self.finetune_model, net_avg=net_avg,
+                    masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
                                                            query_image_names=query_image_names, channel=channels,
                                                            diameter=diameter,
                                                            resample=False, flow_threshold=self.threshold,
@@ -1093,9 +1106,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                            min_size=min_size, eval_batch_size=8,
                                                            postproc_mode=self.model.postproc_mode,
                                                            progress=self.progress)
+
+                    # save output images
+                    diams = np.ones(len(query_image_names)) * diameter
+                    imgs = [io.imread(query_image_name) for query_image_name in query_image_names]
+                    io.masks_flows_to_seg(imgs, masks, flows, diams, query_image_names,
+                                          [channels for i in range(len(query_image_names))])
+                    io.save_to_png(imgs, masks, flows, query_image_names, labels=None, aps=None,
+                                   task_mode=self.model.task_mode)
                 else:
                     # inference
-                    masks, flows, _ = self.model.inference(finetune_model=self.finetune_model, net_avg=net_avg,
+                    masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
                                                            query_images=data, channel=channels,
                                                            diameter=self.diameter,
                                                            resample=resample, flow_threshold=self.threshold,
@@ -1103,6 +1124,48 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                            min_size=min_size, eval_batch_size=8,
                                                            postproc_mode=self.model.postproc_mode,
                                                            progress=self.progress)
+
+                    self.state_label.setText(
+                        '%d cells found with scellseg net in %0.3f sec' % (
+                        len(np.unique(masks)[1:]), time.time() - tic),
+                        color='#008000')
+                    # self.state_label.setStyleSheet("color:green;")
+                    self.update_plot()
+                    self.progress.setValue(75)
+
+                    self.flows[0] = flows[0].copy()
+                    self.flows[1] = (np.clip(utils.normalize99(flows[2].copy()), 0, 1) * 255).astype(np.uint8)
+                    if not do_3D:
+                        masks = masks[np.newaxis, ...]
+                        self.flows[0] = transforms.resize_image(self.flows[0], masks.shape[-2], masks.shape[-1],
+                                                                interpolation=cv2.INTER_NEAREST)
+                        self.flows[1] = transforms.resize_image(self.flows[1], masks.shape[-2], masks.shape[-1])
+                    if not do_3D:
+                        self.flows[2] = np.zeros(masks.shape[1:], dtype=np.uint8)
+                        self.flows = [self.flows[n][np.newaxis, ...] for n in range(len(self.flows))]
+                    else:
+                        self.flows[2] = (flows[1][0] / 10 * 127 + 127).astype(np.uint8)
+
+                    if len(flows) > 2:
+                        self.flows.append(flows[3])
+                        self.flows.append(np.concatenate((flows[1], flows[2][np.newaxis, ...]), axis=0))
+
+                    print()
+                    self.progress.setValue(80)
+                    z = 0
+                    self.masksOn = True
+                    self.outlinesOn = True
+                    self.MCheckBox.setChecked(True)
+                    self.OCheckBox.setChecked(True)
+
+                    iopart._masks_to_gui(self, masks, outlines=None)
+                    self.progress.setValue(100)
+                    self.first_load_listView()
+
+                    # self.toggle_server(off=True)
+                    if not do_3D:
+                        self.threshslider.setEnabled(True)
+                        self.probslider.setEnabled(True)
 
                 self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 self.masks_for_save = masks
@@ -1112,48 +1175,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 self.progress.setValue(0)
                 return
 
-            self.state_label.setText(
-                '%d cells found with scellseg net in %0.3f sec' % (len(np.unique(masks)[1:]), time.time() - tic),
-                color='#008000')
-            # self.state_label.setStyleSheet("color:green;")
-            self.update_plot()
-            self.progress.setValue(75)
-
-            self.flows[0] = flows[0].copy()
-            self.flows[1] = (np.clip(utils.normalize99(flows[2].copy()), 0, 1) * 255).astype(np.uint8)
-            if not do_3D:
-                masks = masks[np.newaxis, ...]
-                self.flows[0] = transforms.resize_image(self.flows[0], masks.shape[-2], masks.shape[-1],
-                                                        interpolation=cv2.INTER_NEAREST)
-                self.flows[1] = transforms.resize_image(self.flows[1], masks.shape[-2], masks.shape[-1])
-            if not do_3D:
-                self.flows[2] = np.zeros(masks.shape[1:], dtype=np.uint8)
-                self.flows = [self.flows[n][np.newaxis, ...] for n in range(len(self.flows))]
-            else:
-                self.flows[2] = (flows[1][0] / 10 * 127 + 127).astype(np.uint8)
-
-            if len(flows) > 2:
-                self.flows.append(flows[3])
-                self.flows.append(np.concatenate((flows[1], flows[2][np.newaxis, ...]), axis=0))
-
-            print()
-            self.progress.setValue(80)
-            z = 0
-            self.masksOn = True
-            self.outlinesOn = True
-            self.MCheckBox.setChecked(True)
-            self.OCheckBox.setChecked(True)
-
-            iopart._masks_to_gui(self, masks, outlines=None)
-            self.progress.setValue(100)
-            self.first_load_listView()
-
-            # self.toggle_server(off=True)
-            if not do_3D:
-                self.threshslider.setEnabled(True)
-                self.probslider.setEnabled(True)
         else:  # except Exception as e:
             print('ERROR: %s' % e)
+
+        print('Finished inference')
 
     def compute_cprob(self):
         rerun = False
@@ -1248,33 +1273,34 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView.setModel(self.listmodel)
 
     def initialize_listView(self):
-        if os.path.isfile((self.filename) + '_instance_list.txt'):
-            self.list_file_name = str(self.filename + '_instance_list.txt')
-            self.myCellList_array = np.loadtxt(self.list_file_name, dtype=str)
-            self.myCellList = self.myCellList_array.tolist()
-            if len(self.myCellList) == self.ncells:
-                self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
-                self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-                for i in range(len(self.myCellList)):
-                    self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
-                self.listView.setModel(self.listmodel)
+        if self.filename != []:
+            if os.path.isfile((self.filename) + '_instance_list.txt'):
+                self.list_file_name = str(self.filename + '_instance_list.txt')
+                self.myCellList_array = np.loadtxt(self.list_file_name, dtype=str)
+                self.myCellList = self.myCellList_array.tolist()
+                if len(self.myCellList) == self.ncells:
+                    self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+                    self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+                    for i in range(len(self.myCellList)):
+                        self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
+                    self.listView.setModel(self.listmodel)
+                else:
+                    self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+                    # self.listmodel = Qt.QStringListModel()
+                    self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+                    self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
+                    for i in range(len(self.myCellList)):
+                        self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
+                    self.listView.setModel(self.listmodel)
             else:
+                self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
                 self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
                 # self.listmodel = Qt.QStringListModel()
                 self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-                self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
+
                 for i in range(len(self.myCellList)):
                     self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
                 self.listView.setModel(self.listmodel)
-        else:
-            self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
-            self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
-            # self.listmodel = Qt.QStringListModel()
-            self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-
-            for i in range(len(self.myCellList)):
-                self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
-            self.listView.setModel(self.listmodel)
 
     def add_list_item(self):
         # print(self.ncells)
@@ -1456,13 +1482,114 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(None,"select folder",self.DefaultImFolder)
 
     def fine_tune(self):
-        pass
+        project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
+        output_path = os.path.join(project_path, 'output')
+        utils.make_folder(output_path)
+        output_excel_path = os.path.join(output_path, 'excels')
+        utils.make_folder(output_excel_path)
+
+        num_batch = 8
+        dataset_dir = self.dataset_path
+        print(dataset_dir)
+
+        if not isinstance(dataset_dir, str):  # TODO: 改成警告
+            print('dataset_dir is not provided')
+
+        train_epoch = 100 if self.epoch_line.text() == '' else self.epoch_line.text()
+        contrast_on = 1 if self.stmodelchooseBnt.currentText() == 'Contrastive' else 0
+        model_type = self.ftmodelchooseBnt.currentText()
+        task_mode, postproc_mode, attn_on, dense_on, style_scale_on = utils.process_different_model(model_type)  # task_mode mean different instance representation
+        pretrained_model = os.path.join(self.model_dir, model_type)
+
+        # chan1 = self.chan1chooseBnt.currentText()
+        # chan2 = self.chan1chooseBnt.currentText()
+        channels = [self.chan1chooseBnt.currentIndex(), self.chan2chooseBnt.currentIndex()]
+
+        utils.set_manual_seed(5)
+        shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
+                              channels=channels,
+                              train_num=train_epoch * num_batch, task_mode=task_mode, rescale=True)
+        shot_gen = DataLoader(dataset=shotset, batch_size=num_batch, num_workers=0, pin_memory=True)
+
+        diameter = shotset.md
+        print('>>>> mean diameter of this style,', round(diameter, 3))
+
+        lr = {'downsample': 0.001, 'upsample': 0.001, 'tasker': 0.001, 'alpha': 0.1}
+        lr_schedule_gamma = {'downsample': 0.5, 'upsample': 0.5, 'tasker': 0.5, 'alpha': 0.5}
+
+        step_size = int(train_epoch * 0.25)
+        model = models.sCellSeg(pretrained_model=pretrained_model, gpu=self.useGPU, update_step=1, nclasses=3,
+                                task_mode=task_mode, net_avg=False,
+                                attn_on=attn_on, dense_on=dense_on, style_scale_on=style_scale_on,
+                                last_conv_on=True, model=None)
+
+        # model_dict = model.net.state_dict()
+        model.net.pretrained_model = pretrained_model
+
+        save_name = model_type + '_' + os.path.basename(dataset_dir)
+        model.net.save_name = save_name
+        # print(save_name)
+
+        model.net.contrast_on = contrast_on
+        if contrast_on:
+            model.net.pair_gen = DatasetPairEval(positive_dir=dataset_dir, use_negative_masks=False, gpu=self.useGPU,
+                                                 rescale=True)
+        print('Now is fine-tuning...Please Wait')
+        model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size)
+        print('Finished Fine-tuning')
 
     def get_single_cell(self):
-        pass
+        try:
+            data_path = self.single_cell_dir
+            print(data_path)
 
-    def batch_inference(self):
-        pass
+            save_dir = os.path.join(os.path.dirname(data_path), 'single')
+            utils.make_folder(save_dir)
+
+            sta = 256
+            image_names = io.get_image_files(data_path, '_masks', imf='_img')
+            mask_names, _ = io.get_label_files(image_names, '_img_cp_masks', imf='_img')
+            imgs = [io.imread(os.path.join(data_path, image_name)) for image_name in image_names]
+            masks = [io.imread(os.path.join(data_path, mask_name)) for mask_name in mask_names]
+
+            for n in trange(len(masks)):
+                maskn = masks[n]
+                props = regionprops(maskn)
+                i_max = maskn.max() + 1
+                for i in range(1, i_max):
+                    maskn_ = np.zeros_like(maskn)
+                    maskn_[maskn == i] = 1
+                    bbox = props[i - 1]['bbox']
+                    if imgs[n].ndim == 3:
+                        imgn_single = imgs[n][bbox[0]:bbox[2], bbox[1]:bbox[3]] * maskn_[bbox[0]:bbox[2], bbox[1]:bbox[3],
+                                                                                  np.newaxis]
+                    else:
+                        imgn_single = imgs[n][bbox[0]:bbox[2], bbox[1]:bbox[3]] * maskn_[bbox[0]:bbox[2], bbox[1]:bbox[3]]
+
+                    shape = imgn_single.shape
+                    shape_x = shape[0]
+                    shape_y = shape[1]
+                    add_x = sta - shape_x
+                    add_y = sta - shape_y
+                    add_x_l = int(floor(add_x / 2))
+                    add_x_r = int(ceil(add_x / 2))
+                    add_y_l = int(floor(add_y / 2))
+                    add_y_r = int(ceil(add_y / 2))
+                    if add_x > 0 and add_y > 0:
+                        if imgn_single.ndim == 3:
+                            imgn_single = np.pad(imgn_single, ((add_x_l, add_x_r), (add_y_l, add_y_r), (0, 0)), 'constant',
+                                                 constant_values=(0, 0))
+                        else:
+                            imgn_single = np.pad(imgn_single, ((add_x_l, add_x_r), (add_y_l, add_y_r)), 'constant',
+                                                 constant_values=(0, 0))
+
+                        save_name = os.path.join(save_dir, image_names[n].split('query')[-1].split('.')[0][1:] + '_' + str(
+                            i) + '.tif')
+                        cv2.imwrite(save_name, imgn_single)
+
+            print('Finish getting single instance')
+        except:
+            print('please provide right path')
 
     def batch_inference_dir_choose(self):
         self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
@@ -1471,7 +1598,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
 
     def model_file_path_choose(self):
-        self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "select folder", self.DefaultImFolder)
+        self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "select file", self.DefaultImFolder)
 
     def remove_stroke(self, delete_points=True):
         # self.current_stroke = get_unique_points(self.current_stroke)
