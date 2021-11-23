@@ -117,7 +117,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setFixedWidth(135)
+        self.listView.setFixedWidth(120)
 
         # self.listView.setHorizontalHeader(self.header)
 
@@ -136,10 +136,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.toolBox = QtWidgets.QToolBox(self.splitter)
         self.toolBox.setObjectName("toolBox")
-        self.toolBox.setMaximumWidth(330)
+        self.toolBox.setMaximumWidth(340)
 
         self.page = QtWidgets.QWidget()
-        self.page.setFixedWidth(330)
+        self.page.setFixedWidth(340)
         # self.page.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page.setObjectName("page")
 
@@ -272,7 +272,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout.addItem(spacerItem, 14, 0, 1, 2)
 
         self.page_2 = QtWidgets.QWidget()
-        self.page_2.setFixedWidth(330)
+        self.page_2.setFixedWidth(340)
         # self.page_2.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_2.setObjectName("page_2")
 
@@ -403,16 +403,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.ModelButton, 12, 0, 1, 2)
         self.ModelButton.setEnabled(False)
 
+        self.label_16 = QtWidgets.QLabel("Batch Inference")
+        self.gridLayout_2.addWidget(self.label_16, 13, 0, 1, 1)
+
         self.dataset_inference_bnt = QtWidgets.QPushButton("Dataset path")
-        self.gridLayout_2.addWidget(self.dataset_inference_bnt, 13, 0, 1, 2)
+        self.gridLayout_2.addWidget(self.dataset_inference_bnt, 14, 0, 1, 1)
         self.dataset_inference_bnt.clicked.connect(self.batch_inference_dir_choose)
 
         self.batch_inference_bnt = QtWidgets.QPushButton("Batch inference")
         self.batch_inference_bnt.clicked.connect(self.batch_inference)
-        self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 0, 1, 2)
+        self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 1, 1, 1)
 
-        self.label_15 = QtWidgets.QLabel("                              CELL INSTANCE                            ")
-        self.label_15.setStyleSheet("text-decoration:overline;")
+        self.label_15 = QtWidgets.QLabel("CELL INSTANCE")
+        # self.label_15.setStyleSheet("text-decoration:overline;")
         self.gridLayout_2.addWidget(self.label_15,15,0,1,2)
 
         self.single_dir_bnt = QtWidgets.QPushButton("Single dir choose")
@@ -427,7 +430,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addItem(spacerItem2, 18, 0, 1, 2)
 
         self.page_3 = QtWidgets.QWidget()
-        self.page_3.setFixedWidth(330)
+        self.page_3.setFixedWidth(340)
         # self.page_3.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_3.setObjectName("page_3")
 
@@ -437,8 +440,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.progress.setObjectName("progress")
         # self.gridLayout_2.addWidget(self.progress,14,0,1,2)
 
-
-
         self.gridLayout_3 = QtWidgets.QGridLayout(self.page_3)
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setObjectName("gridLayout_3")
@@ -447,11 +448,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.datasetbnt.clicked.connect(self.dataset_path)
         self.gridLayout_3.addWidget(self.datasetbnt, 0, 0, 1, 2)
 
-        self.label_10 = QtWidgets.QLabel("  Model:")
+        self.label_10 = QtWidgets.QLabel("             Model:")
         self.gridLayout_3.addWidget(self.label_10, 0, 2, 1, 1)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
-        self.ftmodelchooseBnt.addItems(["scellseg", "cellpose", "hover"])
+        self.ftmodelchooseBnt.addItems(["Scellseg", "Cellpose", "Hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 0, 3, 1, 1)
 
         self.label_11 = QtWidgets.QLabel("Chan to segment")
@@ -501,7 +502,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
-        self.toolBox.setCurrentIndex(0)
+        self.toolBox.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.reset()
 
@@ -676,8 +677,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.list_select_cell(int(temp_cell_idx) + 1)
 
     def save_cell_list(self):
-        self.myCellList = self.listmodel.stringList()
-        self.cell_list_name = self.filename + "-cell_list.txt"
+        self.listView.selectAll()
+        self.myCellList = []
+        for item in self.listView.selectedIndexes():
+            data = item.data()
+            self.myCellList.append(data)
+        self.cell_list_name = self.filename + "_instance_list.txt"
         np.savetxt(self.cell_list_name, np.array(self.myCellList), fmt="%s")
 
     def help_window(self):
@@ -1232,41 +1237,36 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listmodel = Qt.QStandardItemModel(self.ncells,1)
         # self.listmodel = Qt.QStringListModel()
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-        self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+        self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
         self.listView.setModel(self.listmodel)
 
     def initialize_listView(self):
-        if os.path.isfile((self.filename) + '-cell_list.txt'):
-            print("loading cell list")
-            self.list_file_name = str(self.filename + '-cell_list.txt')
+        if os.path.isfile((self.filename) + '_instance_list.txt'):
+            self.list_file_name = str(self.filename + '_instance_list.txt')
             self.myCellList_array = np.loadtxt(self.list_file_name, dtype=str)
-            # print(type(self.myCellList))
             self.myCellList = self.myCellList_array.tolist()
             if len(self.myCellList) == self.ncells:
                 self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
-                # self.listmodel = Qt.QStringListModel()
                 self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-                self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
                 for i in range(len(self.myCellList)):
                     self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
                 self.listView.setModel(self.listmodel)
             else:
-
                 self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
                 # self.listmodel = Qt.QStringListModel()
                 self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-                self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+                self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
                 for i in range(len(self.myCellList)):
                     self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
                 self.listView.setModel(self.listmodel)
         else:
-            self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+            self.myCellList = ['instance_' + str(i) for i in range(1, self.ncells + 1)]
             self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
             # self.listmodel = Qt.QStringListModel()
             self.listmodel.setHorizontalHeaderLabels(["Annotation"])
-            self.myCellList = ['cell' + str(i) for i in range(1, self.ncells + 1)]
+
             for i in range(len(self.myCellList)):
                 self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
             self.listView.setModel(self.listmodel)
@@ -1279,7 +1279,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for item in self.listView.selectedIndexes():
             data = item.data()
             self.myCellList.append(data)
-        self.myCellList.append('cell' + str(self.ncells))
+        self.myCellList.append('instance_' + str(self.ncells))
         self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
         # self.listmodel = Qt.QStringListModel()
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
@@ -1321,7 +1321,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.outpix = np.zeros((self.NZ, self.Ly, self.Lx), np.uint16)
         self.cellcolors = [np.array([255, 255, 255])]
         self.ncells = 0
-        self.first_load_listView()
+        self.initialize_listView()
         print('removed all cells')
         self.toggle_removals()
         self.update_plot()
@@ -1451,6 +1451,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(None,"select folder",self.DefaultImFolder)
 
     def fine_tune(self):
+        
         pass
 
     def get_single_cell(self):
