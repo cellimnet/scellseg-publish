@@ -4,64 +4,64 @@ from pyqtgraph import functions as fn
 from pyqtgraph import Point
 import numpy as np
 import pathlib
-
-def horizontal_slider_style():
-    return """QSlider::groove:horizontal {
-            border: 1px solid #bbb;
-            background: black;
-            height: 10px;
-            border-radius: 4px;
-            }
-
-            QSlider::sub-page:horizontal {
-            background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
-                stop: 0 black, stop: 1 rgb(150,255,150));
-            background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
-                stop: 0 black, stop: 1 rgb(150,255,150));
-            border: 1px solid #777;
-            height: 10px;
-            border-radius: 4px;
-            }
-
-            QSlider::add-page:horizontal {
-            background: black;
-            border: 1px solid #777;
-            height: 10px;
-            border-radius: 4px;
-            }
-
-            QSlider::handle:horizontal {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #eee, stop:1 #ccc);
-            border: 1px solid #777;
-            width: 13px;
-            margin-top: -2px;
-            margin-bottom: -2px;
-            border-radius: 4px;
-            }
-
-            QSlider::handle:horizontal:hover {
-            background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
-                stop:0 #fff, stop:1 #ddd);
-            border: 1px solid #444;
-            border-radius: 4px;
-            }
-
-            QSlider::sub-page:horizontal:disabled {
-            background: #bbb;
-            border-color: #999;
-            }
-
-            QSlider::add-page:horizontal:disabled {
-            background: #eee;
-            border-color: #999;
-            }
-
-            QSlider::handle:horizontal:disabled {
-            background: #eee;
-            border: 1px solid #aaa;
-            border-radius: 4px;
-            }"""
+#
+# def horizontal_slider_style():
+#     return """QSlider::groove:horizontal {
+#             border: 1px solid #bbb;
+#             background: black;
+#             height: 10px;
+#             border-radius: 4px;
+#             }
+#
+#             QSlider::sub-page:horizontal {
+#             background: qlineargradient(x1: 0, y1: 0,    x2: 0, y2: 1,
+#                 stop: 0 black, stop: 1 rgb(150,255,150));
+#             background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
+#                 stop: 0 black, stop: 1 rgb(150,255,150));
+#             border: 1px solid #777;
+#             height: 10px;
+#             border-radius: 4px;
+#             }
+#
+#             QSlider::add-page:horizontal {
+#             background: black;
+#             border: 1px solid #777;
+#             height: 10px;
+#             border-radius: 4px;
+#             }
+#
+#             QSlider::handle:horizontal {
+#             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+#                 stop:0 #eee, stop:1 #ccc);
+#             border: 1px solid #777;
+#             width: 13px;
+#             margin-top: -2px;
+#             margin-bottom: -2px;
+#             border-radius: 4px;
+#             }
+#
+#             QSlider::handle:horizontal:hover {
+#             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+#                 stop:0 #fff, stop:1 #ddd);
+#             border: 1px solid #444;
+#             border-radius: 4px;
+#             }
+#
+#             QSlider::sub-page:horizontal:disabled {
+#             background: #bbb;
+#             border-color: #999;
+#             }
+#
+#             QSlider::add-page:horizontal:disabled {
+#             background: #eee;
+#             border-color: #999;
+#             }
+#
+#             QSlider::handle:horizontal:disabled {
+#             background: #eee;
+#             border: 1px solid #aaa;
+#             border-radius: 4px;
+#             }"""
 
 class ExampleGUI(QtGui.QDialog):
     def __init__(self, parent=None):
@@ -679,7 +679,6 @@ class RangeSlider(QtGui.QSlider):
                 if hit == style.SC_SliderHandle:
                     self.active_slider = i
                     self.pressed_control = hit
-
                     self.triggerAction(self.SliderMove)
                     self.setRepeatAction(self.SliderNoAction)
                     self.setSliderDown(True)

@@ -22,6 +22,8 @@ def mainmenu(parent):
     loadManual.triggered.connect(lambda: io._load_seg(parent))
     file_menu.addAction(loadManual)
 
+
+
     #loadStack = QtGui.QAction("Load &numpy z-stack (*.npy nimgs x nchan x pixels x pixels)", parent)
     #loadStack.setShortcut("Ctrl+N")
     #loadStack.triggered.connect(lambda: parent.load_zstack(None))
@@ -43,6 +45,11 @@ def mainmenu(parent):
     parent.saveCellList.setShortcut("Ctrl+I")
     parent.saveCellList.triggered.connect(lambda:parent.save_cell_list())
     file_menu.addAction(parent.saveCellList)
+
+    loadCellList = QtGui.QAction("Load Instance List", parent)
+
+    loadCellList.triggered.connect(lambda: parent.load_cell_list())
+    file_menu.addAction(loadCellList)
 
     parent.saveOutlines = QtGui.QAction("Save &outlines as text for imageJ", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")

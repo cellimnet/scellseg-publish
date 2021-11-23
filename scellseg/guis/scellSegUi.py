@@ -117,7 +117,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setFixedWidth(120)
+        self.listView.setFixedWidth(110)
 
         # self.listView.setHorizontalHeader(self.header)
 
@@ -662,11 +662,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.outlinesOn = False
             self.OCheckBox.setEnabled(False)
             self.OCheckBox.setChecked(False)
-            self.cur_size = self.brush_size * 6
-            cursor = Qt.QPixmap("./Resource/eraser.png")
-            cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
-            cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
-            QtWidgets.QApplication.setOverrideCursor(cursor_set)
+            # self.cur_size = self.brush_size * 6
+            # cursor = Qt.QPixmap("./Resource/eraser.png")
+            # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
+            # cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
+            # QtWidgets.QApplication.setOverrideCursor(cursor_set)
             self.update_plot()
 
         else:
@@ -1466,7 +1466,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
 
     def model_file_path_choose(self):
-        self.model_file_path = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
+        self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "select folder", self.DefaultImFolder)
 
     def remove_stroke(self, delete_points=True):
         # self.current_stroke = get_unique_points(self.current_stroke)
@@ -1495,14 +1495,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if self.loaded:
             self.layer.setDrawKernel(kernel_size=self.brush_size)
             self.update_plot()
-        if self.eraser_button.isChecked():
-            print("will change")
-            self.cur_size = self.brush_size * 6
-            cursor = Qt.QPixmap("./Resource/eraser.png")
-            cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
-            cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
-            QtWidgets.QApplication.setOverrideCursor(cursor_set)
-            self.update_plot()
+        # if self.eraser_button.isChecked():
+            # print("will change")
+            # self.cur_size = self.brush_size * 6
+            # cursor = Qt.QPixmap("./Resource/eraser.png")
+            # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
+            # cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
+            # QtWidgets.QApplication.setOverrideCursor(cursor_set)
+            # self.update_plot()
 
     #
     # def toggle_server(self, off=False):
@@ -1518,6 +1518,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def toggle_mask_ops(self):
         self.toggle_removals()
         # self.toggle_server()
+
+    def load_cell_list(self):
+        self.list_file_name = QtWidgets.QFileDialog.getOpenFileName(None, "select folder", self.DefaultImFolder)
+        # print(self.list_file_name[0])
+        self.myCellList_array = np.loadtxt(self.list_file_name[0], dtype=str)
+        self.myCellList = self.myCellList_array.tolist()
+        if len(self.myCellList) == self.ncells:
+            self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
+            self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+            for i in range(len(self.myCellList)):
+                self.listmodel.setItem(i, Qt.QStandardItem(self.myCellList[i]))
+            self.listView.setModel(self.listmodel)
 
     def toggle_scale(self):
         if self.scale_on:

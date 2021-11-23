@@ -33,7 +33,6 @@ class scellsegGui(Ui_MainWindow):
             self.autosave = False
 
     def closeEvent(self, event):
-        # 在关闭程序时弹出确认对话框让用户进行确认是否退出程序。
         answer = QtWidgets.QMessageBox.question(self, 'Close', 'Close Scellseg',
                                                 QtWidgets.QMessageBox.Yes |
                                                 QtWidgets.QMessageBox.No, QtWidgets.QMessageBox.No)
@@ -118,7 +117,7 @@ if __name__ == "__main__":
         #
         'QSlider::sub-page:horizontal',
         '{',
-        'background:rgba(0,255,0,0.3);',
+        'background:rgba(0,255,0,0.4);',
         '}',
 
         'QSplitter::handle:horizontal',
