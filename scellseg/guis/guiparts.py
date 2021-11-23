@@ -374,7 +374,7 @@ class ImageDraw(pg.ImageItem):
             if self.parent.loaded and ev.button() == QtCore.Qt.RightButton:
                 if ev.modifiers() == QtCore.Qt.ShiftModifier:
                     print(self.parent.selected)
-                    size = self.parent.brush_size
+                    size = int(self.parent.brush_size/2)
 
                     if self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] == self.parent.selected:
                             # print('in eraser_model')
