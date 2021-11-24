@@ -331,9 +331,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ModelChoose.setObjectName("ModelChoose")
         # self.model_dir = pathlib.Path.home().joinpath('.cellpose', 'models')
 
-        self.model_choose_btn = QtWidgets.QPushButton("Model File")
-        self.model_choose_btn.clicked.connect(self.model_file_path_choose)
-        self.gridLayout_2.addWidget(self.model_choose_btn, 4, 0, 1, 2)
 
         self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
         self.model_dir = os.path.join(self.project_path, 'assets', 'pretrained_models')
@@ -341,7 +338,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ModelChoose.addItem("")
         self.ModelChoose.addItem("")
         self.ModelChoose.addItem("")
-        self.gridLayout_2.addWidget(self.ModelChoose, 5, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.ModelChoose, 4, 1, 1, 1)
 
         self.jCBChanToSegment = QtWidgets.QComboBox(self.page_2)
         self.jCBChanToSegment.setObjectName("jCBChanToSegment")
@@ -349,7 +346,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.jCBChanToSegment.addItem("")
         self.jCBChanToSegment.addItem("")
         self.jCBChanToSegment.addItem("")
-        self.gridLayout_2.addWidget(self.jCBChanToSegment, 6, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.jCBChanToSegment, 5, 1, 1, 1)
 
         self.jCBChan2 = QtWidgets.QComboBox(self.page_2)
         self.jCBChan2.setObjectName("jCBChan2")
@@ -357,31 +354,67 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.jCBChan2.addItem("")
         self.jCBChan2.addItem("")
         self.jCBChan2.addItem("")
-        self.gridLayout_2.addWidget(self.jCBChan2, 7, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.jCBChan2, 6, 1, 1, 1)
 
         self.label_4 = QtWidgets.QLabel(self.page_2)
         self.label_4.setObjectName("label_4")
-        self.gridLayout_2.addWidget(self.label_4, 5, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_4, 4, 0, 1, 1)
 
         self.label_5 = QtWidgets.QLabel(self.page_2)
         self.label_5.setObjectName("label_5")
-        self.gridLayout_2.addWidget(self.label_5, 6, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_5, 5, 0, 1, 1)
 
         self.label_6 = QtWidgets.QLabel(self.page_2)
         self.label_6.setObjectName("label_6")
-        self.gridLayout_2.addWidget(self.label_6, 7, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_6, 6, 0, 1, 1)
 
         self.invert = QtWidgets.QCheckBox(self.page_2)
         self.invert.setObjectName("invert")
-        self.gridLayout_2.addWidget(self.invert, 8, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.invert, 7, 0, 1, 1)
 
         self.label_7 = QtWidgets.QLabel(self.page_2)
         self.label_7.setObjectName("label_7")
-        self.gridLayout_2.addWidget(self.label_7, 9, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_7, 10, 0, 1, 1)
 
         self.threshold = 0.4
         self.threshslider = QtWidgets.QSlider(self.page_2)
+        self.sliderSheet = [
+        'QSlider::groove:vertical {',
+        'background-color: #D3D3D3;',
+        'position: absolute;',
+        'left: 4px; right: 4px;',
+        '}',
+        '',
+        'QSlider::groove:horizontal{',
+        'background-color:#D3D3D3;',
+        'position: absolute;',
+        'top: 4px; bottom: 4px;',
+        '}',
+        '',
+        'QSlider::handle:vertical {',
+        'height: 10px;',
+        'background-color: {0:s};'.format('#A9A9A9'),
+        'margin: 0 -4px;',
+        '}',
+        '',
+        'QSlider::handle:horizontal{',
+        'width: 10px;',
+        'background-color: {0:s};'.format('#A9A9A9'),
+        'margin: -4px 0px -4px 0px;',
+        '}',
+        '',
+        'QSlider::add-page {',
+        'background-color: {0:s};'.format('#D3D3D3'),
+        '}',
+        '',
+        'QSlider::sub-page {',
+        'background-color: {0:s};'.format('#D3D3D3'),
+        '}',
 
+        'QSlider::sub-page:horizontal',
+        '{',
+        'background:rgba(0,255,0,0.4);',
+        '}',]
         self.threshslider.setOrientation(QtCore.Qt.Horizontal)
         self.threshslider.setObjectName("threshslider")
         self.threshslider.setMinimum(1.0)
@@ -389,7 +422,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.threshslider.setValue(31 - 4)
         self.threshslider.valueChanged.connect(self.compute_cprob)
         self.threshslider.setEnabled(False)
-        self.gridLayout_2.addWidget(self.threshslider, 9, 1, 1, 1)
+        self.threshslider.setStyleSheet('\n'.join(self.sliderSheet))
+        self.gridLayout_2.addWidget(self.threshslider, 10, 1, 1, 1)
 
         self.label_8 = QtWidgets.QLabel(self.page_2)
         self.label_8.setObjectName("label_8")
@@ -398,6 +432,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.probslider = QtWidgets.QSlider(self.page_2)
         self.probslider.setOrientation(QtCore.Qt.Horizontal)
         self.probslider.setObjectName("probslider")
+        self.probslider.setStyleSheet('\n'.join(self.sliderSheet))
         self.gridLayout_2.addWidget(self.probslider, 11, 1, 1, 1)
 
         self.probslider.setMinimum(-6.0)
@@ -409,8 +444,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.ModelButton = QtWidgets.QPushButton(' Run segmentation ')
         self.ModelButton.clicked.connect(self.compute_model)
-        self.gridLayout_2.addWidget(self.ModelButton, 12, 0, 1, 2)
+        self.gridLayout_2.addWidget(self.ModelButton, 9, 1, 1, 1)
         self.ModelButton.setEnabled(False)
+
+
+        self.model_choose_btn = QtWidgets.QPushButton("Model File")
+        self.model_choose_btn.clicked.connect(self.model_file_path_choose)
+        self.gridLayout_2.addWidget(self.model_choose_btn, 9, 0, 1, 1)
 
         self.label_16 = QtWidgets.QLabel("Batch Inference")
         self.gridLayout_2.addWidget(self.label_16, 13, 0, 1, 1)
