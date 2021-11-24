@@ -6,7 +6,7 @@
 #
 # WARNING! All changes made in this file will be lost!
 import numpy as np
-import sys, os, pathlib, warnings, datetime, tempfile, glob, time
+import sys, os, pathlib, warnings, datetime, tempfile, glob, time, threading
 from natsort import natsorted
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 import pyqtgraph as pg
@@ -1085,6 +1085,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.current_model = self.ModelChoose.currentText()
         print(self.current_model)
         self.model = models.sCellSeg(model_type=self.current_model, gpu=self.useGPU.isChecked())
+
+
+    def set_compute_thread(self):
+        self.seg_thread = threading.Thread(target = self.compute_model)
+        self.seg_thread.setDeamon(True)
+        self.seg_thread.start()
 
     def compute_model(self):
         self.progress.setValue(0)
