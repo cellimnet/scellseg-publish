@@ -124,7 +124,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setFixedWidth(124)
+        self.listView.setMaximumWidth(120)
 
         # self.listView.setHorizontalHeader(self.header)
 
