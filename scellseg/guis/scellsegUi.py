@@ -420,7 +420,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.dataset_inference_bnt.clicked.connect(self.batch_inference_dir_choose)
 
         self.batch_inference_bnt = QtWidgets.QPushButton("Batch inference")
-        self.batch_inference_bnt.clicked.connect(self.compute_model)
+        self.batch_inference_bnt.clicked.connect(self.batch_inference)
         self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 1, 1, 1)
 
         self.label_15 = QtWidgets.QLabel("CELL INSTANCE")
@@ -1077,95 +1077,144 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     print('ft_model', finetune_model)
                 except:
                     finetune_model = None
+
+                # inference
+                masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
+                                                       query_images=data, channel=channels,
+                                                       diameter=self.diameter,
+                                                       resample=resample, flow_threshold=self.threshold,
+                                                       cellprob_threshold=self.cellprob,
+                                                       min_size=min_size, eval_batch_size=8,
+                                                       postproc_mode=self.model.postproc_mode,
+                                                       progress=self.progress)
+
+                self.state_label.setText(
+                    '%d cells found with scellseg net in %0.3f sec' % (
+                    len(np.unique(masks)[1:]), time.time() - tic),
+                    color='#008000')
+                # self.state_label.setStyleSheet("color:green;")
+                self.update_plot()
+                self.progress.setValue(75)
+
+                self.flows[0] = flows[0].copy()
+                self.flows[1] = (np.clip(utils.normalize99(flows[2].copy()), 0, 1) * 255).astype(np.uint8)
+                if not do_3D:
+                    masks = masks[np.newaxis, ...]
+                    self.flows[0] = transforms.resize_image(self.flows[0], masks.shape[-2], masks.shape[-1],
+                                                            interpolation=cv2.INTER_NEAREST)
+                    self.flows[1] = transforms.resize_image(self.flows[1], masks.shape[-2], masks.shape[-1])
+                if not do_3D:
+                    self.flows[2] = np.zeros(masks.shape[1:], dtype=np.uint8)
+                    self.flows = [self.flows[n][np.newaxis, ...] for n in range(len(self.flows))]
+                else:
+                    self.flows[2] = (flows[1][0] / 10 * 127 + 127).astype(np.uint8)
+
+                if len(flows) > 2:
+                    self.flows.append(flows[3])
+                    self.flows.append(np.concatenate((flows[1], flows[2][np.newaxis, ...]), axis=0))
+
+                print()
+                self.progress.setValue(80)
+                z = 0
+                self.masksOn = True
+                self.outlinesOn = True
+                self.MCheckBox.setChecked(True)
+                self.OCheckBox.setChecked(True)
+
+                iopart._masks_to_gui(self, masks, outlines=None)
+                self.progress.setValue(100)
+                self.first_load_listView()
+
+                # self.toggle_server(off=True)
+                if not do_3D:
+                    self.threshslider.setEnabled(True)
+                    self.probslider.setEnabled(True)
+
+                self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                self.masks_for_save = masks
+
+            except Exception as e:
+                print('NET ERROR: %s' % e)
+                self.progress.setValue(0)
+                return
+
+        else:  # except Exception as e:
+            print('ERROR: %s' % e)
+
+        print('Finished inference')
+
+
+    def batch_inference(self):
+        self.progress.setValue(0)
+        self.state_label.setText(">>>>>>>>>>")
+        self.update_plot()
+
+        if True:
+            tic = time.time()
+            self.clear_all()
+            self.flows = [[], [], []]
+            self.initialize_model()
+            self.state_label.setText(">>>>>>>>>>>>>>>>>>>>")
+
+            print('using model %s' % self.current_model)
+            self.progress.setValue(10)
+            do_3D = False
+            if self.NZ > 1:
+                do_3D = True
+                data = self.stack.copy()
+            else:
+                data = self.stack[0].copy()
+            channels = self.get_channels()
+            self.diameter = float(self.Diameter.value())
+            self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+            self.update_plot()
+            try:
+                net_avg = self.NetAvg.currentIndex() < 2
+                resample = self.NetAvg.currentIndex() == 1  # we need modify from here
+
+                min_size = ((30. // 2) ** 2) * np.pi * 0.05
+
+                try:
+                    finetune_model = self.model_file_path[0]
+                    print('ft_model', finetune_model)
+                except:
+                    finetune_model = None
                 try:
                     dataset_path = self.batch_inference_dir
                 except:
                     dataset_path = None
 
-                if dataset_path is not None:
-                    # batch inference
-                    save_name = self.current_model + '_' + dataset_path.split('\\')[-1]
-                    utils.set_manual_seed(5)
-                    shotset = dataset.DatasetShot(eval_dir=dataset_path, class_name=None, image_filter='_img',
-                                                  mask_filter='_masks',
-                                                  channels=channels, task_mode=self.model.task_mode, active_ind=None,
-                                                  rescale=True)
-                    queryset = dataset.DatasetQuery(dataset_path, class_name=None, image_filter='_img',
-                                                    mask_filter='_masks')
-                    query_image_names = queryset.query_image_names
-                    diameter = shotset.md
-                    print('>>>> mean diameter of this style,', round(diameter, 3))
-                    self.model.net.save_name = save_name
-                    self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                # batch inference
+                save_name = self.current_model + '_' + dataset_path.split('\\')[-1]
+                utils.set_manual_seed(5)
+                shotset = dataset.DatasetShot(eval_dir=dataset_path, class_name=None, image_filter='_img',
+                                              mask_filter='_masks',
+                                              channels=channels, task_mode=self.model.task_mode, active_ind=None,
+                                              rescale=True)
+                queryset = dataset.DatasetQuery(dataset_path, class_name=None, image_filter='_img',
+                                                mask_filter='_masks')
+                query_image_names = queryset.query_image_names
+                diameter = shotset.md
+                print('>>>> mean diameter of this style,', round(diameter, 3))
+                self.model.net.save_name = save_name
+                self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
-                    masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
-                                                           query_image_names=query_image_names, channel=channels,
-                                                           diameter=diameter,
-                                                           resample=False, flow_threshold=self.threshold,
-                                                           cellprob_threshold=self.cellprob,
-                                                           min_size=min_size, eval_batch_size=8,
-                                                           postproc_mode=self.model.postproc_mode,
-                                                           progress=self.progress)
+                masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
+                                                       query_image_names=query_image_names, channel=channels,
+                                                       diameter=diameter,
+                                                       resample=False, flow_threshold=self.threshold,
+                                                       cellprob_threshold=self.cellprob,
+                                                       min_size=min_size, eval_batch_size=8,
+                                                       postproc_mode=self.model.postproc_mode,
+                                                       progress=self.progress)
 
-                    # save output images
-                    diams = np.ones(len(query_image_names)) * diameter
-                    imgs = [io.imread(query_image_name) for query_image_name in query_image_names]
-                    io.masks_flows_to_seg(imgs, masks, flows, diams, query_image_names,
-                                          [channels for i in range(len(query_image_names))])
-                    io.save_to_png(imgs, masks, flows, query_image_names, labels=None, aps=None,
-                                   task_mode=self.model.task_mode)
-                else:
-                    # inference
-                    masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
-                                                           query_images=data, channel=channels,
-                                                           diameter=self.diameter,
-                                                           resample=resample, flow_threshold=self.threshold,
-                                                           cellprob_threshold=self.cellprob,
-                                                           min_size=min_size, eval_batch_size=8,
-                                                           postproc_mode=self.model.postproc_mode,
-                                                           progress=self.progress)
-
-                    self.state_label.setText(
-                        '%d cells found with scellseg net in %0.3f sec' % (
-                        len(np.unique(masks)[1:]), time.time() - tic),
-                        color='#008000')
-                    # self.state_label.setStyleSheet("color:green;")
-                    self.update_plot()
-                    self.progress.setValue(75)
-
-                    self.flows[0] = flows[0].copy()
-                    self.flows[1] = (np.clip(utils.normalize99(flows[2].copy()), 0, 1) * 255).astype(np.uint8)
-                    if not do_3D:
-                        masks = masks[np.newaxis, ...]
-                        self.flows[0] = transforms.resize_image(self.flows[0], masks.shape[-2], masks.shape[-1],
-                                                                interpolation=cv2.INTER_NEAREST)
-                        self.flows[1] = transforms.resize_image(self.flows[1], masks.shape[-2], masks.shape[-1])
-                    if not do_3D:
-                        self.flows[2] = np.zeros(masks.shape[1:], dtype=np.uint8)
-                        self.flows = [self.flows[n][np.newaxis, ...] for n in range(len(self.flows))]
-                    else:
-                        self.flows[2] = (flows[1][0] / 10 * 127 + 127).astype(np.uint8)
-
-                    if len(flows) > 2:
-                        self.flows.append(flows[3])
-                        self.flows.append(np.concatenate((flows[1], flows[2][np.newaxis, ...]), axis=0))
-
-                    print()
-                    self.progress.setValue(80)
-                    z = 0
-                    self.masksOn = True
-                    self.outlinesOn = True
-                    self.MCheckBox.setChecked(True)
-                    self.OCheckBox.setChecked(True)
-
-                    iopart._masks_to_gui(self, masks, outlines=None)
-                    self.progress.setValue(100)
-                    self.first_load_listView()
-
-                    # self.toggle_server(off=True)
-                    if not do_3D:
-                        self.threshslider.setEnabled(True)
-                        self.probslider.setEnabled(True)
+                # save output images
+                diams = np.ones(len(query_image_names)) * diameter
+                imgs = [io.imread(query_image_name) for query_image_name in query_image_names]
+                io.masks_flows_to_seg(imgs, masks, flows, diams, query_image_names,
+                                      [channels for i in range(len(query_image_names))])
+                io.save_to_png(imgs, masks, flows, query_image_names, labels=None, aps=None,
+                               task_mode=self.model.task_mode)
 
                 self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 self.masks_for_save = masks

@@ -58,7 +58,8 @@ def download_model_weights(urls=urls):
 
 download_model_weights()
 project_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + ".")
-project_path = project_path.replace(r'scellseg-gui\scellseg', r'scellseg-gui')  # TODO: 这里要改成项目名
+if 'guis' in os.listdir(project_path):
+    project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
 model_dir = os.path.join(project_path, 'assets', 'pretrained_models')
 print('model_dir', model_dir)
 
