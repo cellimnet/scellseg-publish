@@ -444,13 +444,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.ModelButton = QtWidgets.QPushButton(' Run segmentation ')
         self.ModelButton.clicked.connect(self.compute_model)
-        self.gridLayout_2.addWidget(self.ModelButton, 9, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.ModelButton, 9, 0, 1, 2)
         self.ModelButton.setEnabled(False)
 
 
         self.model_choose_btn = QtWidgets.QPushButton("Model File")
         self.model_choose_btn.clicked.connect(self.model_file_path_choose)
-        self.gridLayout_2.addWidget(self.model_choose_btn, 9, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 0, 1, 1)
+
+        self.model_choose_btn = QtWidgets.QPushButton("Reset pre-trained")
+        self.model_choose_btn.clicked.connect(self.reset_pretrain_model)
+        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 1, 1, 1)
 
         self.label_16 = QtWidgets.QLabel("Batch Inference")
         self.gridLayout_2.addWidget(self.label_16, 13, 0, 1, 1)
@@ -463,7 +467,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.batch_inference_bnt.clicked.connect(self.batch_inference)
         self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 1, 1, 1)
 
-        self.label_15 = QtWidgets.QLabel("CELL INSTANCE")
+        self.label_15 = QtWidgets.QLabel("Cell instance")
         # self.label_15.setStyleSheet("text-decoration:overline;")
         self.gridLayout_2.addWidget(self.label_15,15,0,1,2)
 
@@ -495,48 +499,48 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.datasetbnt = QtWidgets.QPushButton("Dataset path")
         self.datasetbnt.clicked.connect(self.dataset_path)
-        self.gridLayout_3.addWidget(self.datasetbnt, 0, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.datasetbnt, 0, 0, 1, 4)
 
-        self.label_10 = QtWidgets.QLabel("             Model:")
-        self.gridLayout_3.addWidget(self.label_10, 0, 2, 1, 1)
+        self.label_10 = QtWidgets.QLabel("Model:")
+        self.gridLayout_3.addWidget(self.label_10, 1, 0, 1, 2)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
-        self.ftmodelchooseBnt.setFixedWidth(100)
+        # self.ftmodelchooseBnt.setFixedWidth(100)
         self.ftmodelchooseBnt.addItems(["scellseg", "cellpose", "hover"])
-        self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 0, 3, 1, 1)
+        self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 1, 2, 1, 2)
 
         self.label_11 = QtWidgets.QLabel("Chan to segment")
-        self.gridLayout_3.addWidget(self.label_11, 1, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.label_11, 2, 0, 1, 2)
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
         self.chan1chooseBnt.addItems(["Gray", "Red", "Green", "Blue"])
-        self.gridLayout_3.addWidget(self.chan1chooseBnt, 1, 2, 1, 2)
+        self.gridLayout_3.addWidget(self.chan1chooseBnt, 2, 2, 1, 2)
 
         self.label_12 = QtWidgets.QLabel("Chan2 (optional)")
-        self.gridLayout_3.addWidget(self.label_12, 2, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.label_12, 3, 0, 1, 2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
         self.chan2chooseBnt.addItems(["None", "Gray", "Red", "Green", "Blue"])
-        self.gridLayout_3.addWidget(self.chan2chooseBnt, 2, 2, 1, 2)
+        self.gridLayout_3.addWidget(self.chan2chooseBnt, 3, 2, 1, 2)
 
         self.label_13 = QtWidgets.QLabel("Fine-tune strategy")
-        self.gridLayout_3.addWidget(self.label_13, 3, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.label_13, 4, 0, 1, 2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
         self.stmodelchooseBnt.addItems(["Contrastive", "Classic"])
-        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 3, 2, 1, 2)
+        self.gridLayout_3.addWidget(self.stmodelchooseBnt, 4, 2, 1, 2)
 
         self.label_14 = QtWidgets.QLabel("Epoch")
-        self.gridLayout_3.addWidget(self.label_14, 4, 0, 1, 2)
+        self.gridLayout_3.addWidget(self.label_14, 5, 0, 1, 2)
         self.epoch_line = QtWidgets.QLineEdit()
-        self.gridLayout_3.addWidget(self.epoch_line, 4, 2, 1, 1)
+        self.gridLayout_3.addWidget(self.epoch_line, 5, 2, 1, 2)
 
         self.ftbnt = QtWidgets.QPushButton("Fine-tune")
         self.ftbnt.clicked.connect(self.fine_tune)
-        self.gridLayout_3.addWidget(self.ftbnt, 5, 0, 1, 4)
+        self.gridLayout_3.addWidget(self.ftbnt, 6, 0, 1, 4)
 
         spacerItem3 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_3.addItem(spacerItem3, 6, 0, 1, 1)
+        self.gridLayout_3.addItem(spacerItem3, 7, 0, 1, 1)
 
         self.scroll = QtGui.QScrollBar(QtCore.Qt.Horizontal)
         # self.scroll.setMaximum(10)
@@ -1688,6 +1692,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def model_file_path_choose(self):
         self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "select file", self.DefaultImFolder)
+
+    def reset_pretrain_model(self):
+        pass
 
     def remove_stroke(self, delete_points=True):
         # self.current_stroke = get_unique_points(self.current_stroke)
