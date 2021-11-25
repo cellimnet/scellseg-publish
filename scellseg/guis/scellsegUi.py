@@ -244,7 +244,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.autobtn.setChecked(True)
         self.gridLayout.addWidget(self.autobtn, 0, 1, 1, 1)
 
-
         self.currentZ = 0
         self.zpos = QtGui.QLineEdit()
         self.zpos.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
@@ -254,15 +253,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.gridLayout.addWidget(self.zpos, 0, 2, 1, 1)
 
         self.slider = guiparts.RangeSlider(self)
-
         self.slider.setMaximum(255)
         self.slider.setMinimum(0)
         self.slider.setHigh(255)
         self.slider.setLow(0)
-
-        # self.slider.setTickPosition(QtGui.QSlider.TicksBelow)
-        # self.slider.setStyleSheet("background:#F0F0F0;")
         self.gridLayout.addWidget(self.slider, 2, 0, 1, 4)
+        self.slider.setObjectName("rangeslider")
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout.addItem(spacerItem, 14, 0, 1, 2)

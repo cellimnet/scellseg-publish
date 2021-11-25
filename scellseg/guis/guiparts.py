@@ -626,6 +626,7 @@ class RangeSlider(QtGui.QSlider):
         event.accept()
 
         style = QtGui.QApplication.style()
+        print('style', style.CC_Slider)
         button = event.button()
         if button:
             opt = QtGui.QStyleOptionSlider()
@@ -638,11 +639,11 @@ class RangeSlider(QtGui.QSlider):
                 hit = style.hitTestComplexControl(style.CC_Slider, opt, event.pos(), self)
                 if hit == style.SC_SliderHandle:
                     self.active_slider = i
+
                     self.pressed_control = hit
                     self.triggerAction(self.SliderMove)
                     self.setRepeatAction(self.SliderNoAction)
                     self.setSliderDown(True)
-
                     break
 
             if self.active_slider < 0:
