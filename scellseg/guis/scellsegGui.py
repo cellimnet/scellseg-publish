@@ -24,6 +24,7 @@ class scellsegGui(Ui_MainWindow):
         self.splitter.setSizes([500, 250])
         self.autosave = True
         self.splitter.handle(1).setAttribute(Qt.WA_Hover, True)
+        self.splitter2.handle(1).setAttribute(Qt.WA_Hover, True)
 
 
     def autosave_on(self):
@@ -49,7 +50,6 @@ if __name__ == "__main__":
     Primary = '#fafafa'
     PrimaryLight = '#C0C0C0'
 
-
     Secondary = '#D3D3D3'
     SecondaryLight = '#D3D3D3'
     SecondaryDark = '#D3D3D3'
@@ -62,6 +62,75 @@ if __name__ == "__main__":
         'selection-color: {0:s};'.format(SecondaryText),
         'selection-background-color: {0:s};'.format(Secondary),
         ' } ',
+
+        # 'QSlider::groove:vertical {',
+        # 'background-color: {0:s};'.format(SecondaryLight),
+        # 'position: absolute;',
+        # 'left: 4px; right: 4px;',
+        # '}',
+        # '',
+        # 'QSlider::groove:horizontal{',
+        # 'background-color: {0:s};'.format(SecondaryLight),
+        # 'position: absolute;',
+        # 'top: 4px; bottom: 4px;',
+        # '}',
+        # '',
+        # 'QSlider::handle:vertical {',
+        # 'height: 10px;',
+        # 'background-color: {0:s};'.format('#A9A9A9'),
+        # 'margin: 0 -4px;',
+        # '}',
+        # '',
+        # 'QSlider::handle:horizontal{',
+        # 'width: 10px;',
+        # 'background-color: {0:s};'.format('#A9A9A9'),
+        # 'margin: -4px 0px -4px 0px;',
+        # '}',
+        # '',
+        # 'QSlider::add-page {',
+        # 'background-color: {0:s};'.format(SecondaryLight),
+        # '}',
+        # '',
+        # 'QSlider::sub-page {',
+        # 'background-color: {0:s};'.format(SecondaryDark),
+        # '}',
+        #
+        # 'QSlider::sub-page:horizontal',
+        # '{',
+        # 'background:rgba(0,255,0,0.4);',
+        # '}',
+        #
+        # 'QRangeSlider::sub-page:horizontal',
+        # '{',
+        # 'background:rgba(100,255,2,0,4);',
+        # '}',
+
+        # """
+        # QRangeSlider * {
+        #     border: 0px;
+        #     padding: 0px;
+        # }
+        # QRangeSlider #Head {
+        #     background: #222;
+        # }
+        # QRangeSlider #Span {
+        #     background: #393;
+        # }
+        # QRangeSlider #Span:active {
+        #     background: #282;
+        # }
+        # QRangeSlider #Tail {
+        #     background: #222;
+        # }
+        # QRangeSlider > QSplitter::handle {
+        #     background: #393;
+        # }
+        # QRangeSlider > QSplitter::handle:vertical {
+        #     height: 4px;
+        # }
+        # QRangeSlider > QSplitter::handle:pressed {
+        #     background: #ca5;
+        # }""",
 
         'QSplitter::handle:horizontal',
         '{',
@@ -144,6 +213,7 @@ if __name__ == "__main__":
         'QWidget#page,QWidget#page_2,QWidget#page_3',
         '{',
         'backgroundcolor:#F0F0F0;',
+        # 'background-image: url(./Resource/background.jpg);',
         '}',
 
         'QProgressBar {',
@@ -200,7 +270,9 @@ if __name__ == "__main__":
 
     print("Opening environment…")
 
-    gui = scellsegGui() # where our main thread working, GUI and Model will run on different thread
+    gui = scellsegGui()
     app.setStyleSheet('\n'.join(sheet))
+
+    # gui.slider.setStyleSheet('QSlider::sub-page:horizontal{border:0px};')
     gui.show()
     sys.exit(app.exec_())

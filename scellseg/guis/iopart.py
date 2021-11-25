@@ -388,6 +388,7 @@ def _load_image(parent, filename=None):
     except:
         print('images not compatible')
 
+    print("parent.loaded", parent.loaded, "_mask" not in filename)
     if parent.loaded and "_mask" not in filename:
         parent.reset()
         parent.filename = filename

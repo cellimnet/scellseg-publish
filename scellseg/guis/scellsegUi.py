@@ -43,8 +43,7 @@ except:
 
 class Ui_MainWindow(QtGui.QMainWindow):
     """UI Widget Initialize and UI Layout Initialize,
-       With any bug or problem, please do connact us from Github Issua"""
-
+       With any bug or problem, please do connact us from Github Issue"""
     def __init__(self, image=None):
         super(Ui_MainWindow, self).__init__()
         if image is not None:
@@ -79,12 +78,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.splitter2.setOrientation(QtCore.Qt.Horizontal)
         self.splitter2.setObjectName("splitter2")
 
+
         self.scrollArea = QtWidgets.QScrollArea(self.splitter)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        # self.scrollAreaWidgetContents.setFixedWidth(500)
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1500, 848))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+
+        # self.TableModel = QtGui.QStandardItemModel(self.tableRow, self.tableCol)
+        # self.TableModel.setHorizontalHeaderLabels(["INDEX", "NAME"])
+        # self.TableView = QtGui.QTableView()
+        # self.TableView.setModel(self.TableModel)
 
         self.mainLayout = QtWidgets.QGridLayout(self.scrollAreaWidgetContents)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
@@ -104,10 +110,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.next_button.clicked.connect(self.NextImBntClicked)
         self.load_folder.clicked.connect(self.OpenDirBntClicked)
 
+
         # leftside cell list widget
         self.listView = QtWidgets.QTableView()
         self.myCellList = []
-        self.listmodel = Qt.QStandardItemModel (0,1)
+        self.listmodel = Qt.QStandardItemModel(0,1)
         # self.listmodel = Qt.QStringListModel()
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
         self.listView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
@@ -115,12 +122,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
-        self.listView.setMaximumWidth(124)
+
+        self.listView.setMaximumWidth(120)
         self.listView.setModel(self.listmodel)
         self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.listView.customContextMenuRequested.connect(self.show_menu)
         self.listView.clicked.connect(self.showChoosen)
-
+        # self.listView.setStyleSheet('background-image: url(./Resource/1.jpg);')
+        # self.listView.setStyleSheet('backgroundcolor:#F0F0F0;')
+        # self.mainLayout.addWidget(self.listView, 0, 0, 0, 1)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.toolBox = QtWidgets.QToolBox(self.splitter)
@@ -146,7 +156,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.state_label = pg.LabelItem("Scellseg has been initialized!")
         self.win.addItem(self.state_label, 3, 0)
 
-        # self.mainLayout.addWidget(self.win, 0, 1, 1, 5)
 
         self.win.scene().sigMouseClicked.connect(self.plot_clicked)
         self.win.scene().sigMouseMoved.connect(self.mouse_moved)
@@ -166,6 +175,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.colormap = ((np.random.rand(1000, 3) * 0.8 + 0.1) * 255).astype(np.uint8)
 
         self.is_stack = True  # always loading images of same FOV
+        # if called with image, load it
+        # if image is not None:
+        #     self.filename = image
+        #     iopart._load_image(self, self.filename)
 
         self.setAcceptDrops(True)
         self.win.show()
@@ -213,11 +226,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.eraser_button = QtWidgets.QCheckBox(self.page)
         self.eraser_button.setObjectName("Edit mask")
         self.eraser_button.setChecked(False)
+        # self.eraser_button.setEnabled(False)
         self.eraser_button.toggled.connect(self.eraser_model_change)
         self.gridLayout.addWidget(self.eraser_button, 8, 0, 1, 1)
 
-        # self.eraser_combobox = QtWidgets.QComboBox()
-        # self.eraser_combobox.addItems(["Pixal delete", "Pixal add"])
+        self.eraser_combobox = QtWidgets.QComboBox()
+        self.eraser_combobox.addItems(["Pixal delete", "Pixal add"])
         # self.gridLayout.addWidget(self.eraser_combobox, 8, 1, 1, 1)
 
         self.RGBChoose = guiparts.RGBRadioButtons(self, 3, 1)
@@ -239,8 +253,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.zpos.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
         self.zpos.setText(str(self.currentZ))
         self.zpos.returnPressed.connect(self.compute_scale)
-        self.zpos.setFixedWidth(20)# will be update with 3D image
-
+        self.zpos.setFixedWidth(20)
+        # self.gridLayout.addWidget(self.zpos, 0, 2, 1, 1)
 
         self.slider = guiparts.RangeSlider(self)
 
@@ -249,6 +263,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.slider.setHigh(255)
         self.slider.setLow(0)
 
+        # self.slider.setTickPosition(QtGui.QSlider.TicksBelow)
+        # self.slider.setStyleSheet("background:#F0F0F0;")
         self.gridLayout.addWidget(self.slider, 2, 0, 1, 4)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -256,6 +272,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setFixedWidth(340)
+        # self.page_2.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_2.setObjectName("page_2")
 
         self.gridLayout_2 = QtWidgets.QGridLayout(self.page_2)
@@ -294,6 +311,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.useGPU, 3, 0, 1, 1)
         self.check_gpu()
 
+        # self.checkBox = QtWidgets.QCheckBox(self.page_2)
+        # self.checkBox.setObjectName("checkBox")
+        # self.checkBox.setChecked(True)
+        # self.checkBox.toggled.connect(self.toggle_scale)
+        # self.gridLayout_2.addWidget(self.checkBox, 2, 0, 1, 1)
 
         self.ModelChoose = QtWidgets.QComboBox(self.page_2)
         self.ModelChoose.setObjectName("ModelChoose")
@@ -452,13 +474,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setFixedWidth(340)
+        # self.page_3.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_3.setObjectName("page_3")
 
         self.progress = QtWidgets.QProgressBar()
         self.progress.setProperty("value", 0)
         self.progress.setAlignment(QtCore.Qt.AlignCenter)
         self.progress.setObjectName("progress")
-
+        # self.gridLayout_2.addWidget(self.progress,14,0,1,2)
 
         self.gridLayout_3 = QtWidgets.QGridLayout(self.page_3)
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -511,6 +534,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         #initialize scroll size
         self.scroll = QtGui.QScrollBar(QtCore.Qt.Horizontal)
+        # self.scroll.setMaximum(10)
+        # self.scroll.valueChanged.connect(self.move_in_Z)
+        # self.gridLayout_3.addWidget(self.scroll)
+
         spacerItem2 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_3.addItem(spacerItem2)
         self.toolBox.addItem(self.page, "")
@@ -524,10 +551,16 @@ class Ui_MainWindow(QtGui.QMainWindow):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.reset()
 
-
     def show_menu(self, point):
-        """cell list menu callback function"""
+        # print(point.x())
+        # item = self.listView.itemAt(point)
+        # print(item)
         temp_cell_idx = self.listView.rowAt(point.y())
+        # print("index",temp_cell_idx)
+
+        # self.curRow = self.listView.currentRow()
+        # item = self.listView.item(self.curRow)
+        # print('will show the menu')
         if self.listView.rowAt(point.y()) >= 0:
             self.contextMenu = QtWidgets.QMenu()
             self.actionA = QtGui.QAction("Delete this cell", self)
@@ -543,7 +576,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.contextMenu.show()
 
     def edit_cell(self, index):
-        """edit cell model api"""
         self.select_cell(index)
         self.eraser_button.setChecked(True)
 
@@ -591,8 +623,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
         # self.menuHelp.setTitle(_translate("MainWindow", "Help"))
 
-
-
         self.ImFolder = ''
         self.ImNameSet = []
         self.CurImId = 0
@@ -601,8 +631,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.DefaultImFolder = self.CurFolder
 
     def OpenDirDropped(self):
-
-        """dir dropped dir call back func"""
+        # dir dropped callback func
         if self.ImFolder != '':
             self.ImNameSet = []
             self.ImNameRowSet = os.listdir(self.ImFolder)
@@ -624,8 +653,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             print('Please Find Another File Folder')
 
     def OpenDirBntClicked(self):
-
-        """" dir choosing callback function"""
+        # dir choosing callback function
         self.ImFolder = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
         if self.ImFolder != '':
             self.ImNameSet = []
@@ -647,8 +675,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:
             print('Please Find Another File Folder')
 
-
     def PreImBntClicked(self):
+        # show previous image
         self.ImFolder = self.ImFolder
         self.ImNameSet = self.ImNameSet
         self.CurImId = self.CurImId
@@ -663,6 +691,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.CurImId = 0
 
     def NextImBntClicked(self):
+        # show next image
         self.ImFolder = self.ImFolder
         self.ImNameSet = self.ImNameSet
         self.CurImId = self.CurImId
@@ -729,9 +758,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if event.double():
             if event.button() == QtCore.Qt.LeftButton:
                 print("will initialize the range")
-
+                # if (event.modifiers() != QtCore.Qt.ShiftModifier and
+                #     event.modifiers() != QtCore.Qt.AltModifier):
+                #
+                #     try:
+                #         self.p0.setYRange(0,self.Ly+self.pr)
+                #     except:
+                #         self.p0.setYRange(0,self.Ly)
+                #     self.p0.setXRange(0,self.Lx)
 
     def mouse_moved(self, pos):
+        # print('moved')
         items = self.win.scene().items(pos)
         for x in items:
             if x == self.p0:
@@ -739,6 +776,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 if self.CHCheckBox.isChecked():
                     self.vLine.setPos(mousePoint.x())
                     self.hLine.setPos(mousePoint.y())
+            # else:
+            #    QtWidgets.QApplication.restoreOverrideCursor()
+            # QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.DefaultCursor)
 
     def color_choose(self):
         self.color = self.RGBDropDown.currentIndex()
@@ -769,6 +809,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.progress.setValue(100)
 
     def enable_buttons(self):
+        # self.X2Up.setEnabled(True)
+        # self.X2Down.setEnabled(True)
         self.ModelButton.setEnabled(True)
         self.SizeButton.setEnabled(True)
 
@@ -783,6 +825,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def add_set(self):
         if len(self.current_point_set) > 0:
+            # print(self.current_point_set)
+            # print(np.array(self.current_point_set).shape)
             self.current_point_set = np.array(self.current_point_set)
             while len(self.strokes) > 0:
                 self.remove_stroke(delete_points=False)
@@ -877,23 +921,22 @@ class Ui_MainWindow(QtGui.QMainWindow):
         return median
 
     def move_in_Z(self):
-        """not applied with 3D image"""
         if self.loaded:
             self.currentZ = min(self.NZ, max(0, int(self.scroll.value())))
             self.zpos.setText(str(self.currentZ))
             self.update_plot()
 
     def make_viewbox(self):
-        """intialize the main viewport widget"""
-        # print("making viewbox")
+        # intialize the main viewport widget
+        print("making viewbox")
         self.p0 = guiparts.ViewBoxNoRightDrag(
             parent=self,
             lockAspect=True,
             name="plot1",
             border=[100, 100, 100],
             invertY=True
-
         )
+        # self.p0.setBackgroundColor(color='#292929')
 
         self.brush_size = 3
         self.win.addItem(self.p0, 0, 0)
@@ -903,6 +946,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.img = pg.ImageItem(viewbox=self.p0, parent=self, axisOrder='row-major')
         self.img.autoDownsample = False
+        # self.null_image = np.ones((200,200))
+        # self.img.setImage(self.null_image)
 
         self.layer = guiparts.ImageDraw(viewbox=self.p0, parent=self)
         self.layer.setLevels([0, 255])
@@ -916,6 +961,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.p0.addItem(self.layer)
         self.p0.addItem(self.scale)
 
+        # guiparts.make_quadrants(self)
 
     def get_channels(self):
         channels = [self.jCBChanToSegment.currentIndex(), self.jCBChan2.currentIndex()]
@@ -932,6 +978,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def keyPressEvent(self, event):
         if self.loaded:
+            # self.p0.setMouseEnabled(x=True, y=True)
             if (event.modifiers() != QtCore.Qt.ControlModifier and
                 event.modifiers() != QtCore.Qt.ShiftModifier and
                 event.modifiers() != QtCore.Qt.AltModifier) and not self.in_stroke:
@@ -1037,8 +1084,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.seg_thread.start()
 
     def compute_model(self):
-        """ the main function of seg, will use the choosen model to predict instance mask"""
-
         self.progress.setValue(0)
         self.state_label.setText(">>>>>>>>>>")
         self.update_plot()
@@ -1675,11 +1720,29 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if self.loaded:
             self.layer.setDrawKernel(kernel_size=self.brush_size)
             self.update_plot()
+        # if self.eraser_button.isChecked():
+            # print("will change")
+            # self.cur_size = self.brush_size * 6
+            # cursor = Qt.QPixmap("./Resource/eraser.png")
+            # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
+            # cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
+            # QtWidgets.QApplication.setOverrideCursor(cursor_set)
+            # self.update_plot()
 
+    #
+    # def toggle_server(self, off=False):
+    #     if SERVER_UPLOAD:
+    #         if self.ncells>0 and not off:
+    #             self.saveServer.setEnabled(True)
+    #             self.ServerButton.setEnabled(True)
+    #
+    #         else:
+    #             self.saveServer.setEnabled(False)
+    #             self.ServerButton.setEnabled(False)
 
     def toggle_mask_ops(self):
         self.toggle_removals()
-
+        # self.toggle_server()
 
     def load_cell_list(self):
         self.list_file_name = QtWidgets.QFileDialog.getOpenFileName(None, "select folder", self.DefaultImFolder)
@@ -1704,9 +1767,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def toggle_removals(self):
 
         if self.ncells > 0:
+            # self.ClearButton.setEnabled(True)
             self.remcell.setEnabled(True)
             self.undo.setEnabled(True)
         else:
+            # self.ClearButton.setEnabled(False)
             self.remcell.setEnabled(False)
             self.undo.setEnabled(False)
 
@@ -1769,6 +1834,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.OpenDirDropped()
         else:
             # print(len(files))
+            # print(files[0])
             iopart._load_image(self, filename=files[0])
             self.initialize_listView()
 
