@@ -218,7 +218,6 @@ class RGBRadioButtons(QtGui.QButtonGroup):
         parent.color = 0
         self.parent = parent
         self.bstr = ["image", "gradXY", "cellprob", "gradZ"]
-        #self.buttons = QtGui.QButtonGroup()
         self.dropdown = []
         for b in range(len(self.bstr)):
             button = QtGui.QRadioButton(self.bstr[b])
@@ -333,8 +332,6 @@ class ImageDraw(pg.ImageItem):
 
     def __init__(self, image=None, viewbox=None, parent=None, **kargs):
         super(ImageDraw, self).__init__()
-        #self.image=None
-        #self.viewbox=viewbox
         self.levels = np.array([0,255])
         self.lut = None
         self.autoDownsample = False
@@ -344,7 +341,6 @@ class ImageDraw(pg.ImageItem):
 
 
         self.parent = parent
-        #kernel[1,1] = 1
 
         self.setDrawKernel(kernel_size=self.parent.brush_size)
         self.parent.current_stroke = []
@@ -377,38 +373,20 @@ class ImageDraw(pg.ImageItem):
 
 
                     if self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] == self.parent.selected:
-                            # print('in eraser_model')
-                            # print(ev.pos())
-                            # print(self.parent.layers[0][int(ev.pos().y()),int(ev.pos().x()),-1])
-                            # self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] = 0
-                            # self.parent.layers[0][int(ev.pos().y()), int(ev.pos().x()),-1] = 0
-                            # print(type(self.parent.layers))
-                            # print(self.parent.layers.shape)
                         for i in range(int(ev.pos().y())- size, int(ev.pos().y())+size+1):
                             for j in range(int(ev.pos().x())-size,int(ev.pos().x())+size+1):
                                 if self.parent.cellpix[0][i,j] == self.parent.selected:
                                     self.parent.cellpix[0][i,j] = 0
                                     self.parent.layers[0][i,j] = 0
-
-
-                        # self.parent.cellpix[0][int(ev.pos().y())- size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1] = 0
-                        #     # print(self.parent.layers[0][int(ev.pos().y())-1:int(ev.pos().y())+2, int(ev.pos().x())-1:int(ev.pos().x())+2,-1])
-                        # self.parent.layers[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1,-1] = 0
-
                         self.parent.update_plot()
 
                 elif self.parent.selected>0:
-                    # print(self.parent.cellcolors[self.parent.selected])
                     for i in range(int(ev.pos().y()) - size, int(ev.pos().y()) + size + 1):
                         for j in range(int(ev.pos().x()) - size, int(ev.pos().x()) + size + 1):
                             if self.parent.layers[0][i,j,-1] == 0:
                                 self.parent.cellpix[0][i,j]=self.parent.selected
                                 self.parent.layers[0][i,j,0:3] =self.parent.cellcolors[self.parent.selected].tolist()
                                 self.parent.layers[0][i, j, -1] =255
-
-                        # self.parent.cellpix[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1] = self.parent.selected
-                        # self.parent.layers[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1,0:3] = self.parent.cellcolors[self.parent.selected].tolist()
-                        # self.parent.layers[0][int(ev.pos().y())-size:int(ev.pos().y())+size+1, int(ev.pos().x())-size:int(ev.pos().x())+size+1,-1] = 255
                     self.parent.update_plot()
 
 
@@ -435,15 +413,11 @@ class ImageDraw(pg.ImageItem):
                     return
 
 
-
-
-
     def mouseDragEvent(self, ev):
         ev.ignore()
         return
 
     def hoverEvent(self, ev):
-        # QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
         if self.parent.in_stroke:
             if self.parent.in_stroke:
                 # continue stroke if not at start
@@ -452,10 +426,8 @@ class ImageDraw(pg.ImageItem):
                     self.end_stroke()
                     self.parent.in_stroke = False
 
-
         else:
             ev.acceptClicks(QtCore.Qt.RightButton)
-            #ev.acceptClicks(QtCore.Qt.LeftButton)
 
     def create_start(self, pos):
         self.scatter = pg.ScatterPlotItem([pos.x()], [pos.y()], pxMode=False,
@@ -466,15 +438,11 @@ class ImageDraw(pg.ImageItem):
     def is_at_start(self, pos):
         thresh_out = max(6, self.parent.brush_size*3)
         thresh_in = max(3, self.parent.brush_size*1.8)
-        # first check if you ever left the start
         if len(self.parent.current_stroke) > 3:
             stroke = np.array(self.parent.current_stroke)
             dist = (((stroke[1:,1:] - stroke[:1,1:][np.newaxis,:,:])**2).sum(axis=-1))**0.5
             dist = dist.flatten()
-            #print(dist)
             has_left = (dist > thresh_out).nonzero()[0]
-            # self.parent.myCellList = ['cell' + str(i) for i in range(len(np.unique(self.parent.masks)[1:]))]
-            # self.parent.initialize_listView()
             if len(has_left) > 0:
                 first_left = np.sort(has_left)[0]
                 has_returned = (dist[max(4,first_left+1):] < thresh_in).sum()
@@ -502,9 +470,6 @@ class ImageDraw(pg.ImageItem):
 
     def tabletEvent(self, ev):
         pass
-        #print(ev.device())
-        #print(ev.pointerType())
-        #print(ev.pressure())
 
 
     def drawAt(self, pos, ev=None):
@@ -591,21 +556,10 @@ class RangeSlider(QtGui.QSlider):
 
         self.setOrientation(QtCore.Qt.Horizontal)
         self.setTickPosition(QtGui.QSlider.TicksRight)
-        # self.setStyleSheet(\
-        #        "QSlider::handle:vertical {\
-        #        background-color: cyan;\
-        #        border: 1px solid white;\
-        #        border-radius: 2px;\
-        #        border-color: white;\
-        #        height: 16px;\
-        #        width: 3px;\
-        #        margin: 8px 2; \
-        #        }")
-        
+
         self.opt = QtGui.QStyleOptionSlider()
         self.opt.orientation=QtCore.Qt.Vertical
         self.initStyleOption(self.opt)
-        # 0 for the low, 1 for the high, -1 for both
         self.active_slider = 0
         self.parent = parent
         self.show()
@@ -640,9 +594,6 @@ class RangeSlider(QtGui.QSlider):
         for i, value in enumerate([self._low, self._high]):
             opt = QtWidgets.QStyleOptionSlider()
             self.initStyleOption(opt)
-
-            # Only draw the groove for the first slider so it doesn't get drawn
-            # on top of the existing ones every time
             if i == 0:
                 opt.subControls = QtWidgets.QStyle.SC_SliderGroove | QtWidgets.QStyle.SC_SliderHandle
             else:
@@ -676,11 +627,6 @@ class RangeSlider(QtGui.QSlider):
 
         style = QtGui.QApplication.style()
         button = event.button()
-        # In a normal slider control, when the user clicks on a point in the
-        # slider's total range, but not on the slider part of the control the
-        # control would jump the slider value to where the user clicked.
-        # For this control, clicks which are not direct hits will slide both
-        # slider parts
         if button:
             opt = QtGui.QStyleOptionSlider()
             self.initStyleOption(opt)
@@ -755,7 +701,6 @@ class RangeSlider(QtGui.QSlider):
         opt = QtGui.QStyleOptionSlider()
         self.initStyleOption(opt)
         style = QtGui.QApplication.style()
-
         gr = style.subControlRect(style.CC_Slider, opt, style.SC_SliderGroove, self)
         sr = style.subControlRect(style.CC_Slider, opt, style.SC_SliderHandle, self)
 
