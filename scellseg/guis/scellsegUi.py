@@ -115,9 +115,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView = QtWidgets.QTableView()
         self.myCellList = []
         self.listmodel = Qt.QStandardItemModel(0,1)
-        # self.listmodel = Qt.QStringListModel()
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
+        # self.listmodel.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem())
         self.listView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
+        # self.listView.horizontalHeader().setStyle("background-color: #F0F0F0")
+        # self.listView.horizontalHeader().setVisible(False)
         self.listView.verticalHeader().setVisible(False)
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
@@ -128,9 +130,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.listView.customContextMenuRequested.connect(self.show_menu)
         self.listView.clicked.connect(self.showChoosen)
-        # self.listView.setStyleSheet('background-image: url(./Resource/1.jpg);')
-        # self.listView.setStyleSheet('backgroundcolor:#F0F0F0;')
-        # self.mainLayout.addWidget(self.listView, 0, 0, 0, 1)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
         self.toolBox = QtWidgets.QToolBox(self.splitter)
@@ -152,10 +151,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.layer_off = False
         self.masksOn = True
         self.win = pg.GraphicsLayoutWidget()
-        # self.win.setBackground(background='#292929')
         self.state_label = pg.LabelItem("Scellseg has been initialized!")
         self.win.addItem(self.state_label, 3, 0)
-
 
         self.win.scene().sigMouseClicked.connect(self.plot_clicked)
         self.win.scene().sigMouseMoved.connect(self.mouse_moved)
@@ -272,7 +269,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setFixedWidth(340)
-        # self.page_2.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_2.setObjectName("page_2")
 
         self.gridLayout_2 = QtWidgets.QGridLayout(self.page_2)
@@ -311,16 +307,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.useGPU, 3, 0, 1, 1)
         self.check_gpu()
 
-        # self.checkBox = QtWidgets.QCheckBox(self.page_2)
-        # self.checkBox.setObjectName("checkBox")
-        # self.checkBox.setChecked(True)
-        # self.checkBox.toggled.connect(self.toggle_scale)
-        # self.gridLayout_2.addWidget(self.checkBox, 2, 0, 1, 1)
-
         self.ModelChoose = QtWidgets.QComboBox(self.page_2)
         self.ModelChoose.setObjectName("ModelChoose")
-        # self.model_dir = pathlib.Path.home().joinpath('.cellpose', 'models')
-
 
         self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
         self.model_dir = os.path.join(self.project_path, 'assets', 'pretrained_models')
@@ -458,7 +446,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 1, 1, 1)
 
         self.label_15 = QtWidgets.QLabel("Cell instance")
-        # self.label_15.setStyleSheet("text-decoration:overline;")
         self.gridLayout_2.addWidget(self.label_15,15,0,1,2)
 
         self.single_dir_bnt = QtWidgets.QPushButton("Single dir choose")
@@ -474,14 +461,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setFixedWidth(340)
-        # self.page_3.setGeometry(QtCore.QRect(0, 0, 712, 287))
         self.page_3.setObjectName("page_3")
 
         self.progress = QtWidgets.QProgressBar()
         self.progress.setProperty("value", 0)
         self.progress.setAlignment(QtCore.Qt.AlignCenter)
         self.progress.setObjectName("progress")
-        # self.gridLayout_2.addWidget(self.progress,14,0,1,2)
 
         self.gridLayout_3 = QtWidgets.QGridLayout(self.page_3)
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
@@ -495,7 +480,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_10, 1, 0, 1, 2)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
-        # self.ftmodelchooseBnt.setFixedWidth(100)
         self.ftmodelchooseBnt.addItems(["scellseg", "cellpose", "hover"])
         self.gridLayout_3.addWidget(self.ftmodelchooseBnt, 1, 2, 1, 2)
 

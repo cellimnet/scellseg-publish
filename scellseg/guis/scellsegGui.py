@@ -49,6 +49,7 @@ if __name__ == "__main__":
     Translucent = 'rgba(255,255,255,0)'
     Primary = '#fafafa'
     PrimaryLight = '#C0C0C0'
+    ListColor = '#F0F0F0'
 
     Secondary = '#D3D3D3'
     SecondaryLight = '#D3D3D3'
@@ -151,6 +152,20 @@ if __name__ == "__main__":
         'QSplitter::handle:pressed',
         '{',
         'background-color: {0:s};'.format(Secondary),
+        '}',
+
+        'QTableView',
+        '{',
+        'background-color: {0:s};'.format(ListColor),
+        'border-style: none;',
+        '}',
+        'QHeaderView',
+        '{',
+        'background-color: {0:s};'.format(ListColor),
+        '}',
+        'QHeaderView::section',
+        '{',
+        'background-color: {0:s};'.format(ListColor),
         '}',
 
         'QMenuBar',
