@@ -54,7 +54,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1420, 800)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icon/Resource/back.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("Resource/back.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
 
@@ -1974,40 +1974,6 @@ def make_cmap(cm=0):
     color = color.astype(np.uint8)
     cmap = pg.ColorMap(pos=np.linspace(0.0, 255, 256), color=color)
     return cmap
-
-
-# 对于整体的调用是从run方法开始的。
-def run(image=None):
-    # Always start by initializing Qt (only once per application)
-    warnings.filterwarnings("ignore")
-    # 初始化GUI
-    app = QtGui.QApplication(sys.argv)
-    icon_path = pathlib.Path.home().joinpath('.cellpose', 'logo.png')
-    guip_path = pathlib.Path.home().joinpath('.cellpose', 'cellpose_gui.png')
-    if not icon_path.is_file():
-        cp_dir = pathlib.Path.home().joinpath('.cellpose')
-        cp_dir.mkdir(exist_ok=True)
-        print('downloading logo')
-        utils.download_url_to_file('https://www.cellpose.org/static/images/cellpose_transparent.png', icon_path,
-                                   progress=True)
-    if not guip_path.is_file():
-        utils.download_url_to_file('https://github.com/MouseLand/cellpose/raw/master/docs/_static/cellpose_gui.png',
-                                   guip_path, progress=True)
-    icon_path = str(icon_path.resolve())
-    app_icon = QtGui.QIcon()
-    app_icon.addFile(icon_path, QtCore.QSize(16, 16))
-    app_icon.addFile(icon_path, QtCore.QSize(24, 24))
-    app_icon.addFile(icon_path, QtCore.QSize(32, 32))
-    app_icon.addFile(icon_path, QtCore.QSize(48, 48))
-    app_icon.addFile(icon_path, QtCore.QSize(64, 64))
-    app_icon.addFile(icon_path, QtCore.QSize(256, 256))
-    app.setWindowIcon(app_icon)
-    os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
-
-    models.download_model_weights()
-    Ui_MainWindow()
-    # ret = app.exec_()
-    # sys.exit(ret)
 
 
 def interpZ(mask, zdraw):
