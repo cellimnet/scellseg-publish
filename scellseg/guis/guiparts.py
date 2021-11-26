@@ -1,4 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.Qt import *
+
+
 import pyqtgraph as pg
 from pyqtgraph import functions as fn
 from pyqtgraph import Point
@@ -717,3 +720,5 @@ class RangeSlider(QtGui.QSlider):
         return style.sliderValueFromPosition(self.minimum(), self.maximum(),
                                              pos-slider_min, slider_max-slider_min,
                                              opt.upsideDown)
+
+

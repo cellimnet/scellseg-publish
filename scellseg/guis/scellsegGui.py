@@ -226,7 +226,6 @@ if __name__ == "__main__":
 
     gui = scellsegGui()
     app.setStyleSheet('\n'.join(sheet))
-
-    # gui.slider.setStyleSheet('QSlider::sub-page:horizontal{border:0px};')
     gui.show()
+
     sys.exit(app.exec_())

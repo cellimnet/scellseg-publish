@@ -31,15 +31,6 @@ try:
 except:
     MATPLOTLIB = False
 
-try:
-    from google.cloud import storage
-
-    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                                                                'key/cellpose-data-writer.json')
-    SERVER_UPLOAD = True
-except:
-    SERVER_UPLOAD = False
-
 
 class Ui_MainWindow(QtGui.QMainWindow):
     """UI Widget Initialize and UI Layout Initialize,
@@ -280,7 +271,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.Diameter = QtWidgets.QSpinBox(self.page_2)
         self.Diameter.setObjectName("Diameter")
         self.Diameter.setValue(30)
-        self.Diameter.setFixedWidth(70)
+        self.Diameter.setFixedWidth(80)
+        self.Diameter.setMaximum(1000)
         self.Diameter.valueChanged.connect(self.compute_scale)
         self.gridLayout_2.addWidget(self.Diameter, 1, 0, 1, 1)
 
@@ -320,6 +312,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.jCBChanToSegment.addItem("")
         self.jCBChanToSegment.addItem("")
         self.jCBChanToSegment.addItem("")
+        self.jCBChanToSegment.setCurrentIndex(2)
         self.gridLayout_2.addWidget(self.jCBChanToSegment, 5, 1, 1, 1)
 
         self.jCBChan2 = QtWidgets.QComboBox(self.page_2)
@@ -328,6 +321,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.jCBChan2.addItem("")
         self.jCBChan2.addItem("")
         self.jCBChan2.addItem("")
+        self.jCBChan2.setCurrentIndex(1)
         self.gridLayout_2.addWidget(self.jCBChan2, 6, 1, 1, 1)
 
         self.label_4 = QtWidgets.QLabel(self.page_2)
@@ -370,12 +364,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
         'background-color: {0:s};'.format('#A9A9A9'),
         'margin: 0 -4px;',
         '}',
+
         '',
         'QSlider::handle:horizontal{',
         'width: 10px;',
-        'background-color: {0:s};'.format('#A9A9A9'),
+        'border-image: url(./Resource/slider_handle.png);'
         'margin: -4px 0px -4px 0px;',
         '}',
+        'QSlider::sub-page:horizontal',
+        '{',
+        'background-color: {0:s};'.format('#A9A9A9'),
+        '}',
+
         '',
         'QSlider::add-page {',
         'background-color: {0:s};'.format('#D3D3D3'),
@@ -385,10 +385,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         'background-color: {0:s};'.format('#D3D3D3'),
         '}',
 
-        'QSlider::sub-page:horizontal',
-        '{',
-        'background:rgba(0,255,0,0.4);',
-        '}',]
+]
         self.threshslider.setOrientation(QtCore.Qt.Horizontal)
         self.threshslider.setObjectName("threshslider")
         self.threshslider.setMinimum(1.0)
@@ -484,13 +481,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
         self.chan1chooseBnt.addItems(["Gray", "Red", "Green", "Blue"])
+        self.chan1chooseBnt.setCurrentIndex(2)
         self.gridLayout_3.addWidget(self.chan1chooseBnt, 2, 2, 1, 2)
 
         self.label_12 = QtWidgets.QLabel("Chan2 (optional)")
         self.gridLayout_3.addWidget(self.label_12, 3, 0, 1, 2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
-        self.chan2chooseBnt.addItems(["None", "Gray", "Red", "Green", "Blue"])
+        self.chan2chooseBnt.addItems(["None", "Red", "Green", "Blue"])
+        self.chan2chooseBnt.setCurrentIndex(1)
         self.gridLayout_3.addWidget(self.chan2chooseBnt, 3, 2, 1, 2)
 
         self.label_13 = QtWidgets.QLabel("Fine-tune strategy")
@@ -503,6 +502,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_14 = QtWidgets.QLabel("Epoch")
         self.gridLayout_3.addWidget(self.label_14, 5, 0, 1, 2)
         self.epoch_line = QtWidgets.QLineEdit()
+        self.epoch_line.setPlaceholderText('Default: 100')
         self.gridLayout_3.addWidget(self.epoch_line, 5, 2, 1, 2)
 
         self.ftbnt = QtWidgets.QPushButton("Fine-tune")
@@ -734,7 +734,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.p0.removeItem(self.hLine)
 
     def plot_clicked(self, event):
-        print("clicked")
         if event.double():
             if event.button() == QtCore.Qt.LeftButton:
                 print("will initialize the range")
@@ -1065,15 +1064,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def compute_model(self):
         self.progress.setValue(0)
-        self.state_label.setText(">>>>>>>>>>")
         self.update_plot()
+        self.state_label.setText("Running...", color='#969696')
+        QtWidgets.qApp.processEvents()  # force update gui
 
         if True:
             tic = time.time()
             self.clear_all()
             self.flows = [[], [], []]
             self.initialize_model()
-            self.state_label.setText(">>>>>>>>>>>>>>>>>>>>")
 
             print('using model %s' % self.current_model)
             self.progress.setValue(10)
@@ -1084,8 +1083,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
             else:
                 data = self.stack[0].copy()
             channels = self.get_channels()
+
+            print(channels)
             self.diameter = float(self.Diameter.value())
-            self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
             self.update_plot()
             try:
                 net_avg = self.NetAvg.currentIndex() < 2
@@ -1112,7 +1112,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 self.state_label.setText(
                     '%d cells found with scellseg net in %0.3f sec' % (
                     len(np.unique(masks)[1:]), time.time() - tic),
-                    color='#008000')
+                    color='#39B54A')
                 # self.state_label.setStyleSheet("color:green;")
                 self.update_plot()
                 self.progress.setValue(75)
@@ -1151,7 +1151,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.threshslider.setEnabled(True)
                     self.probslider.setEnabled(True)
 
-                self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 self.masks_for_save = masks
 
             except Exception as e:
@@ -1167,28 +1166,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def batch_inference(self):
         self.progress.setValue(0)
-        self.state_label.setText(">>>>>>>>>>")
-        self.update_plot()
+        # self.update_plot()
 
         if True:
             tic = time.time()
             self.clear_all()
-            self.flows = [[], [], []]
-            self.initialize_model()
-            self.state_label.setText(">>>>>>>>>>>>>>>>>>>>")
 
+            self.initialize_model()
             print('using model %s' % self.current_model)
             self.progress.setValue(10)
-            do_3D = False
-            if self.NZ > 1:
-                do_3D = True
-                data = self.stack.copy()
-            else:
-                data = self.stack[0].copy()
+
             channels = self.get_channels()
             self.diameter = float(self.Diameter.value())
-            self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-            self.update_plot()
+
             try:
                 net_avg = self.NetAvg.currentIndex() < 2
                 resample = self.NetAvg.currentIndex() == 1  # we need modify from here
@@ -1208,18 +1198,29 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 # batch inference
                 save_name = self.current_model + '_' + dataset_path.split('\\')[-1]
                 utils.set_manual_seed(5)
-                shotset = dataset.DatasetShot(eval_dir=dataset_path, class_name=None, image_filter='_img',
-                                              mask_filter='_masks',
-                                              channels=channels, task_mode=self.model.task_mode, active_ind=None,
-                                              rescale=True)
+                try:
+                    shotset = dataset.DatasetShot(eval_dir=dataset_path, class_name=None, image_filter='_img',
+                                                  mask_filter='_masks',
+                                                  channels=channels, task_mode=self.model.task_mode, active_ind=None,
+                                                  rescale=True)
+                    self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+                    self.state_label.setText("Running...", color='#969696')
+                    QtWidgets.qApp.processEvents()  # force update gui
+                except:
+                    self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+                    self.state_label.setText("Please choose right dataset",
+                                             color='#FF6A56')
+
                 queryset = dataset.DatasetQuery(dataset_path, class_name=None, image_filter='_img',
                                                 mask_filter='_masks')
                 query_image_names = queryset.query_image_names
                 diameter = shotset.md
                 print('>>>> mean diameter of this style,', round(diameter, 3))
                 self.model.net.save_name = save_name
-                self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
 
+                self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
+                self.state_label.setText("Running...", color='#969696')
+                QtWidgets.qApp.processEvents()  # force update gui
                 masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
                                                        query_image_names=query_image_names, channel=channels,
                                                        diameter=diameter,
@@ -1237,7 +1238,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 io.save_to_png(imgs, masks, flows, query_image_names, labels=None, aps=None,
                                task_mode=self.model.task_mode)
 
-                self.state_label.setText(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 self.masks_for_save = masks
 
             except Exception as e:
@@ -1248,7 +1248,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:  # except Exception as e:
             print('ERROR: %s' % e)
 
-        print('Finished inference')
+        self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
+        self.state_label.setText('Finished inference in %0.3f sec!'%(time.time() - tic), color='#39B54A')
+
 
     def compute_cprob(self):
         rerun = False
@@ -1286,6 +1288,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         iopart._masks_to_gui(self, maski, outlines=None)
         self.first_load_listView()
         self.show()
+
 
     def reset(self):
         # ---- start sets of points ---- #
@@ -1371,6 +1374,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 for i in range(len(self.myCellList)):
                     self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
                 self.listView.setModel(self.listmodel)
+
+
+    def initinal_p0(self):
+        pass
 
     def add_list_item(self):
         # print(self.ncells)
@@ -1552,6 +1559,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(None,"select folder",self.DefaultImFolder)
 
     def fine_tune(self):
+        tic = time.time()
         project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
         output_path = os.path.join(project_path, 'output')
         utils.make_folder(output_path)
@@ -1560,7 +1568,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         num_batch = 8
         dataset_dir = self.dataset_path
-        print(dataset_dir)
+        self.state_label.setText("%s"%(dataset_dir), color='#969696')
 
         if not isinstance(dataset_dir, str):  # TODO: 改成警告
             print('dataset_dir is not provided')
@@ -1571,14 +1579,23 @@ class Ui_MainWindow(QtGui.QMainWindow):
         task_mode, postproc_mode, attn_on, dense_on, style_scale_on = utils.process_different_model(model_type)  # task_mode mean different instance representation
         pretrained_model = os.path.join(self.model_dir, model_type)
 
-        # chan1 = self.chan1chooseBnt.currentText()
-        # chan2 = self.chan1chooseBnt.currentText()
+        print(dataset_dir, train_epoch)
+
         channels = [self.chan1chooseBnt.currentIndex(), self.chan2chooseBnt.currentIndex()]
 
         utils.set_manual_seed(5)
-        shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
-                              channels=channels,
-                              train_num=train_epoch * num_batch, task_mode=task_mode, rescale=True)
+        try:
+            shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
+                                  channels=channels,
+                                  train_num=train_epoch * num_batch, task_mode=task_mode, rescale=True)
+            self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+            self.state_label.setText("Running...", color='#969696')
+            QtWidgets.qApp.processEvents()  # force update gui
+        except:
+            self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+            self.state_label.setText("Please choose right dataset",
+                                     color='#FF6A56')
+
         shot_gen = DataLoader(dataset=shotset, batch_size=num_batch, num_workers=0, pin_memory=True)
 
         diameter = shotset.md
@@ -1588,6 +1605,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         lr_schedule_gamma = {'downsample': 0.5, 'upsample': 0.5, 'tasker': 0.5, 'alpha': 0.5}
 
         step_size = int(train_epoch * 0.25)
+        print('step_size', step_size)
         model = models.sCellSeg(pretrained_model=pretrained_model, gpu=self.useGPU, update_step=1, nclasses=3,
                                 task_mode=task_mode, net_avg=False,
                                 attn_on=attn_on, dense_on=dense_on, style_scale_on=style_scale_on,
@@ -1597,69 +1615,93 @@ class Ui_MainWindow(QtGui.QMainWindow):
         model.net.pretrained_model = pretrained_model
 
         save_name = model_type + '_' + os.path.basename(dataset_dir)
-        model.net.save_name = save_name
-        # print(save_name)
 
         model.net.contrast_on = contrast_on
         if contrast_on:
             model.net.pair_gen = DatasetPairEval(positive_dir=dataset_dir, use_negative_masks=False, gpu=self.useGPU,
                                                  rescale=True)
+            model.net.save_name = save_name + '-cft'
+        else:
+            model.net.save_name = save_name + '-ft'
+
         print('Now is fine-tuning...Please Wait')
+        self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
+        self.state_label.setText("Running...", color='#969696')
+        QtWidgets.qApp.processEvents()  # force update gui
+
         model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size)
-        print('Finished Fine-tuning')
+
+        print('Finished fine-tuning')
+        self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
+        self.state_label.setText("Finished in %0.3f sec, model saved at ./output/fine-tune/%s" %(time.time()-tic, model.net.save_name), color='#39B54A')
+
 
     def get_single_cell(self):
+        tic = time.time()
+
+        data_path = self.single_cell_dir
+        print(data_path)
+
+        save_dir = os.path.join(os.path.dirname(data_path), 'single')
+        utils.make_folder(save_dir)
+
+        sta = 256
         try:
-            data_path = self.single_cell_dir
-            print(data_path)
-
-            save_dir = os.path.join(os.path.dirname(data_path), 'single')
-            utils.make_folder(save_dir)
-
-            sta = 256
             image_names = io.get_image_files(data_path, '_masks', imf='_img')
             mask_names, _ = io.get_label_files(image_names, '_img_cp_masks', imf='_img')
-            imgs = [io.imread(os.path.join(data_path, image_name)) for image_name in image_names]
-            masks = [io.imread(os.path.join(data_path, mask_name)) for mask_name in mask_names]
-
-            for n in trange(len(masks)):
-                maskn = masks[n]
-                props = regionprops(maskn)
-                i_max = maskn.max() + 1
-                for i in range(1, i_max):
-                    maskn_ = np.zeros_like(maskn)
-                    maskn_[maskn == i] = 1
-                    bbox = props[i - 1]['bbox']
-                    if imgs[n].ndim == 3:
-                        imgn_single = imgs[n][bbox[0]:bbox[2], bbox[1]:bbox[3]] * maskn_[bbox[0]:bbox[2], bbox[1]:bbox[3],
-                                                                                  np.newaxis]
-                    else:
-                        imgn_single = imgs[n][bbox[0]:bbox[2], bbox[1]:bbox[3]] * maskn_[bbox[0]:bbox[2], bbox[1]:bbox[3]]
-
-                    shape = imgn_single.shape
-                    shape_x = shape[0]
-                    shape_y = shape[1]
-                    add_x = sta - shape_x
-                    add_y = sta - shape_y
-                    add_x_l = int(floor(add_x / 2))
-                    add_x_r = int(ceil(add_x / 2))
-                    add_y_l = int(floor(add_y / 2))
-                    add_y_r = int(ceil(add_y / 2))
-                    if add_x > 0 and add_y > 0:
-                        if imgn_single.ndim == 3:
-                            imgn_single = np.pad(imgn_single, ((add_x_l, add_x_r), (add_y_l, add_y_r), (0, 0)), 'constant',
-                                                 constant_values=(0, 0))
-                        else:
-                            imgn_single = np.pad(imgn_single, ((add_x_l, add_x_r), (add_y_l, add_y_r)), 'constant',
-                                                 constant_values=(0, 0))
-
-                        save_name = os.path.join(save_dir, image_names[n].split('query')[-1].split('.')[0][1:] + '_' + str(
-                            i) + '.tif')
-                        cv2.imwrite(save_name, imgn_single)
-
-            print('Finish getting single instance')
+            self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+            self.state_label.setText("Running...", color='#969696')
+            QtWidgets.qApp.processEvents()  # force update gui
         except:
-            print('please provide right path')
+            self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+            self.state_label.setText("Please choose right dataset",
+                                     color='#FF6A56')
+
+        imgs = [io.imread(os.path.join(data_path, image_name)) for image_name in image_names]
+        masks = [io.imread(os.path.join(data_path, mask_name)) for mask_name in mask_names]
+
+        self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
+        self.state_label.setText("Running...", color='#969696')
+        QtWidgets.qApp.processEvents()  # force update gui
+
+        for n in trange(len(masks)):
+            maskn = masks[n]
+            props = regionprops(maskn)
+            i_max = maskn.max() + 1
+            for i in range(1, i_max):
+                maskn_ = np.zeros_like(maskn)
+                maskn_[maskn == i] = 1
+                bbox = props[i - 1]['bbox']
+                if imgs[n].ndim == 3:
+                    imgn_single = imgs[n][bbox[0]:bbox[2], bbox[1]:bbox[3]] * maskn_[bbox[0]:bbox[2], bbox[1]:bbox[3],
+                                                                              np.newaxis]
+                else:
+                    imgn_single = imgs[n][bbox[0]:bbox[2], bbox[1]:bbox[3]] * maskn_[bbox[0]:bbox[2], bbox[1]:bbox[3]]
+
+                shape = imgn_single.shape
+                shape_x = shape[0]
+                shape_y = shape[1]
+                add_x = sta - shape_x
+                add_y = sta - shape_y
+                add_x_l = int(floor(add_x / 2))
+                add_x_r = int(ceil(add_x / 2))
+                add_y_l = int(floor(add_y / 2))
+                add_y_r = int(ceil(add_y / 2))
+                if add_x > 0 and add_y > 0:
+                    if imgn_single.ndim == 3:
+                        imgn_single = np.pad(imgn_single, ((add_x_l, add_x_r), (add_y_l, add_y_r), (0, 0)), 'constant',
+                                             constant_values=(0, 0))
+                    else:
+                        imgn_single = np.pad(imgn_single, ((add_x_l, add_x_r), (add_y_l, add_y_r)), 'constant',
+                                             constant_values=(0, 0))
+
+                    save_name = os.path.join(save_dir, image_names[n].split('query')[-1].split('.')[0][1:] + '_' + str(
+                        i) + '.tif')
+                    cv2.imwrite(save_name, imgn_single)
+
+        print('Finish getting single instance')
+        self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
+        self.state_label.setText("Finished in %0.3f sec, file saved at %s"%(time.time()-tic, os.path.dirname(data_path)+'/single') , color='#39B54A')
 
     def batch_inference_dir_choose(self):
         self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
@@ -1828,7 +1870,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:
             self.outlinesOn = False
         if not self.masksOn and not self.outlinesOn:
-            self.p0.remveItem(self.layer)
+            self.p0.removeItem(self.layer)
             self.layer_off = True
         else:
             if self.layer_off:

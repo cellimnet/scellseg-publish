@@ -139,7 +139,7 @@ class LossFn(nn.Module):
 
 
 class sCSnet(nn.Module):
-    def __init__(self, nbase, nout, sz,
+    def __init__(self, nbase, nout, sz, diam_mean=30.0,
                  residual_on=True, style_on=True, concatenation=False, mkldnn=False, update_step=1,
                  attn_on=False, dense_on=False, style_scale_on=True, phase='eval',
                  device=None, net_avg=False, task_mode='cellpose'):

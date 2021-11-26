@@ -197,10 +197,13 @@ class DatasetQuery(Dataset):
         query_path = osp.join(eval_dir, 'query')
         query_image_names = get_image_files(query_path, mask_filter, image_filter)
         self.query_image_names = query_image_names
-        query_label_names, _ = get_label_files(query_image_names, mask_filter, imf=image_filter)
-        self.query_label_names = query_label_names
-        query_classes_names = [shot_class_name.replace(mask_filter, class_filter) for shot_class_name in query_label_names]
-        self.query_classes_names = query_classes_names
+        try:
+            query_label_names, _ = get_label_files(query_image_names, mask_filter, imf=image_filter)
+            self.query_label_names = query_label_names
+            query_classes_names = [shot_class_name.replace(mask_filter, class_filter) for shot_class_name in query_label_names]
+            self.query_classes_names = query_classes_names
+        except:
+            print('query images do not have masks')
 
     def __len__(self):
         return len(self.query_image_names)  # return number of query data
