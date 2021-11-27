@@ -782,6 +782,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         diams = np.maximum(5.0, diams)
         print('estimated diameter of cells using %s model = %0.1f pixels' %
               (self.current_model, diams))
+        self.state_label.setText('Estimated diameter of cells using %s model = %0.1f pixels' %
+              (self.current_model, diams), color='#969696')
         self.Diameter.setValue(int(diams))
         self.diameter = diams
         self.compute_scale()
@@ -1214,6 +1216,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                       resize=self.resize, X2=0)
                     self.state_label.setText("Please choose right dataset",
                                              color='#FF6A56')
+                    print("Please choose right dataset")
+                    return
 
                 queryset = dataset.DatasetQuery(dataset_path, class_name=None, image_filter='_img',
                                                 mask_filter='_masks')
@@ -1244,9 +1248,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
                 self.masks_for_save = masks
 
-            except Exception as e:
-                print('NET ERROR: %s' % e)
-                self.progress.setValue(0)
+            except:
+                # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+                iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize,
+                                                  X2=0)
+                self.state_label.setText("Please choose right dataset",
+                                         color='#FF6A56')
                 return
 
         else:  # except Exception as e:
@@ -1581,11 +1588,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def fine_tune(self):
         tic = time.time()
-        project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
-        output_path = os.path.join(project_path, 'output')
-        utils.make_folder(output_path)
-        output_excel_path = os.path.join(output_path, 'excels')
-        utils.make_folder(output_excel_path)
 
         num_batch = 8
         dataset_dir = self.dataset_path
@@ -1599,11 +1601,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         model_type = self.ftmodelchooseBnt.currentText()
         task_mode, postproc_mode, attn_on, dense_on, style_scale_on = utils.process_different_model(model_type)  # task_mode mean different instance representation
         pretrained_model = os.path.join(self.model_dir, model_type)
-
         print(dataset_dir, train_epoch)
-
         channels = [self.chan1chooseBnt.currentIndex(), self.chan2chooseBnt.currentIndex()]
-
         utils.set_manual_seed(5)
         try:
             shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
@@ -1618,7 +1617,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
             iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right dataset",
                                      color='#FF6A56')
+            print("Please choose right dataset")
+            return
 
+        project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
+        output_path = os.path.join(project_path, 'output')
+        utils.make_folder(output_path)
+        output_excel_path = os.path.join(output_path, 'excels')
+        utils.make_folder(output_excel_path)
         shot_gen = DataLoader(dataset=shotset, batch_size=num_batch, num_workers=0, pin_memory=True)
 
         diameter = shotset.md
@@ -1662,12 +1668,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def get_single_cell(self):
         tic = time.time()
 
-        data_path = self.single_cell_dir
-        print(data_path)
-        save_dir = os.path.join(os.path.dirname(data_path), 'single')
-        utils.make_folder(save_dir)
+        try:
+            data_path = self.single_cell_dir
+        except:
+            # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
+            self.state_label.setText("Please choose right dataset",
+                                     color='#FF6A56')
 
-        sta = 256
+        print(data_path)
         try:
             image_names = io.get_image_files(data_path, '_masks', imf='_img')
             mask_names, _ = io.get_label_files(image_names, '_img_cp_masks', imf='_img')
@@ -1680,7 +1689,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
             iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right dataset",
                                      color='#FF6A56')
+            print("Please choose right dataset")
+            return
 
+        sta = 256
+        save_dir = os.path.join(os.path.dirname(data_path), 'single')
+        utils.make_folder(save_dir)
         imgs = [io.imread(os.path.join(data_path, image_name)) for image_name in image_names]
         masks = [io.imread(os.path.join(data_path, mask_name)) for mask_name in mask_names]
 

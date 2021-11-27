@@ -99,7 +99,7 @@ def helpmenu(parent):
     help_menu = main_menu.addMenu("&Help")
     
     checkMKL = QtGui.QAction("Check CPU MKL -- see terminal", parent)
-    checkMKL.triggered.connect(lambda: models.check_mkl(istorch=parent.torch))
+    checkMKL.triggered.connect(lambda: models.check_mkl(parent))
     help_menu.addAction(checkMKL)
 
 

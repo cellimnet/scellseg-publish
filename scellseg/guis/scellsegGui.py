@@ -9,7 +9,7 @@ import os
 #
 # WARNING! All changes made in this file will be lost!
 
-import os
+import os, platform, ctypes
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase
@@ -222,7 +222,9 @@ if __name__ == "__main__":
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resource", "Font", "wqy-microhei.ttc"))
 
 
-    print("Opening environment…")
+    print('operating system', platform.system())
+    if platform.system() == 'Windows':
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("scellseg")
 
     gui = scellsegGui()
     app.setStyleSheet('\n'.join(sheet))

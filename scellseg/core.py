@@ -66,17 +66,28 @@ def assign_device(gpu):
         gpu=False
     return device, gpu
 
-def check_mkl():
-    print('Running test snippet to check if MKL-DNN working')
-    print('see https://pytorch.org/docs/stable/backends.html?highlight=mkl')
-
-    mkl_enabled = torch.backends.mkldnn.is_available()
-
-    if mkl_enabled:
-        print('** MKL version working - CPU version is sped up. **')
+def check_mkl(parent=None):
+    if parent is not None:
+        mkl_enabled = torch.backends.mkldnn.is_available()
+        if mkl_enabled:
+            parent.state_label.setText('** MKL version working - CPU version is sped up. **', color='#969696')
+            print('** MKL version working - CPU version is sped up. **')
+        else:
+            parent.state_label.setText(
+                'WARNING: MKL version on torch not working/installed - CPU version will be slightly slower.',
+                color='#969696')
+            print('WARNING: MKL version on torch not working/installed - CPU version will be slightly slower.')
     else:
-        print('WARNING: MKL version on torch not working/installed - CPU version will be slightly slower.')
-    return mkl_enabled
+        print('Running test snippet to check if MKL-DNN working')
+        print('see https://pytorch.org/docs/stable/backends.html?highlight=mkl')
+
+        mkl_enabled = torch.backends.mkldnn.is_available()
+
+        if mkl_enabled:
+            print('** MKL version working - CPU version is sped up. **')
+        else:
+            print('WARNING: MKL version on torch not working/installed - CPU version will be slightly slower.')
+        return mkl_enabled
 
 
 def convert_images(x, channels, do_3D, normalize, invert):
