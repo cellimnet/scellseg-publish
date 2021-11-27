@@ -1084,7 +1084,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 data = self.stack[0].copy()
             channels = self.get_channels()
 
-            print(channels)
+            # print(channels)
             self.diameter = float(self.Diameter.value())
             self.update_plot()
             try:
@@ -1110,7 +1110,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                        progress=self.progress)
 
                 self.state_label.setText(
-                    '%d cells found with scellseg net in %0.3f sec' % (
+                    '%d cells found with scellseg net in %0.3fs' % (
                     len(np.unique(masks)[1:]), time.time() - tic),
                     color='#39B54A')
                 # self.state_label.setStyleSheet("color:green;")
@@ -1203,11 +1203,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                   mask_filter='_masks',
                                                   channels=channels, task_mode=self.model.task_mode, active_ind=None,
                                                   rescale=True)
-                    self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+                    # self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+                    iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading1.png'),
+                                                      resize=self.resize, X2=0)
                     self.state_label.setText("Running...", color='#969696')
                     QtWidgets.qApp.processEvents()  # force update gui
                 except:
-                    self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+                    # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+                    iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'),
+                                                      resize=self.resize, X2=0)
                     self.state_label.setText("Please choose right dataset",
                                              color='#FF6A56')
 
@@ -1249,7 +1253,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             print('ERROR: %s' % e)
 
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
-        self.state_label.setText('Finished inference in %0.3f sec!'%(time.time() - tic), color='#39B54A')
+        self.state_label.setText('Finished inference in %0.3fs!'%(time.time() - tic), color='#39B54A')
 
 
     def compute_cprob(self):
@@ -1377,7 +1381,24 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
 
     def initinal_p0(self):
-        pass
+        # self.p0.removeItem(self.img)
+        self.p0.removeItem(self.layer)
+        self.p0.removeItem(self.scale)
+
+        # self.img.deleteLater()
+        self.layer.deleteLater()
+        self.scale.deleteLater()
+        # self.img = pg.ImageItem(viewbox=self.p0, parent=self, axisOrder='row-major')
+        # self.img.autoDownsample = False
+        self.layer = guiparts.ImageDraw(viewbox=self.p0, parent=self)
+        self.layer.setLevels([0, 255])
+        self.scale = pg.ImageItem(viewbox=self.p0, parent=self)
+        self.scale.setLevels([0, 255])
+        self.p0.scene().contextMenuItem = self.p0
+
+        # self.p0.addItem(self.img)
+        self.p0.addItem(self.layer)
+        self.p0.addItem(self.scale)
 
     def add_list_item(self):
         # print(self.ncells)
@@ -1588,11 +1609,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
             shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
                                   channels=channels,
                                   train_num=train_epoch * num_batch, task_mode=task_mode, rescale=True)
-            self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+            # self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading1.png'), resize=self.resize, X2=0)
             self.state_label.setText("Running...", color='#969696')
             QtWidgets.qApp.processEvents()  # force update gui
         except:
-            self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+            # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right dataset",
                                      color='#FF6A56')
 
@@ -1633,7 +1656,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         print('Finished fine-tuning')
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
-        self.state_label.setText("Finished in %0.3f sec, model saved at ./output/fine-tune/%s" %(time.time()-tic, model.net.save_name), color='#39B54A')
+        self.state_label.setText("Finished in %0.3fs, model saved at ./output/fine-tune/%s" %(time.time()-tic, model.net.save_name), color='#39B54A')
 
 
     def get_single_cell(self):
@@ -1641,7 +1664,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         data_path = self.single_cell_dir
         print(data_path)
-
         save_dir = os.path.join(os.path.dirname(data_path), 'single')
         utils.make_folder(save_dir)
 
@@ -1649,11 +1671,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         try:
             image_names = io.get_image_files(data_path, '_masks', imf='_img')
             mask_names, _ = io.get_label_files(image_names, '_img_cp_masks', imf='_img')
-            self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+            # self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading1.png'), resize=self.resize, X2=0)
             self.state_label.setText("Running...", color='#969696')
             QtWidgets.qApp.processEvents()  # force update gui
         except:
-            self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+            # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right dataset",
                                      color='#FF6A56')
 
@@ -1701,7 +1725,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         print('Finish getting single instance')
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
-        self.state_label.setText("Finished in %0.3f sec, file saved at %s"%(time.time()-tic, os.path.dirname(data_path)+'/single') , color='#39B54A')
+        self.state_label.setText("Finished in %0.3fs, \nsaved at %s"%(time.time()-tic, os.path.dirname(data_path)+'/single') , color='#39B54A')
 
     def batch_inference_dir_choose(self):
         self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)

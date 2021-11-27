@@ -473,6 +473,87 @@ def _initialize_images(parent, image, resize, X2):
     parent.currentZ = int(np.floor(parent.NZ/2))
     parent.scroll.setValue(parent.currentZ)
     parent.zpos.setText(str(parent.currentZ))
+    parent.state_label.setText("Load image %s"%(parent.filename), color='#969696')
+    parent.scale_on = True
+    parent.p0.addItem(parent.scale)
+
+def _initialize_image_portable(parent, image, resize, X2):
+    """ format image for GUI """
+    print(image.shape)
+    parent.onechan=False
+    if image.ndim > 3:
+        # make tiff Z x channels x W x H
+        if image.shape[0]<4:
+            # tiff is channels x Z x W x H
+            image = np.transpose(image, (1,0,2,3))
+        elif image.shape[-1]<4:
+            # tiff is Z x W x H x channels
+            image = np.transpose(image, (0,3,1,2))
+        # fill in with blank channels to make 3 channels
+        if image.shape[1] < 3:
+            shape = image.shape
+            image = np.concatenate((image,
+                            np.zeros((shape[0], 3-shape[1], shape[2], shape[3]), dtype=np.uint8)), axis=1)
+            if 3-shape[1]>1:
+                parent.onechan=True
+        image = np.transpose(image, (0,2,3,1))
+    elif image.ndim==3:
+        if image.shape[0] < 5:
+            image = np.transpose(image, (1,2,0))
+
+        if image.shape[-1] < 3:
+            shape = image.shape
+            image = np.concatenate((image,
+                                       np.zeros((shape[0], shape[1], 3-shape[2]),
+                                        dtype=type(image[0,0,0]))), axis=-1)
+            if 3-shape[2]>1:
+                parent.onechan=True
+            image = image[np.newaxis,...]
+        elif image.shape[-1]<5 and image.shape[-1]>2:
+            image = image[:,:,:3]
+            image = image[np.newaxis,...]
+    else:
+        image = image[np.newaxis,...]
+
+    parent.stack = image
+    parent.NZ = len(parent.stack)
+    parent.scroll.setMaximum(parent.NZ-1)
+    if parent.stack.max()>255 or parent.stack.min()<0.0 or parent.stack.max()<=50.0:
+        parent.stack = parent.stack.astype(np.float32)
+        parent.stack -= parent.stack.min()
+        parent.stack /= parent.stack.max()
+        parent.stack *= 255
+    del image
+    gc.collect()
+
+    parent.stack = list(parent.stack)
+    for k,img in enumerate(parent.stack):
+        # if grayscale make 3D
+        if resize != -1:
+            img = transforms._image_resizer(img, resize=resize, to_uint8=False)
+        if img.ndim==2:
+            img = np.tile(img[:,:,np.newaxis], (1,1,3))
+            parent.onechan=True
+        if X2!=0:
+            img = transforms._X2zoom(img, X2=X2)
+        parent.stack[k] = img
+
+    parent.imask=0
+    # print(parent.NZ, parent.stack[0].shape)
+    parent.Ly, parent.Lx = img.shape[0], img.shape[1]
+    parent.stack = np.array(parent.stack)
+    parent.layers = 0*np.ones((parent.NZ,parent.Ly,parent.Lx,4), np.uint8)
+    if parent.autobtn.isChecked() or len(parent.saturation)!=parent.NZ:
+        parent.compute_saturation()
+    parent.compute_scale()
+    parent.currentZ = int(np.floor(parent.NZ/2))
+    parent.scroll.setValue(parent.currentZ)
+    parent.zpos.setText(str(parent.currentZ))
+    parent.scale_on = False
+    parent.p0.removeItem(parent.scale)
+    parent.listmodel.clear()
+    parent.listmodel.setHorizontalHeaderLabels(["Annotation"])
+
 
 def _load_seg(parent, filename=None, image=None, image_file=None):
     """ load *_seg.npy with filename; if None, open QFileDialog """
