@@ -51,8 +51,9 @@ if __name__ == "__main__":
     PrimaryLight = '#C0C0C0'
     ListColor = '#F0F0F0'
     SliderColor = '#0078D7'
+    LabelColor = '#7A581E'
 
-    BtnColor = '#F0A732'
+    BtnColor = '#0066FF'
 
     Secondary = '#D3D3D3'
     SecondaryLight = '#D3D3D3'
@@ -70,6 +71,22 @@ if __name__ == "__main__":
         'QSlider::handle:horizontal#rangeslider'
         '{',
         'border-image: url(./Resource/slider_handle.png);'
+        '}',
+
+        'QLabel#label_seg',
+        '{',
+        'color: {0:s};'.format(LabelColor),
+        'font: bold 18px "Arial"',
+        '}',
+        'QLabel#label_batchseg',
+        '{',
+        'color: {0:s};'.format(LabelColor),
+        'font: bold 18px "Arial"',
+        '}',
+        'QLabel#label_getsingle',
+        '{',
+        'color: {0:s};'.format(LabelColor),
+        'font: bold 18px "Arial"',
         '}',
 
         'QSplitter::handle:horizontal',
@@ -222,7 +239,7 @@ if __name__ == "__main__":
         os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resource", "Font", "wqy-microhei.ttc"))
 
 
-    print('operating system', platform.system())
+    print('operating system: ', platform.system())
     if platform.system() == 'Windows':
         ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("scellseg")
 

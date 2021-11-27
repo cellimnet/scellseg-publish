@@ -205,11 +205,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.OCheckBox.toggled.connect(self.toggle_masks)
         self.gridLayout.addWidget(self.OCheckBox, 11, 0, 1, 1)
 
-        self.checkBox = QtWidgets.QCheckBox(self.page)
-        self.checkBox.setObjectName("checkBox")
-        self.checkBox.setChecked(True)
-        self.checkBox.toggled.connect(self.toggle_scale)
-        self.gridLayout.addWidget(self.checkBox, 12, 0, 1, 1)
+        self.SCheckBox = QtWidgets.QCheckBox(self.page)
+        self.SCheckBox.setObjectName("SCheckBox")
+        self.SCheckBox.setChecked(True)
+        self.SCheckBox.toggled.connect(self.toggle_scale)
+        self.gridLayout.addWidget(self.SCheckBox, 12, 0, 1, 1)
 
         self.eraser_button = QtWidgets.QCheckBox(self.page)
         self.eraser_button.setObjectName("Edit mask")
@@ -218,13 +218,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.eraser_button.toggled.connect(self.eraser_model_change)
         self.gridLayout.addWidget(self.eraser_button, 8, 0, 1, 1)
 
-        self.eraser_combobox = QtWidgets.QComboBox()
-        self.eraser_combobox.addItems(["Pixal delete", "Pixal add"])
+        # self.eraser_combobox = QtWidgets.QComboBox()
+        # self.eraser_combobox.addItems(["Pixal delete", "Pixal add"])
         # self.gridLayout.addWidget(self.eraser_combobox, 8, 1, 1, 1)
 
         self.RGBChoose = guiparts.RGBRadioButtons(self, 3, 1)
         self.RGBDropDown = QtGui.QComboBox()
-        self.RGBDropDown.addItems(["RGB", "gray", "spectral", "red", "green", "blue"])
+        self.RGBDropDown.addItems(["rgb", "gray", "spectral", "red", "green", "blue"])
         self.RGBDropDown.currentIndexChanged.connect(self.color_choose)
         self.gridLayout.addWidget(self.RGBDropDown, 3, 0, 1, 1)
 
@@ -266,14 +266,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_3.setObjectName("label_3")
         self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 2)
 
-        self.diameter = 30
         self.prev_selected = 0
-        self.Diameter = QtWidgets.QSpinBox(self.page_2)
+        self.diameter = 30
+        # self.Diameter = QtWidgets.QSpinBox(self.page_2)
+        self.Diameter = QtWidgets.QLineEdit(self.page_2)
         self.Diameter.setObjectName("Diameter")
-        self.Diameter.setValue(30)
+        self.Diameter.setText(str(self.diameter))
         self.Diameter.setFixedWidth(80)
-        self.Diameter.setMaximum(1000)
-        self.Diameter.valueChanged.connect(self.compute_scale)
+        self.Diameter.editingFinished.connect(self.compute_scale)
         self.gridLayout_2.addWidget(self.Diameter, 1, 0, 1, 1)
 
         self.SizeButton = QtWidgets.QPushButton(self.page_2)
@@ -284,9 +284,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.NetAvg = QtWidgets.QComboBox(self.page_2)
         self.NetAvg.setObjectName("NetAvg")
-        self.NetAvg.addItem("")
-        self.NetAvg.addItem("")
-        self.NetAvg.addItem("")
+        self.NetAvg.addItems(["run 1 net (fast)", "+ resample (slow)"])
         self.gridLayout_2.addWidget(self.NetAvg, 3, 1, 1, 1)
 
         self.scale_on = True
@@ -308,19 +306,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.jCBChanToSegment = QtWidgets.QComboBox(self.page_2)
         self.jCBChanToSegment.setObjectName("jCBChanToSegment")
-        self.jCBChanToSegment.addItem("")
-        self.jCBChanToSegment.addItem("")
-        self.jCBChanToSegment.addItem("")
-        self.jCBChanToSegment.addItem("")
+        self.jCBChanToSegment.addItems(["gray", "red", "green", "blue"])
         self.jCBChanToSegment.setCurrentIndex(2)
         self.gridLayout_2.addWidget(self.jCBChanToSegment, 5, 1, 1, 1)
 
         self.jCBChan2 = QtWidgets.QComboBox(self.page_2)
         self.jCBChan2.setObjectName("jCBChan2")
-        self.jCBChan2.addItem("")
-        self.jCBChan2.addItem("")
-        self.jCBChan2.addItem("")
-        self.jCBChan2.addItem("")
+        self.jCBChan2.addItems(["none", "red", "green", "blue"])
         self.jCBChan2.setCurrentIndex(1)
         self.gridLayout_2.addWidget(self.jCBChan2, 6, 1, 1, 1)
 
@@ -340,12 +332,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.invert.setObjectName("invert")
         self.gridLayout_2.addWidget(self.invert, 7, 0, 1, 1)
 
-        self.label_7 = QtWidgets.QLabel(self.page_2)
-        self.label_7.setObjectName("label_7")
-        self.gridLayout_2.addWidget(self.label_7, 10, 0, 1, 1)
-
-        self.threshold = 0.4
-        self.threshslider = QtWidgets.QSlider(self.page_2)
         self.sliderSheet = [
         'QSlider::groove:vertical {',
         'background-color: #D3D3D3;',
@@ -386,6 +372,32 @@ class Ui_MainWindow(QtGui.QMainWindow):
         '}',
 
 ]
+
+        self.model_choose_btn = QtWidgets.QPushButton("Model File")
+        self.model_choose_btn.clicked.connect(self.model_file_dir_choose)
+        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 0, 1, 1)
+
+        self.model_choose_btn = QtWidgets.QPushButton("Reset pre-trained")
+        self.model_choose_btn.clicked.connect(self.reset_pretrain_model)
+        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 1, 1, 1)
+
+        self.label_null = QtWidgets.QLabel("")
+        self.gridLayout_2.addWidget(self.label_null, 9, 0, 1, 1)
+
+        self.label_seg = QtWidgets.QLabel("Run seg for img in window")
+        self.gridLayout_2.addWidget(self.label_seg, 10, 0, 1, 4)
+        self.label_seg.setObjectName('label_seg')
+        self.ModelButton = QtWidgets.QPushButton(' Run segmentation ')
+        self.ModelButton.setObjectName("runsegbtn")
+        self.ModelButton.clicked.connect(self.compute_model)
+        self.gridLayout_2.addWidget(self.ModelButton, 11, 0, 1, 2)
+        self.ModelButton.setEnabled(False)
+
+        self.label_7 = QtWidgets.QLabel(self.page_2)
+        self.label_7.setObjectName("label_7")
+        self.gridLayout_2.addWidget(self.label_7, 12, 0, 1, 1)
+        self.threshold = 0.4
+        self.threshslider = QtWidgets.QSlider(self.page_2)
         self.threshslider.setOrientation(QtCore.Qt.Horizontal)
         self.threshslider.setObjectName("threshslider")
         self.threshslider.setMinimum(1.0)
@@ -394,18 +406,16 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.threshslider.valueChanged.connect(self.compute_cprob)
         self.threshslider.setEnabled(False)
         self.threshslider.setStyleSheet('\n'.join(self.sliderSheet))
-        self.gridLayout_2.addWidget(self.threshslider, 10, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.threshslider, 12, 1, 1, 1)
 
         self.label_8 = QtWidgets.QLabel(self.page_2)
         self.label_8.setObjectName("label_8")
-        self.gridLayout_2.addWidget(self.label_8, 11, 0, 1, 1)
-
+        self.gridLayout_2.addWidget(self.label_8, 13, 0, 1, 1)
         self.probslider = QtWidgets.QSlider(self.page_2)
         self.probslider.setOrientation(QtCore.Qt.Horizontal)
         self.probslider.setObjectName("probslider")
         self.probslider.setStyleSheet('\n'.join(self.sliderSheet))
-        self.gridLayout_2.addWidget(self.probslider, 11, 1, 1, 1)
-
+        self.gridLayout_2.addWidget(self.probslider, 13, 1, 1, 1)
         self.probslider.setMinimum(-6.0)
         self.probslider.setMaximum(6.0)
         self.probslider.setValue(0.0)
@@ -413,41 +423,27 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.probslider.valueChanged.connect(self.compute_cprob)
         self.probslider.setEnabled(False)
 
-        self.ModelButton = QtWidgets.QPushButton(' Run segmentation ')
-        self.ModelButton.clicked.connect(self.compute_model)
-        self.gridLayout_2.addWidget(self.ModelButton, 9, 0, 1, 2)
-        self.ModelButton.setEnabled(False)
-
-
-        self.model_choose_btn = QtWidgets.QPushButton("Model File")
-        self.model_choose_btn.clicked.connect(self.model_file_path_choose)
-        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 0, 1, 1)
-
-        self.model_choose_btn = QtWidgets.QPushButton("Reset pre-trained")
-        self.model_choose_btn.clicked.connect(self.reset_pretrain_model)
-        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 1, 1, 1)
-
-        self.label_16 = QtWidgets.QLabel("Batch Inference")
-        self.gridLayout_2.addWidget(self.label_16, 13, 0, 1, 1)
-
-        self.dataset_inference_bnt = QtWidgets.QPushButton("Dataset path")
-        self.gridLayout_2.addWidget(self.dataset_inference_bnt, 14, 0, 1, 1)
+        self.label_batchseg = QtWidgets.QLabel("Batch segmentation")
+        self.label_batchseg.setObjectName('label_batchseg')
+        self.gridLayout_2.addWidget(self.label_batchseg, 14, 0, 1, 4)
+        self.dataset_inference_bnt = QtWidgets.QPushButton("Data path")
+        self.gridLayout_2.addWidget(self.dataset_inference_bnt, 15, 0, 1, 1)
         self.dataset_inference_bnt.clicked.connect(self.batch_inference_dir_choose)
-
-        self.batch_inference_bnt = QtWidgets.QPushButton("Batch inference")
+        self.batch_inference_bnt = QtWidgets.QPushButton("Run batch")
+        self.batch_inference_bnt.setObjectName("binferbnt")
         self.batch_inference_bnt.clicked.connect(self.batch_inference)
-        self.gridLayout_2.addWidget(self.batch_inference_bnt, 14, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.batch_inference_bnt, 15, 1, 1, 1)
 
-        self.label_15 = QtWidgets.QLabel("Cell instance")
-        self.gridLayout_2.addWidget(self.label_15,15,0,1,2)
-
-        self.single_dir_bnt = QtWidgets.QPushButton("Single dir choose")
+        self.label_getsingle = QtWidgets.QLabel("Get single instance")
+        self.label_getsingle.setObjectName('label_getsingle')
+        self.gridLayout_2.addWidget(self.label_getsingle,16,0,1,2)
+        self.single_dir_bnt = QtWidgets.QPushButton("Data path")
         self.single_dir_bnt.clicked.connect(self.single_dir_choose)
-        self.gridLayout_2.addWidget(self.single_dir_bnt,16,0,1,1)
-
-        self.single_cell_btn = QtWidgets.QPushButton("Get cell instance")
+        self.gridLayout_2.addWidget(self.single_dir_bnt,17,0,1,1)
+        self.single_cell_btn = QtWidgets.QPushButton("Run batch")
+        self.single_cell_btn.setObjectName('single_cell_btn')
         self.single_cell_btn.clicked.connect(self.get_single_cell)
-        self.gridLayout_2.addWidget(self.single_cell_btn,16,1,1,1)
+        self.gridLayout_2.addWidget(self.single_cell_btn,17,1,1,1)
 
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_2.addItem(spacerItem2, 18, 0, 1, 2)
@@ -465,9 +461,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setObjectName("gridLayout_3")
 
-        self.datasetbnt = QtWidgets.QPushButton("Dataset path")
-        self.datasetbnt.clicked.connect(self.dataset_path)
-        self.gridLayout_3.addWidget(self.datasetbnt, 0, 0, 1, 4)
+        self.ftdirbtn = QtWidgets.QPushButton("Dataset path")
+        self.ftdirbtn.clicked.connect(self.fine_tune_dir_choose)
+        self.gridLayout_3.addWidget(self.ftdirbtn, 0, 0, 1, 4)
 
         self.label_10 = QtWidgets.QLabel("Model:")
         self.gridLayout_3.addWidget(self.label_10, 1, 0, 1, 2)
@@ -480,7 +476,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_11, 2, 0, 1, 2)
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
-        self.chan1chooseBnt.addItems(["Gray", "Red", "Green", "Blue"])
+        self.chan1chooseBnt.addItems(["gray", "red", "green", "blue"])
         self.chan1chooseBnt.setCurrentIndex(2)
         self.gridLayout_3.addWidget(self.chan1chooseBnt, 2, 2, 1, 2)
 
@@ -488,7 +484,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_12, 3, 0, 1, 2)
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
-        self.chan2chooseBnt.addItems(["None", "Red", "Green", "Blue"])
+        self.chan2chooseBnt.addItems(["none", "red", "green", "blue"])
         self.chan2chooseBnt.setCurrentIndex(1)
         self.gridLayout_3.addWidget(self.chan2chooseBnt, 3, 2, 1, 2)
 
@@ -496,7 +492,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.label_13, 4, 0, 1, 2)
 
         self.stmodelchooseBnt = QtWidgets.QComboBox()
-        self.stmodelchooseBnt.addItems(["Contrastive", "Classic"])
+        self.stmodelchooseBnt.addItems(["contrastive", "classic"])
         self.gridLayout_3.addWidget(self.stmodelchooseBnt, 4, 2, 1, 2)
 
         self.label_14 = QtWidgets.QLabel("Epoch")
@@ -506,6 +502,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.addWidget(self.epoch_line, 5, 2, 1, 2)
 
         self.ftbnt = QtWidgets.QPushButton("Fine-tune")
+        self.ftbnt.setObjectName('ftbnt')
         self.ftbnt.clicked.connect(self.fine_tune)
         self.gridLayout_3.addWidget(self.ftbnt, 6, 0, 1, 4)
 
@@ -566,38 +563,29 @@ class Ui_MainWindow(QtGui.QMainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Scellseg"))
         # self.SCheckBox.setText(_translate("MainWindow", "single stroke"))
-        self.CHCheckBox.setText(_translate("MainWindow", "Cross-haris"))
-        self.MCheckBox.setText(_translate("MainWindow", "Mask on "))
+        self.CHCheckBox.setText(_translate("MainWindow", "Crosshair on [C]"))
+        self.MCheckBox.setText(_translate("MainWindow", "Masks on [X]"))
         self.label_2.setText(_translate("MainWindow", "Brush size"))
-        self.OCheckBox.setText(_translate("MainWindow", "Outlines on"))
+        self.OCheckBox.setText(_translate("MainWindow", "Outlines on [Z]"))
         # self.ServerButton.setText(_translate("MainWindow", "send manual seg. to server"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page), _translate("MainWindow", "View and Draw"))
         self.SizeButton.setText(_translate("MainWindow", "Calibrate"))
-        self.label_3.setText(_translate("MainWindow", "Cell diameter (pixels) (click ENTER)"))
-        self.NetAvg.setItemText(0, _translate("MainWindow", "Average 4 nets"))
-        self.NetAvg.setItemText(1, _translate("MainWindow", "Resample (slow)"))
-        self.NetAvg.setItemText(2, _translate("MainWindow", "Run 1 net (fast)"))
-        self.jCBChanToSegment.setItemText(0, _translate("MainWindow", "Gray"))
-        self.jCBChanToSegment.setItemText(1, _translate("MainWindow", "Red"))
-        self.jCBChanToSegment.setItemText(2, _translate("MainWindow", "Green"))
-        self.jCBChanToSegment.setItemText(3, _translate("MainWindow", "Blue"))
+        self.label_3.setText(_translate("MainWindow", "Cell diameter (pixels)"))
+
         self.useGPU.setText(_translate("MainWindow", "Use GPU"))
-        self.checkBox.setText(_translate("MainWindow", "Scale disk on"))
+        self.SCheckBox.setText(_translate("MainWindow", "Scale disk on [S]"))
         self.eraser_button.setText(_translate("MainWindow", "Edit mask"))
         self.ModelChoose.setItemText(0, _translate("MainWindow", "scellseg"))
         self.ModelChoose.setItemText(1, _translate("MainWindow", "cellpose"))
         self.ModelChoose.setItemText(2, _translate("MainWindow", "hover"))
-        self.jCBChan2.setItemText(0, _translate("MainWindow", "None"))
-        self.jCBChan2.setItemText(1, _translate("MainWindow", "Red"))
-        self.jCBChan2.setItemText(2, _translate("MainWindow", "Green"))
-        self.jCBChan2.setItemText(3, _translate("MainWindow", "Blue"))
+
         self.invert.setText(_translate("MainWindow", "Invert grayscale"))
         self.label_4.setText(_translate("MainWindow", "Model"))
         self.label_5.setText(_translate("MainWindow", "Chan to segment"))
         self.label_6.setText(_translate("MainWindow", "Chan2 (optional)"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_2), _translate("MainWindow", "Inference"))
-        self.label_7.setText(_translate("MainWindow", "Model match threshold"))
-        self.label_8.setText(_translate("MainWindow", "Cell prob threshold"))
+        self.label_7.setText(_translate("MainWindow", "Model match TH"))
+        self.label_8.setText(_translate("MainWindow", "Cell prob TH"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_3), _translate("MainWindow", "Fine-tune"))
         # self.menuFile.setTitle(_translate("MainWindow", "File"))
         # self.menuEdit.setTitle(_translate("MainWindow", "Edit"))
@@ -610,7 +598,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.CurFolder = os.getcwd()
         self.DefaultImFolder = self.CurFolder
 
-    def OpenDirDropped(self):
+    def OpenDirDropped(self, curFile=None):
         # dir dropped callback func
         if self.ImFolder != '':
             self.ImNameSet = []
@@ -621,11 +609,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 if ext in ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.jfif'] and '_mask' not in tmp:
                     self.ImNameSet.append(tmp)
             self.ImNameSet.sort()
-            print(self.ImNameSet)
+            print('self.ImNameSet', self.ImNameSet)
             self.ImPath = self.ImFolder + r'/' + self.ImNameSet[0]
             # pix = QtGui.QPixmap(self.ImPath)
             # self.ImShowLabel.setPixmap(pix)
-            self.CurImId = 0
+            if curFile is not None:
+                self.CurImId = self.ImNameSet.index(curFile)
+                print(self.CurImId)
+            else:
+                self.CurImId = 0
             iopart._load_image(self, filename=self.ImPath)
             self.initialize_listView()
 
@@ -661,14 +653,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ImNameSet = self.ImNameSet
         self.CurImId = self.CurImId
         self.ImNum = len(self.ImNameSet)
-        if self.CurImId > 0:  # 第一张图片没有前一张
-            self.ImPath = self.ImFolder + r'/' + self.ImNameSet[self.CurImId - 1]
-            self.CurImId = self.CurImId - 1
+        print(self.ImFolder, self.ImNameSet)
+        self.CurImId = self.CurImId - 1
+
+        if self.CurImId >= 0:  # 第一张图片没有前一张
+            self.ImPath = self.ImFolder + r'/' + self.ImNameSet[self.CurImId]
             iopart._load_image(self, filename=self.ImPath)
             self.initialize_listView()
 
         if self.CurImId < 0:
             self.CurImId = 0
+            self.state_label.setText("It's the first image", color='#FF6A56')
 
     def NextImBntClicked(self):
         # show next image
@@ -681,6 +676,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
             iopart._load_image(self, filename=self.ImPath)
             self.initialize_listView()
             self.CurImId = self.CurImId + 1
+        else:
+            self.state_label.setText("It's the last image", color='#FF6A56')
 
     def eraser_model_change(self):
         if self.eraser_button.isChecked() == True:
@@ -708,8 +705,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for item in self.listView.selectedIndexes():
             data = item.data()
             self.myCellList.append(data)
-        self.cell_list_name = self.filename + "_instance_list.txt"
+        self.cell_list_name = os.path.splitext(self.filename)[0] + "_instance_list.txt"
         np.savetxt(self.cell_list_name, np.array(self.myCellList), fmt="%s")
+        self.state_label.setText("Saved outlines", color='#39B54A')
 
     def help_window(self):
         HW = guiparts.HelpWindow(self)
@@ -784,7 +782,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
               (self.current_model, diams))
         self.state_label.setText('Estimated diameter of cells using %s model = %0.1f pixels' %
               (self.current_model, diams), color='#969696')
-        self.Diameter.setValue(int(diams))
+        self.Diameter.setText('%0.1f'%diams)
         self.diameter = diams
         self.compute_scale()
         self.progress.setValue(100)
@@ -909,7 +907,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def make_viewbox(self):
         # intialize the main viewport widget
-        print("making viewbox")
+        # print("making viewbox")
         self.p0 = guiparts.ViewBoxNoRightDrag(
             parent=self,
             lockAspect=True,
@@ -946,6 +944,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def get_channels(self):
         channels = [self.jCBChanToSegment.currentIndex(), self.jCBChan2.currentIndex()]
+        # print('get_channel', channels)
         if self.current_model == 'nuclei':
             channels[1] = 0
         return channels
@@ -975,38 +974,43 @@ class Ui_MainWindow(QtGui.QMainWindow):
                             self.currentZ = min(self.NZ - 1, self.currentZ + 1)
                             self.zpos.setText(str(self.currentZ))
                 else:
-                    if event.key() == QtCore.Qt.Key_X:
+                    if event.key() == QtCore.Qt.Key_M:
                         self.MCheckBox.toggle()
-                    if event.key() == QtCore.Qt.Key_Z:
+                    if event.key() == QtCore.Qt.Key_O:
                         self.OCheckBox.toggle()
-                    if event.key() == QtCore.Qt.Key_Left:
-                        if self.NZ == 1:
-                            self.get_prev_image()
-                        else:
-                            self.currentZ = max(0, self.currentZ - 1)
-                            self.scroll.setValue(self.currentZ)
-                            updated = True
-                    elif event.key() == QtCore.Qt.Key_Right:
-                        if self.NZ == 1:
-                            self.get_next_image()
-                        else:
-                            self.currentZ = min(self.NZ - 1, self.currentZ + 1)
-                            self.scroll.setValue(self.currentZ)
-                            updated = True
-                    elif event.key() == QtCore.Qt.Key_A:
-                        if self.NZ == 1:
-                            self.get_prev_image()
-                        else:
-                            self.currentZ = max(0, self.currentZ - 1)
-                            self.scroll.setValue(self.currentZ)
-                            updated = True
-                    elif event.key() == QtCore.Qt.Key_D:
-                        if self.NZ == 1:
-                            self.get_next_image()
-                        else:
-                            self.currentZ = min(self.NZ - 1, self.currentZ + 1)
-                            self.scroll.setValue(self.currentZ)
-                            updated = True
+                    if event.key() == QtCore.Qt.Key_C:
+                        self.CHCheckBox.toggle()
+                    if event.key() == QtCore.Qt.Key_S:
+                        self.SCheckBox.toggle()
+
+                    # if event.key() == QtCore.Qt.Key_Left:
+                    #     if self.NZ == 1:
+                    #         self.get_prev_image()
+                    #     else:
+                    #         self.currentZ = max(0, self.currentZ - 1)
+                    #         self.scroll.setValue(self.currentZ)
+                    #         updated = True
+                    # elif event.key() == QtCore.Qt.Key_Right:
+                    #     if self.NZ == 1:
+                    #         self.get_next_image()
+                    #     else:
+                    #         self.currentZ = min(self.NZ - 1, self.currentZ + 1)
+                    #         self.scroll.setValue(self.currentZ)
+                    #         updated = True
+                    # elif event.key() == QtCore.Qt.Key_A:
+                    #     if self.NZ == 1:
+                    #         self.get_prev_image()
+                    #     else:
+                    #         self.currentZ = max(0, self.currentZ - 1)
+                    #         self.scroll.setValue(self.currentZ)
+                    #         updated = True
+                    # elif event.key() == QtCore.Qt.Key_D:
+                    #     if self.NZ == 1:
+                    #         self.get_next_image()
+                    #     else:
+                    #         self.currentZ = min(self.NZ - 1, self.currentZ + 1)
+                    #         self.scroll.setValue(self.currentZ)
+                    #         updated = True
 
                     elif event.key() == QtCore.Qt.Key_PageDown:
                         self.view = (self.view + 1) % (len(self.RGBChoose.bstr))
@@ -1016,10 +1020,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
                         self.RGBChoose.button(self.view).setChecked(True)
 
                 # can change background or stroke size if cell not finished
-                if event.key() == QtCore.Qt.Key_Up or event.key() == QtCore.Qt.Key_W:
+                if event.key() == QtCore.Qt.Key_Up:
                     self.color = (self.color - 1) % (6)
                     self.RGBDropDown.setCurrentIndex(self.color)
-                elif event.key() == QtCore.Qt.Key_Down or event.key() == QtCore.Qt.Key_S:
+                elif event.key() == QtCore.Qt.Key_Down:
                     self.color = (self.color + 1) % (6)
                     self.RGBDropDown.setCurrentIndex(self.color)
                 elif (event.key() == QtCore.Qt.Key_Comma or
@@ -1087,10 +1091,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
             channels = self.get_channels()
 
             # print(channels)
-            self.diameter = float(self.Diameter.value())
+            self.diameter = float(self.Diameter.text())
             self.update_plot()
             try:
-                net_avg = self.NetAvg.currentIndex() < 2
+                # net_avg = self.NetAvg.currentIndex() == 0
                 resample = self.NetAvg.currentIndex() == 1  # we need modify from here
 
                 min_size = ((30. // 2) ** 2) * np.pi * 0.05
@@ -1102,7 +1106,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     finetune_model = None
 
                 # inference
-                masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
+                masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=False,
                                                        query_images=data, channel=channels,
                                                        diameter=self.diameter,
                                                        resample=resample, flow_threshold=self.threshold,
@@ -1179,11 +1183,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.progress.setValue(10)
 
             channels = self.get_channels()
-            self.diameter = float(self.Diameter.value())
+            self.diameter = float(self.Diameter.text())
 
             try:
-                net_avg = self.NetAvg.currentIndex() < 2
-                resample = self.NetAvg.currentIndex() == 1  # we need modify from here
+                # net_avg = self.NetAvg.currentIndex() < 2
+                # resample = self.NetAvg.currentIndex() == 1
 
                 min_size = ((30. // 2) ** 2) * np.pi * 0.05
 
@@ -1214,9 +1218,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
                     iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'),
                                                       resize=self.resize, X2=0)
-                    self.state_label.setText("Please choose right dataset",
+                    self.state_label.setText("Please choose right data path",
                                              color='#FF6A56')
-                    print("Please choose right dataset")
+                    print("Please choose right data path")
                     return
 
                 queryset = dataset.DatasetQuery(dataset_path, class_name=None, image_filter='_img',
@@ -1229,7 +1233,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
                 self.state_label.setText("Running...", color='#969696')
                 QtWidgets.qApp.processEvents()  # force update gui
-                masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=net_avg,
+                masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=False,
                                                        query_image_names=query_image_names, channel=channels,
                                                        diameter=diameter,
                                                        resample=False, flow_threshold=self.threshold,
@@ -1252,7 +1256,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
                 iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize,
                                                   X2=0)
-                self.state_label.setText("Please choose right dataset",
+                self.state_label.setText("Please choose right data path",
                                          color='#FF6A56')
                 return
 
@@ -1358,8 +1362,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def initialize_listView(self):
         if self.filename != []:
-            if os.path.isfile((self.filename) + '_instance_list.txt'):
-                self.list_file_name = str(self.filename + '_instance_list.txt')
+            if os.path.isfile(os.path.splitext(self.filename)[0] + '_instance_list.txt'):
+                self.list_file_name = str(os.path.splitext(self.filename)[0] + '_instance_list.txt')
                 self.myCellList_array = np.loadtxt(self.list_file_name, dtype=str)
                 self.myCellList = self.myCellList_array.tolist()
                 if len(self.myCellList) == self.ncells:
@@ -1458,15 +1462,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.cellcolors = [np.array([255, 255, 255])]
         self.ncells = 0
         self.initialize_listView()
-        print('removed all cells')
+        # print('removed all cells')
         self.toggle_removals()
         self.update_plot()
 
     def list_select_cell(self, idx):
         self.prev_selected = self.selected
         self.selected = idx
-        print(idx)
-        print(self.prev_selected)
+        # print(idx)
+        # print(self.prev_selected)
 
         if self.selected > 0:
             self.layers[self.cellpix == idx] = np.array([255, 255, 255, 255])
@@ -1583,14 +1587,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.removed_cell = []
             self.redo.setEnabled(False)
 
-    def dataset_path(self):
-        self.dataset_path = QtWidgets.QFileDialog.getExistingDirectory(None,"select folder",self.DefaultImFolder)
 
     def fine_tune(self):
         tic = time.time()
 
         num_batch = 8
-        dataset_dir = self.dataset_path
+        dataset_dir = self.fine_tune_dir
         self.state_label.setText("%s"%(dataset_dir), color='#969696')
 
         if not isinstance(dataset_dir, str):  # TODO: 改成警告
@@ -1615,9 +1617,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         except:
             # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
             iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
-            self.state_label.setText("Please choose right dataset",
+            self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
-            print("Please choose right dataset")
+            print("Please choose right data path")
             return
 
         project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
@@ -1673,7 +1675,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         except:
             # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
             iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
-            self.state_label.setText("Please choose right dataset",
+            self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
 
         print(data_path)
@@ -1687,9 +1689,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
         except:
             # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
             iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
-            self.state_label.setText("Please choose right dataset",
+            self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
-            print("Please choose right dataset")
+            print("Please choose right data path")
             return
 
         sta = 256
@@ -1739,19 +1741,40 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         print('Finish getting single instance')
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
-        self.state_label.setText("Finished in %0.3fs, \nsaved at %s"%(time.time()-tic, os.path.dirname(data_path)+'/single') , color='#39B54A')
+        self.state_label.setText("Finished in %0.3fs, saved at %s"%(time.time()-tic, os.path.dirname(data_path)+'/single') , color='#39B54A')
+
+    def fine_tune_dir_choose(self):
+        self.fine_tune_dir = QtWidgets.QFileDialog.getExistingDirectory(None,"choose fine-tune data",self.DefaultImFolder)
+        if self.fine_tune_dir =='':
+            self.state_label.setText("Choose nothing", color='#969696')
+        else:
+            self.state_label.setText("Choose data at %s"%str(self.fine_tune_dir), color='#969696')
 
     def batch_inference_dir_choose(self):
-        self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
+        self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "choose batch segmentation data", self.DefaultImFolder)
+        if self.batch_inference_dir =='':
+            self.state_label.setText("Choose nothing", color='#969696')
+        else:
+            self.state_label.setText("Choose data at %s"%str(self.batch_inference_dir), color='#969696')
 
     def single_dir_choose(self):
-        self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "select folder", self.DefaultImFolder)
+        self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "choose get single instance data", self.DefaultImFolder)
+        if self.single_cell_dir =='':
+            self.state_label.setText("Choose nothing", color='#969696')
+        else:
+            self.state_label.setText("Choose data at %s"%str(self.single_cell_dir), color='#969696')
 
-    def model_file_path_choose(self):
-        self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "select file", self.DefaultImFolder)
+    def model_file_dir_choose(self):
+        """ model after fine-tuning"""
+        self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "choose model file", self.DefaultImFolder)
+        if self.model_file_path[0] =='':
+            self.state_label.setText("Choose nothing", color='#969696')
+        else:
+            self.state_label.setText("Choose model at %s"%str(self.model_file_path[0]), color='#969696')
 
     def reset_pretrain_model(self):
-        pass
+        self.model_file_path = None
+        self.state_label.setText("Reset to pre-trained model", color='#969696')
 
     def remove_stroke(self, delete_points=True):
         # self.current_stroke = get_unique_points(self.current_stroke)
@@ -1805,8 +1828,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # self.toggle_server()
 
     def load_cell_list(self):
-        self.list_file_name = QtWidgets.QFileDialog.getOpenFileName(None, "select folder", self.DefaultImFolder)
-        # print(self.list_file_name[0])
+        self.list_file_name = QtWidgets.QFileDialog.getOpenFileName(None, "Load instance list", self.DefaultImFolder)
         self.myCellList_array = np.loadtxt(self.list_file_name[0], dtype=str)
         self.myCellList = self.myCellList_array.tolist()
         if len(self.myCellList) == self.ncells:
@@ -1883,7 +1905,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def dropEvent(self, event):
         files = [u.toLocalFile() for u in event.mimeData().urls()]
-        print(files)
+        # print(files)
 
         if os.path.splitext(files[0])[-1] == '.npy':
             iopart._load_seg(self, filename=files[0])
@@ -1895,6 +1917,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:
             # print(len(files))
             # print(files[0])
+            self.ImFolder = os.path.dirname(files[0])
+            self.OpenDirDropped(os.path.basename(files[0]))
             iopart._load_image(self, filename=files[0])
             self.initialize_listView()
 
@@ -2033,8 +2057,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def compute_scale(self):
 
-        self.diameter = float(self.Diameter.value())
-        self.pr = int(float(self.Diameter.value()))
+        self.diameter = float(self.Diameter.text())
+        self.pr = int(float(self.Diameter.text()))
 
         self.radii = np.zeros((self.Ly + self.pr, self.Lx, 4), np.uint8)
         yy, xx = plot.disk([self.pr / 2 - 1, self.Ly - self.pr / 2 + 1],

@@ -7,65 +7,54 @@ def mainmenu(parent):
     file_menu = main_menu.addMenu("&File")
     # load processed data
     loadImg = QtGui.QAction("&Load image (*.tif, *.png, *.jpg)", parent)
-    loadImg.setShortcut("Ctrl+L")
+    loadImg.setShortcut("Ctrl+Shift+I")
     loadImg.triggered.connect(lambda: io._load_image(parent))
     file_menu.addAction(loadImg)
 
     parent.loadMasks = QtGui.QAction("Load &masks (*.tif, *.png, *.jpg)", parent)
-    parent.loadMasks.setShortcut("Ctrl+M")
+    parent.loadMasks.setShortcut("Ctrl+Shift+M")
     parent.loadMasks.triggered.connect(lambda: io._load_masks(parent))
     file_menu.addAction(parent.loadMasks)
     parent.loadMasks.setEnabled(False)
 
-    loadManual = QtGui.QAction("Load &processed/labelled image (*_seg.npy)", parent)
-    loadManual.setShortcut("Ctrl+P")
+    loadManual = QtGui.QAction("Load npy for image&&masks (*_seg.npy)", parent)
+    loadManual.setShortcut("Ctrl+Shift+N")
     loadManual.triggered.connect(lambda: io._load_seg(parent))
     file_menu.addAction(loadManual)
 
-
+    loadCellList = QtGui.QAction("Load &instance list (*_instance_list.txt)", parent)
+    loadCellList.setShortcut("Ctrl+Shift+L")
+    loadCellList.triggered.connect(lambda: parent.load_cell_list())
+    file_menu.addAction(loadCellList)
 
     #loadStack = QtGui.QAction("Load &numpy z-stack (*.npy nimgs x nchan x pixels x pixels)", parent)
     #loadStack.setShortcut("Ctrl+N")
     #loadStack.triggered.connect(lambda: parent.load_zstack(None))
     #file_menu.addAction(loadStack)
 
-    parent.saveSet = QtGui.QAction("&Save masks and image (*_seg.npy)", parent)
-    parent.saveSet.setShortcut("Ctrl+S")
-    parent.saveSet.triggered.connect(lambda: io._save_sets(parent))
-    file_menu.addAction(parent.saveSet)
-    parent.saveSet.setEnabled(False)
-
-    parent.savePNG = QtGui.QAction("Save masks as P&NG", parent)
-    parent.savePNG.setShortcut("Ctrl+N")
+    parent.savePNG = QtGui.QAction("Save masks (*_cp_masks.png)", parent)
+    parent.savePNG.setShortcut("Ctrl+M")
     parent.savePNG.triggered.connect(lambda: io._save_png(parent))
     file_menu.addAction(parent.savePNG)
     parent.savePNG.setEnabled(True)
 
-    parent.saveCellList = QtGui.QAction("Save &instance list (*_instance_list.txt)", parent)
-    parent.saveCellList.setShortcut("Ctrl+I")
-    parent.saveCellList.triggered.connect(lambda:parent.save_cell_list())
-    file_menu.addAction(parent.saveCellList)
-
-    loadCellList = QtGui.QAction("Load Instance List", parent)
-
-    loadCellList.triggered.connect(lambda: parent.load_cell_list())
-    file_menu.addAction(loadCellList)
-
-    parent.saveOutlines = QtGui.QAction("Save &outlines as text for imageJ", parent)
+    parent.saveOutlines = QtGui.QAction("Save &outlines for imageJ (*_cp_outlines.txt)", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")
     parent.saveOutlines.triggered.connect(lambda: io._save_outlines(parent))
     file_menu.addAction(parent.saveOutlines)
     parent.saveOutlines.setEnabled(False)
 
-    # parent.saveServer = QtGui.QAction("Send manually labelled data to server", parent)
-    # parent.saveServer.triggered.connect(lambda: io.save_server(parent))
-    # file_menu.addAction(parent.saveServer)
-    # parent.saveServer.setEnabled(False)
-    #
-    # parent.switchBackend = QtGui.QAction("Switch backend to MXNET if installed", parent)
-    # parent.switchBackend.triggered.connect(lambda: parent.check_gpu(False))
-    # file_menu.addAction(parent.switchBackend)
-    # parent.switchBackend.setEnabled(False)
+    parent.saveSet = QtGui.QAction("&Save npy for image&&masks (*_seg.npy)", parent)
+    parent.saveSet.setShortcut("Ctrl+N")
+    parent.saveSet.triggered.connect(lambda: io._save_sets(parent))
+    file_menu.addAction(parent.saveSet)
+    parent.saveSet.setEnabled(False)
+
+    parent.saveCellList = QtGui.QAction("Save &instance list (*_instance_list.txt)", parent)
+    parent.saveCellList.setShortcut("Ctrl+L")
+    parent.saveCellList.triggered.connect(lambda:parent.save_cell_list())
+    file_menu.addAction(parent.saveCellList)
+
 
 def editmenu(parent):
     main_menu = parent.menuBar()
@@ -98,7 +87,7 @@ def helpmenu(parent):
     main_menu = parent.menuBar()
     help_menu = main_menu.addMenu("&Help")
     
-    checkMKL = QtGui.QAction("Check CPU MKL -- see terminal", parent)
+    checkMKL = QtGui.QAction("Check CPU MKL", parent)
     checkMKL.triggered.connect(lambda: models.check_mkl(parent))
     help_menu.addAction(checkMKL)
 

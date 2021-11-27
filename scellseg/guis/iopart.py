@@ -559,7 +559,7 @@ def _load_seg(parent, filename=None, image=None, image_file=None):
     """ load *_seg.npy with filename; if None, open QFileDialog """
     if filename is None:
         name = QtGui.QFileDialog.getOpenFileName(
-            parent, "Load labelled data", filter="*.npy"
+            parent, "Load npy file", filter="*.npy"
             )
         filename = name[0]
     try:
@@ -773,6 +773,7 @@ def _save_png(parent):
     """ save masks to png or tiff (if 3D) """
     filename = parent.filename
     base = os.path.splitext(filename)[0]
+    parent.state_label.setText("Saved masks", color='#39B54A')
     if parent.NZ==1:
         print('saving 2D masks to png')
         imsave(base + '_cp_masks.png', parent.cellpix[0])
@@ -793,6 +794,7 @@ def _save_outlines(parent):
         print('saving 2D outlines to text file, see docs for info to load into ImageJ')    
         outlines = utils.outlines_list(parent.cellpix[0])
         outlines_to_text(base, outlines)
+        parent.state_label.setText("Saved outlines", color='#39B54A')
     else:
         print('ERROR: cannot save 3D outlines')
     
@@ -829,3 +831,4 @@ def _save_sets(parent):
     print('--- %d ROIs saved chan1 %s, chan2 %s'%(parent.ncells,
                                                   parent.jCBChanToSegment.currentText(),
                                                   parent.jCBChan2.currentText()))
+    parent.state_label.setText("Saved npy file", color='#39B54A')
