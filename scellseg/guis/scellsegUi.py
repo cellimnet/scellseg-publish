@@ -175,17 +175,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.splitter2.addWidget(self.win)
         self.mainLayout.addWidget(self.splitter2,0,1,1,3)
 
-        self.CHCheckBox = QtWidgets.QCheckBox(self.page)
-        self.CHCheckBox.setObjectName("CHCheckBox")
-        self.CHCheckBox.toggled.connect(self.cross_hairs)
-        self.gridLayout.addWidget(self.CHCheckBox, 9, 0, 1, 1)
-
-        self.MCheckBox = QtWidgets.QCheckBox(self.page)
-        self.MCheckBox.setChecked(True)
-        self.MCheckBox.setObjectName("MCheckBox")
-        self.MCheckBox.setChecked(True)
-        self.MCheckBox.toggled.connect(self.toggle_masks)
-        self.gridLayout.addWidget(self.MCheckBox, 10, 0, 1, 1)
 
         self.label_2 = QtWidgets.QLabel(self.page)
         self.label_2.setObjectName("label_2")
@@ -197,26 +186,56 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.BrushChoose.currentIndexChanged.connect(self.brush_choose)
         self.gridLayout.addWidget(self.BrushChoose, 7, 1, 1, 1)
 
+
+        # turn on single stroke mode
+        self.sstroke_On = True
+        self.SSCheckBox = QtWidgets.QCheckBox(self.page)
+        self.SSCheckBox.setObjectName("SSCheckBox")
+        self.SSCheckBox.setChecked(True)
+        self.SSCheckBox.toggled.connect(self.toggle_sstroke)
+        self.gridLayout.addWidget(self.SSCheckBox, 8, 0, 1, 1)
+
+        self.eraser_button = QtWidgets.QCheckBox(self.page)
+        self.eraser_button.setObjectName("Edit mask")
+        self.eraser_button.setChecked(False)
+        self.eraser_button.toggled.connect(self.eraser_model_change)
+        self.gridLayout.addWidget(self.eraser_button, 9, 0, 1, 1)
+
+        self.CHCheckBox = QtWidgets.QCheckBox(self.page)
+        self.CHCheckBox.setObjectName("CHCheckBox")
+        self.CHCheckBox.toggled.connect(self.cross_hairs)
+        self.gridLayout.addWidget(self.CHCheckBox, 10, 0, 1, 1)
+
+        self.MCheckBox = QtWidgets.QCheckBox(self.page)
+        self.MCheckBox.setChecked(True)
+        self.MCheckBox.setObjectName("MCheckBox")
+        self.MCheckBox.setChecked(True)
+        self.MCheckBox.toggled.connect(self.toggle_masks)
+        self.gridLayout.addWidget(self.MCheckBox, 11, 0, 1, 1)
+
         self.OCheckBox = QtWidgets.QCheckBox(self.page)
         self.outlinesOn = True
         self.OCheckBox.setChecked(True)
         self.OCheckBox.setObjectName("OCheckBox")
         self.OCheckBox.toggled.connect(self.toggle_masks)
-        self.gridLayout.addWidget(self.OCheckBox, 11, 0, 1, 1)
+        self.gridLayout.addWidget(self.OCheckBox, 12, 0, 1, 1)
 
+        self.scale_on = True
         self.SCheckBox = QtWidgets.QCheckBox(self.page)
         self.SCheckBox.setObjectName("SCheckBox")
         self.SCheckBox.setChecked(True)
         self.SCheckBox.toggled.connect(self.toggle_scale)
-        self.gridLayout.addWidget(self.SCheckBox, 12, 0, 1, 1)
+        self.gridLayout.addWidget(self.SCheckBox, 13, 0, 1, 1)
 
-        self.eraser_button = QtWidgets.QCheckBox(self.page)
-        self.eraser_button.setObjectName("Edit mask")
-        self.eraser_button.setChecked(False)
-        # self.eraser_button.setEnabled(False)
-        self.eraser_button.toggled.connect(self.eraser_model_change)
-        self.gridLayout.addWidget(self.eraser_button, 8, 0, 1, 1)
+        self.autosaveOn = True
+        self.ASCheckBox = QtWidgets.QCheckBox(self.page)
+        self.ASCheckBox.setObjectName("ASCheckBox")
+        self.ASCheckBox.setChecked(True)
+        self.ASCheckBox.toggled.connect(self.toggle_autosave)
+        self.gridLayout.addWidget(self.ASCheckBox, 14, 0, 1, 1)
 
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.gridLayout.addItem(spacerItem, 15, 0, 1, 2)
         # self.eraser_combobox = QtWidgets.QComboBox()
         # self.eraser_combobox.addItems(["Pixal delete", "Pixal add"])
         # self.gridLayout.addWidget(self.eraser_combobox, 8, 1, 1, 1)
@@ -249,9 +268,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.slider.setLow(0)
         self.gridLayout.addWidget(self.slider, 2, 0, 1, 4)
         self.slider.setObjectName("rangeslider")
-
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout.addItem(spacerItem, 14, 0, 1, 2)
 
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setFixedWidth(340)
@@ -286,7 +302,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.NetAvg.addItems(["run 1 net (fast)", "+ resample (slow)"])
         self.gridLayout_2.addWidget(self.NetAvg, 3, 1, 1, 1)
 
-        self.scale_on = True
         self.useGPU = QtWidgets.QCheckBox(self.page_2)
         self.useGPU.setObjectName("useGPU")
         self.gridLayout_2.addWidget(self.useGPU, 3, 0, 1, 1)
@@ -566,7 +581,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Scellseg"))
-        # self.SCheckBox.setText(_translate("MainWindow", "single stroke"))
         self.CHCheckBox.setText(_translate("MainWindow", "Crosshair on [C]"))
         self.MCheckBox.setText(_translate("MainWindow", "Masks on [X]"))
         self.label_2.setText(_translate("MainWindow", "Brush size"))
@@ -578,6 +592,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.useGPU.setText(_translate("MainWindow", "Use GPU"))
         self.SCheckBox.setText(_translate("MainWindow", "Scale disk on [S]"))
+        self.ASCheckBox.setText(_translate("MainWindow", "Autosave [Y]"))
+        self.SSCheckBox.setText(_translate("MainWindow", "Single stroke"))
         self.eraser_button.setText(_translate("MainWindow", "Edit mask [E]"))
         self.ModelChoose.setItemText(0, _translate("MainWindow", "scellseg"))
         self.ModelChoose.setItemText(1, _translate("MainWindow", "cellpose"))
@@ -613,17 +629,26 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 if ext in ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.jfif'] and '_mask' not in tmp:
                     self.ImNameSet.append(tmp)
             self.ImNameSet.sort()
-            print('self.ImNameSet', self.ImNameSet)
             self.ImPath = self.ImFolder + r'/' + self.ImNameSet[0]
+            ImNameSetNosuffix = [os.path.splitext(imNameSeti)[0] for imNameSeti in self.ImNameSet]
             # pix = QtGui.QPixmap(self.ImPath)
             # self.ImShowLabel.setPixmap(pix)
             if curFile is not None:
-                self.CurImId = self.ImNameSet.index(curFile)
-                print(self.CurImId)
+                curFile = os.path.splitext(curFile)[0]
+                try:
+                    self.CurImId = ImNameSetNosuffix.index(curFile)
+                    print(self.CurImId)
+                except:
+                    curFile = curFile.replace('_cp_masks', '')
+                    curFile = curFile.replace('_masks', '')
+                    self.CurImId = ImNameSetNosuffix.index(curFile)
+                    print(self.CurImId)
+                    return
+                    # self.state_label.setText("", color='#FF6A56')
             else:
                 self.CurImId = 0
-            iopart._load_image(self, filename=self.ImPath)
-            self.initialize_listView()
+                iopart._load_image(self, filename=self.ImPath)
+                self.initialize_listView()
 
         else:
             print('Please Find Another File Folder')
@@ -652,6 +677,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             print('Please Find Another File Folder')
 
     def PreImBntClicked(self):
+        self.auto_save()
         # show previous image
         self.ImFolder = self.ImFolder
         self.ImNameSet = self.ImNameSet
@@ -670,6 +696,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.state_label.setText("It's the first image", color='#FF6A56')
 
     def NextImBntClicked(self):
+        self.auto_save()
+
         # show next image
         self.ImFolder = self.ImFolder
         self.ImNameSet = self.ImNameSet
@@ -687,6 +715,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if self.eraser_button.isChecked() == True:
             self.outlinesOn = False
             self.OCheckBox.setChecked(False)
+            # self.OCheckBox.setEnabled(False)
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
             # self.cur_size = self.brush_size * 6
             # cursor = Qt.QPixmap("./Resource/eraser.png")
@@ -710,6 +739,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.myCellList.append(data)
         self.cell_list_name = os.path.splitext(self.filename)[0] + "_instance_list.txt"
         np.savetxt(self.cell_list_name, np.array(self.myCellList), fmt="%s")
+
+    def save_cell_list_menu(self):
+        self.listView.selectAll()
+        self.myCellList = []
+        for item in self.listView.selectedIndexes():
+            data = item.data()
+            self.myCellList.append(data)
+        self.cell_list_name = os.path.splitext(self.filename)[0] + "_instance_list.txt"
+        np.savetxt(self.cell_list_name, np.array(self.myCellList), fmt="%s")
         self.state_label.setText("Saved outlines", color='#39B54A')
 
     def help_window(self):
@@ -720,11 +758,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
         EG = guiparts.ExampleGUI(self)
         EG.show()
 
-    def autosave_on(self):
-        # if self.SCheckBox.isChecked():
-        self.autosave = True
-        # else:
-        #     self.autosave = False
+    def toggle_autosave(self):
+        if self.ASCheckBox.isChecked():
+            self.autosaveOn = True
+        else:
+            self.autosaveOn = False
+        print('self.autosaveOn', self.autosaveOn)
+
+    def toggle_sstroke(self):
+        if self.SSCheckBox.isChecked():
+            self.sstroke_On = True
+        else:
+            self.sstroke_On = False
+        print('self.sstroke_On', self.sstroke_On)
 
     def cross_hairs(self):
         if self.CHCheckBox.isChecked():
@@ -803,7 +849,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.toggle_mask_ops()
 
         self.update_plot()
-        self.setWindowTitle('Scellseg@ZJU//' + self.filename)
+        self.setWindowTitle('Scellseg @ ' + self.filename)
 
     def add_set(self):
         if len(self.current_point_set) > 0:
@@ -823,9 +869,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.ncells += 1
                     self.add_list_item()
                     self.ismanual = np.append(self.ismanual, True)
-                    if self.NZ == 1:
-                        # only save after each cell if single image
-                        iopart._save_sets(self)
+                    # if self.NZ == 1:
+                    #     # only save after each cell if single image
+                    #     iopart._save_sets(self)
 
             self.current_stroke = []
             self.strokes = []
@@ -988,6 +1034,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     if event.key() == QtCore.Qt.Key_E:
                         self.eraser_button.toggle()
                         self.toolBox.setCurrentIndex(0)
+                    if event.key() == QtCore.Qt.Key_Y:
+                        self.ASCheckBox.toggle()
 
                     # if event.key() == QtCore.Qt.Key_Left:
                     #     if self.NZ == 1:
@@ -1940,8 +1988,19 @@ class Ui_MainWindow(QtGui.QMainWindow):
             # print(files[0])
             self.ImFolder = os.path.dirname(files[0])
             self.OpenDirDropped(os.path.basename(files[0]))
-            iopart._load_image(self, filename=files[0])
+
+            print(files[0], self.ImNameSet[self.CurImId])
+            self.ImPath = self.ImFolder + r'/' + self.ImNameSet[self.CurImId]
+            iopart._load_image(self, filename=self.ImPath)
             self.initialize_listView()
+
+            fname = os.path.basename(files[0])
+            fsuffix = os.path.splitext(fname)[-1]
+            if fsuffix in ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.jfif']:
+                if '_mask' in fname:
+                    self.state_label.setText("This is a mask file, autoload corresponding image", color='#FDC460')
+            else:
+                self.state_label.setText("This format is not supported", color='#FF6A56')
 
     def toggle_masks(self):
         if self.MCheckBox.isChecked():
@@ -2089,6 +2148,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.update_plot()
         self.p0.setYRange(0, self.Ly + self.pr)
         self.p0.setXRange(0, self.Lx)
+
+    def auto_save(self):
+        if self.autosaveOn:
+            print('Autosaved')
+            self.save_cell_list()
+            iopart._save_sets(self)
+            iopart._save_png(self)
 
 
 def make_cmap(cm=0):

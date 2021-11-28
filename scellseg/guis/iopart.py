@@ -368,6 +368,7 @@ def save_server(parent=None, filename=None):
 
 def _load_image(parent, filename=None):
     """ load image with filename; if None, open QFileDialog """
+    print('NOW_filename', filename)
     if filename is None:
         name = QtGui.QFileDialog.getOpenFileName(
             parent, "Load image"
@@ -479,7 +480,7 @@ def _initialize_images(parent, image, resize, X2):
 
 def _initialize_image_portable(parent, image, resize, X2):
     """ format image for GUI """
-    print(image.shape)
+    # print(image.shape)
     parent.onechan=False
     if image.ndim > 3:
         # make tiff Z x channels x W x H
@@ -774,6 +775,22 @@ def _save_png(parent):
     """ save masks to png or tiff (if 3D) """
     filename = parent.filename
     base = os.path.splitext(filename)[0]
+    if parent.NZ==1:
+        print('saving 2D masks to png')
+        imsave(base + '_cp_masks.png', parent.cellpix[0])
+        # imsave(base + '_cp_masks.png', parent.layers[0])
+
+        # print(type(parent.masks_for_save))
+        # imsave(base + '_cp_masks.png', parent.masks_for_save)
+
+    else:
+        print('saving 3D masks to tiff')
+        imsave(base + '_cp_masks.tif', parent.cellpix)
+
+def _save_png_menu(parent):
+    """ save masks to png or tiff (if 3D) """
+    filename = parent.filename
+    base = os.path.splitext(filename)[0]
     parent.state_label.setText("Saved masks", color='#39B54A')
     if parent.NZ==1:
         print('saving 2D masks to png')
@@ -795,12 +812,56 @@ def _save_outlines(parent):
         print('saving 2D outlines to text file, see docs for info to load into ImageJ')    
         outlines = utils.outlines_list(parent.cellpix[0])
         outlines_to_text(base, outlines)
+    else:
+        print('ERROR: cannot save 3D outlines')
+
+def _save_outlines_menu(parent):
+    filename = parent.filename
+    base = os.path.splitext(filename)[0]
+
+    if parent.NZ==1:
+        print('saving 2D outlines to text file, see docs for info to load into ImageJ')
+        outlines = utils.outlines_list(parent.cellpix[0])
+        outlines_to_text(base, outlines)
         parent.state_label.setText("Saved outlines", color='#39B54A')
     else:
         print('ERROR: cannot save 3D outlines')
-    
 
 def _save_sets(parent):
+    """ save masks to *_seg.npy """
+    filename = parent.filename
+    base = os.path.splitext(filename)[0]
+    if parent.NZ > 1 and parent.is_stack:
+        np.save(base + '_seg.npy',
+                {'outlines': parent.outpix,
+                 'colors': parent.cellcolors[1:],
+                 'masks': parent.cellpix,
+                 'current_channel': (parent.color-2)%5,
+                 'filename': parent.filename,
+                 'flows': parent.flows,
+                 'zdraw': parent.zdraw})
+    else:
+        image = parent.chanchoose(parent.stack[parent.currentZ].copy())
+        if image.ndim < 4:
+            image = image[np.newaxis,...]
+        np.save(base + '_seg.npy',
+                {'outlines': parent.outpix.squeeze(),
+                 'colors': parent.cellcolors[1:],
+                 'masks': parent.cellpix.squeeze(),
+                 'chan_choose': [parent.jCBChanToSegment.currentIndex(),
+                                 parent.jCBChan2.currentIndex()],
+                 'img': image.squeeze(),
+                 'ismanual': parent.ismanual,
+                 'X2': parent.X2,
+                 'filename': parent.filename,
+                 'flows': parent.flows})
+    #print(parent.point_sets)
+    print('--- %d ROIs saved chan1 %s, chan2 %s'%(parent.ncells,
+                                                  parent.jCBChanToSegment.currentText(),
+                                                  parent.jCBChan2.currentText()))
+
+
+def _save_sets_menu(parent):
     """ save masks to *_seg.npy """
     filename = parent.filename
     base = os.path.splitext(filename)[0]

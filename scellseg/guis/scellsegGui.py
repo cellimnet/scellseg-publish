@@ -22,16 +22,9 @@ class scellsegGui(Ui_MainWindow):
         super(scellsegGui, self).__init__(parent)
         self.setupUi(self)
         self.splitter.setSizes([500, 250])
-        self.autosave = True
         self.splitter.handle(1).setAttribute(Qt.WA_Hover, True)
         self.splitter2.handle(1).setAttribute(Qt.WA_Hover, True)
 
-
-    def autosave_on(self):
-        if self.SCheckBox.isChecked():
-            self.autosave = True
-        else:
-            self.autosave = False
 
     def closeEvent(self, event):
         answer = QtWidgets.QMessageBox.question(self, 'Close', 'Close Scellseg',

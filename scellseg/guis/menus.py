@@ -34,25 +34,25 @@ def mainmenu(parent):
 
     parent.savePNG = QtGui.QAction("Save masks (*_cp_masks.png)", parent)
     parent.savePNG.setShortcut("Ctrl+M")
-    parent.savePNG.triggered.connect(lambda: io._save_png(parent))
+    parent.savePNG.triggered.connect(lambda: io._save_png_menu(parent))
     file_menu.addAction(parent.savePNG)
     parent.savePNG.setEnabled(True)
 
     parent.saveOutlines = QtGui.QAction("Save &outlines for imageJ (*_cp_outlines.txt)", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")
-    parent.saveOutlines.triggered.connect(lambda: io._save_outlines(parent))
+    parent.saveOutlines.triggered.connect(lambda: io._save_outlines_menu(parent))
     file_menu.addAction(parent.saveOutlines)
     parent.saveOutlines.setEnabled(False)
 
     parent.saveSet = QtGui.QAction("&Save npy for image&&masks (*_seg.npy)", parent)
     parent.saveSet.setShortcut("Ctrl+N")
-    parent.saveSet.triggered.connect(lambda: io._save_sets(parent))
+    parent.saveSet.triggered.connect(lambda: io._save_sets_menu(parent))
     file_menu.addAction(parent.saveSet)
     parent.saveSet.setEnabled(False)
 
     parent.saveCellList = QtGui.QAction("Save &instance list (*_instance_list.txt)", parent)
     parent.saveCellList.setShortcut("Ctrl+L")
-    parent.saveCellList.triggered.connect(lambda:parent.save_cell_list())
+    parent.saveCellList.triggered.connect(lambda:parent.save_cell_list_menu())
     file_menu.addAction(parent.saveCellList)
 
 

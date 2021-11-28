@@ -466,9 +466,9 @@ class ImageDraw(pg.ImageItem):
             ioutline = self.parent.current_stroke[:,3]==1
             self.parent.current_point_set.extend(list(self.parent.current_stroke[ioutline]))
             self.parent.current_stroke = []
-            if self.parent.autosave:
+            if self.parent.sstroke_On:
                 self.parent.add_set()
-        if len(self.parent.current_point_set) > 0 and self.parent.autosave:
+        if len(self.parent.current_point_set) > 0 and self.parent.sstroke_On:
             self.parent.add_set()
 
     def tabletEvent(self, ev):
