@@ -12,7 +12,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 import pyqtgraph as pg
 
 import cv2
-import png_rc
 
 import guiparts, iopart, menus, plot
 from scellseg import models, utils, transforms, dynamics, dataset, io
@@ -433,6 +432,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.batch_inference_bnt.setObjectName("binferbnt")
         self.batch_inference_bnt.clicked.connect(self.batch_inference)
         self.gridLayout_2.addWidget(self.batch_inference_bnt, 15, 1, 1, 1)
+        self.batch_inference_bnt.setEnabled(False)
 
         self.label_getsingle = QtWidgets.QLabel("Get single instance")
         self.label_getsingle.setObjectName('label_getsingle')
@@ -444,6 +444,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.single_cell_btn.setObjectName('single_cell_btn')
         self.single_cell_btn.clicked.connect(self.get_single_cell)
         self.gridLayout_2.addWidget(self.single_cell_btn,17,1,1,1)
+        self.single_cell_btn.setEnabled(False)
 
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_2.addItem(spacerItem2, 18, 0, 1, 2)
@@ -505,6 +506,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ftbnt.setObjectName('ftbnt')
         self.ftbnt.clicked.connect(self.fine_tune)
         self.gridLayout_3.addWidget(self.ftbnt, 6, 0, 1, 4)
+        self.ftbnt.setEnabled(False)
 
         spacerItem3 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.gridLayout_3.addItem(spacerItem3, 7, 0, 1, 1)
@@ -555,6 +557,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def edit_cell(self, index):
         self.select_cell(index)
         self.eraser_button.setChecked(True)
+        self.toolBox.setCurrentIndex(0)
+
 
     def test_func(self):
         print("now is test")
@@ -574,7 +578,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.useGPU.setText(_translate("MainWindow", "Use GPU"))
         self.SCheckBox.setText(_translate("MainWindow", "Scale disk on [S]"))
-        self.eraser_button.setText(_translate("MainWindow", "Edit mask"))
+        self.eraser_button.setText(_translate("MainWindow", "Edit mask [E]"))
         self.ModelChoose.setItemText(0, _translate("MainWindow", "scellseg"))
         self.ModelChoose.setItemText(1, _translate("MainWindow", "cellpose"))
         self.ModelChoose.setItemText(2, _translate("MainWindow", "hover"))
@@ -682,7 +686,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def eraser_model_change(self):
         if self.eraser_button.isChecked() == True:
             self.outlinesOn = False
-            self.OCheckBox.setEnabled(False)
             self.OCheckBox.setChecked(False)
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
             # self.cur_size = self.brush_size * 6
@@ -982,6 +985,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
                         self.CHCheckBox.toggle()
                     if event.key() == QtCore.Qt.Key_S:
                         self.SCheckBox.toggle()
+                    if event.key() == QtCore.Qt.Key_E:
+                        self.eraser_button.toggle()
+                        self.toolBox.setCurrentIndex(0)
 
                     # if event.key() == QtCore.Qt.Key_Left:
                     #     if self.NZ == 1:
@@ -1026,16 +1032,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 elif event.key() == QtCore.Qt.Key_Down:
                     self.color = (self.color + 1) % (6)
                     self.RGBDropDown.setCurrentIndex(self.color)
-                elif (event.key() == QtCore.Qt.Key_Comma or
-                      event.key() == QtCore.Qt.Key_Period):
+                elif (event.key() == QtCore.Qt.Key_BracketLeft or
+                      event.key() == QtCore.Qt.Key_BracketRight):
                     count = self.BrushChoose.count()
                     gci = self.BrushChoose.currentIndex()
-                    if event.key() == QtCore.Qt.Key_Comma:
+                    if event.key() == QtCore.Qt.Key_BracketLeft:
                         gci = max(0, gci - 1)
                     else:
                         gci = min(count - 1, gci + 1)
                     self.BrushChoose.setCurrentIndex(gci)
                     self.brush_choose()
+                    self.state_label.setText("Brush size: %s"%(2*gci+1), color='#969696')
                 if not updated:
                     self.update_plot()
                 elif event.modifiers() == QtCore.Qt.ControlModifier:
@@ -1221,6 +1228,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.state_label.setText("Please choose right data path",
                                              color='#FF6A56')
                     print("Please choose right data path")
+                    self.batch_inference_bnt.setEnabled(False)
                     return
 
                 queryset = dataset.DatasetQuery(dataset_path, class_name=None, image_filter='_img',
@@ -1265,7 +1273,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
         self.state_label.setText('Finished inference in %0.3fs!'%(time.time() - tic), color='#39B54A')
-
+        self.batch_inference_bnt.setEnabled(False)
 
     def compute_cprob(self):
         rerun = False
@@ -1620,6 +1628,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
             print("Please choose right data path")
+            self.ftbnt.setEnabled(False)
             return
 
         project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
@@ -1665,6 +1674,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         print('Finished fine-tuning')
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
         self.state_label.setText("Finished in %0.3fs, model saved at ./output/fine-tune/%s" %(time.time()-tic, model.net.save_name), color='#39B54A')
+        self.ftbnt.setEnabled(True)
 
 
     def get_single_cell(self):
@@ -1692,6 +1702,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
             print("Please choose right data path")
+            self.single_cell_btn.setEnabled(False)
             return
 
         sta = 256
@@ -1742,6 +1753,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         print('Finish getting single instance')
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
         self.state_label.setText("Finished in %0.3fs, saved at %s"%(time.time()-tic, os.path.dirname(data_path)+'/single') , color='#39B54A')
+        self.single_cell_btn.setEnabled(False)
 
     def fine_tune_dir_choose(self):
         self.fine_tune_dir = QtWidgets.QFileDialog.getExistingDirectory(None,"choose fine-tune data",self.DefaultImFolder)
@@ -1749,6 +1761,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.state_label.setText("Choose nothing", color='#969696')
         else:
             self.state_label.setText("Choose data at %s"%str(self.fine_tune_dir), color='#969696')
+            self.ftbnt.setEnabled(True)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
 
     def batch_inference_dir_choose(self):
         self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "choose batch segmentation data", self.DefaultImFolder)
@@ -1756,6 +1770,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.state_label.setText("Choose nothing", color='#969696')
         else:
             self.state_label.setText("Choose data at %s"%str(self.batch_inference_dir), color='#969696')
+            self.batch_inference_bnt.setEnabled(True)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
+
 
     def single_dir_choose(self):
         self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "choose get single instance data", self.DefaultImFolder)
@@ -1763,6 +1780,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.state_label.setText("Choose nothing", color='#969696')
         else:
             self.state_label.setText("Choose data at %s"%str(self.single_cell_dir), color='#969696')
+            self.single_cell_btn.setEnabled(True)
+            iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
+
 
     def model_file_dir_choose(self):
         """ model after fine-tuning"""
@@ -1771,6 +1791,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.state_label.setText("Choose nothing", color='#969696')
         else:
             self.state_label.setText("Choose model at %s"%str(self.model_file_path[0]), color='#969696')
+
 
     def reset_pretrain_model(self):
         self.model_file_path = None
@@ -2179,7 +2200,6 @@ def make_spectral():
     return spectral
 
 
-import png_rc
 
 if __name__ == '__main__':
     pass

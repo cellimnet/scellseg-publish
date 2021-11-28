@@ -518,11 +518,11 @@ def _initialize_image_portable(parent, image, resize, X2):
     parent.stack = image
     parent.NZ = len(parent.stack)
     parent.scroll.setMaximum(parent.NZ-1)
-    if parent.stack.max()>255 or parent.stack.min()<0.0 or parent.stack.max()<=50.0:
-        parent.stack = parent.stack.astype(np.float32)
-        parent.stack -= parent.stack.min()
-        parent.stack /= parent.stack.max()
-        parent.stack *= 255
+    # if parent.stack.max()>255 or parent.stack.min()<0.0 or parent.stack.max()<=50.0:
+    #     parent.stack = parent.stack.astype(np.float32)
+    #     parent.stack -= parent.stack.min()
+    #     parent.stack /= parent.stack.max()
+    #     parent.stack *= 255
     del image
     gc.collect()
 
@@ -543,8 +543,9 @@ def _initialize_image_portable(parent, image, resize, X2):
     parent.Ly, parent.Lx = img.shape[0], img.shape[1]
     parent.stack = np.array(parent.stack)
     parent.layers = 0*np.ones((parent.NZ,parent.Ly,parent.Lx,4), np.uint8)
-    if parent.autobtn.isChecked() or len(parent.saturation)!=parent.NZ:
-        parent.compute_saturation()
+    # if parent.autobtn.isChecked() or len(parent.saturation)!=parent.NZ:
+    #     parent.compute_saturation()
+    # print(parent.saturation)
     parent.compute_scale()
     parent.currentZ = int(np.floor(parent.NZ/2))
     parent.scroll.setValue(parent.currentZ)
