@@ -110,6 +110,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
         # self.listmodel.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem())
         self.listView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
+        # self.listView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         # self.listView.horizontalHeader().setStyle("background-color: #F0F0F0")
         # self.listView.horizontalHeader().setVisible(False)
         self.listView.verticalHeader().setVisible(False)
@@ -554,6 +555,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # item = self.listView.itemAt(point)
         # print(item)
         temp_cell_idx = self.listView.rowAt(point.y())
+
+        self.list_select_cell(temp_cell_idx+1)
         # print("index",temp_cell_idx)
 
         # self.curRow = self.listView.currentRow()
@@ -572,6 +575,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.actionB.triggered.connect(lambda: self.edit_cell(temp_cell_idx + 1))
 
             self.contextMenu.show()
+
 
     def edit_cell(self, index):
         self.select_cell(index)
@@ -1503,7 +1507,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for item in self.listView.selectedIndexes():
             data = item.data()
             self.myCellList.append(data)
-        self.myCellList.append('instance_' + str(self.ncells))
+
+        temp_nums = []
+        for celli in self.myCellList:
+            if 'instance_' in celli:
+                temp_nums.append(int(celli.split('instance_')[-1]))
+        if len(temp_nums) == 0:
+            now_cellIdx = 0
+        else:
+            now_cellIdx = np.max(np.array(temp_nums))
+
+        self.myCellList.append('instance_' + str(now_cellIdx+1))
+        # self.myCellList.append('instance_' + str(self.ncells))
         self.listmodel = Qt.QStandardItemModel(self.ncells, 1)
         # self.listmodel = Qt.QStringListModel()
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
@@ -1558,7 +1573,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         if self.selected > 0:
             self.layers[self.cellpix == idx] = np.array([255, 255, 255, 255])
-            if idx < self.ncells + 1 and self.prev_selected > 0:
+            if idx < self.ncells + 1 and self.prev_selected > 0 and self.prev_selected != idx:
                 self.layers[self.cellpix == self.prev_selected] = np.append(self.cellcolors[self.prev_selected],
                                                                             self.opacity)
                 # if self.outlinesOn:
@@ -1573,6 +1588,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # print('the prev-selected is ', self.prev_selected)
         if self.selected > 0:
             self.layers[self.cellpix == idx] = np.array([255, 255, 255, 255])
+
+            print('idx', self.prev_selected, idx)
+            if idx < self.ncells + 1 and self.prev_selected > 0 and self.prev_selected != idx:
+                self.layers[self.cellpix == self.prev_selected] = np.append(self.cellcolors[self.prev_selected],
+                                                                            self.opacity)
             # if self.outlinesOn:
             #    self.layers[self.outpix==idx] = np.array(self.outcolor)
             self.update_plot()
@@ -1586,11 +1606,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.layers[self.outpix == idx] = np.array(self.outcolor).astype(np.uint8)
                     # [0,0,0,self.opacity])
                 self.update_plot()
-        self.selected = 0
+        # self.selected = 0
 
     def remove_cell(self, idx):
         # remove from manual array
-        self.selected = 0
+        # self.selected = 0
         for z in range(self.NZ):
             cp = self.cellpix[z] == idx
             op = self.outpix[z] == idx
@@ -1618,6 +1638,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.ClearButton.setEnabled(False)
         if self.NZ == 1:
             iopart._save_sets(self)
+        # self.select_cell(0)
 
     def merge_cells(self, idx):
         self.prev_selected = self.selected
@@ -1662,7 +1683,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.toggle_mask_ops()
             self.cellcolors.append(color)
             self.ncells += 1
-            self.undo_list_item()
+            self.add_list_item()
             self.ismanual = np.append(self.ismanual, self.removed_cell[0])
             self.zdraw.append([])
             print('added back removed cell')
@@ -1670,7 +1691,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
             iopart._save_sets(self)
             self.removed_cell = []
             self.redo.setEnabled(False)
-
 
     def fine_tune(self):
         tic = time.time()
