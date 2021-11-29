@@ -110,7 +110,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listmodel.setHorizontalHeaderLabels(["Annotation"])
         # self.listmodel.setHorizontalHeaderItem(0, QtWidgets.QTableWidgetItem())
         self.listView.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
-        # self.listView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         # self.listView.horizontalHeader().setStyle("background-color: #F0F0F0")
         # self.listView.horizontalHeader().setVisible(False)
         self.listView.verticalHeader().setVisible(False)
@@ -121,6 +120,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView.setModel(self.listmodel)
         self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.listView.customContextMenuRequested.connect(self.show_menu)
+        # self.listView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.listView.clicked.connect(self.showChoosen)
 
         self.scrollArea.setWidget(self.scrollAreaWidgetContents)
@@ -557,11 +557,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         temp_cell_idx = self.listView.rowAt(point.y())
 
         self.list_select_cell(temp_cell_idx+1)
-        # print("index",temp_cell_idx)
 
-        # self.curRow = self.listView.currentRow()
-        # item = self.listView.item(self.curRow)
-        # print('will show the menu')
+        # print(self.myCellList[temp_cell_idx])
         if self.listView.rowAt(point.y()) >= 0:
             self.contextMenu = QtWidgets.QMenu()
             self.actionA = QtGui.QAction("Delete this cell", self)
@@ -581,10 +578,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.select_cell(index)
         self.eraser_button.setChecked(True)
         self.toolBox.setCurrentIndex(0)
-
-
-    def test_func(self):
-        print("now is test")
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
