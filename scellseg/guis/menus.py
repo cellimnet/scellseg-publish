@@ -62,25 +62,25 @@ def editmenu(parent):
     parent.undo = QtGui.QAction('Undo previous mask/trace', parent)
     parent.undo.setShortcut("Ctrl+Z")
     parent.undo.triggered.connect(parent.undo_action)
-    parent.undo.setEnabled(False)
+    # parent.undo.setEnabled(False)
     edit_menu.addAction(parent.undo)
 
     parent.redo = QtGui.QAction('Undo remove mask', parent)
     parent.redo.setShortcut("Ctrl+Y")
     parent.redo.triggered.connect(parent.undo_remove_action)
-    parent.redo.setEnabled(False)
+    # parent.redo.setEnabled(False)
     edit_menu.addAction(parent.redo)
 
     parent.ClearButton = QtGui.QAction('Clear all masks', parent)
     parent.ClearButton.setShortcut("Ctrl+0")
     parent.ClearButton.triggered.connect(parent.clear_all)
-    parent.ClearButton.setEnabled(False)
+    # parent.ClearButton.setEnabled(False)
     edit_menu.addAction(parent.ClearButton)
 
     parent.remcell = QtGui.QAction('Remove selected cell (Ctrl+CLICK)', parent)
     parent.remcell.setShortcut("Ctrl+Click")
     parent.remcell.triggered.connect(parent.remove_action)
-    parent.remcell.setEnabled(False)
+    # parent.remcell.setEnabled(False)
     edit_menu.addAction(parent.remcell)
 
 def helpmenu(parent):

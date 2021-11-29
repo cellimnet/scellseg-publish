@@ -201,6 +201,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.eraser_button.setObjectName("Edit mask")
         self.eraser_button.setChecked(False)
         self.eraser_button.toggled.connect(self.eraser_model_change)
+        self.eraser_button.setToolTip("Right-click to add pixels\nShift+Right-click to delete pixels")
         self.gridLayout.addWidget(self.eraser_button, 9, 0, 1, 1)
 
         self.CHCheckBox = QtWidgets.QCheckBox(self.page)
@@ -234,6 +235,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ASCheckBox.setObjectName("ASCheckBox")
         self.ASCheckBox.setChecked(True)
         self.ASCheckBox.toggled.connect(self.toggle_autosave)
+        self.ASCheckBox.setToolTip("If ON, masks/npy/list will be autosaved")
         self.gridLayout.addWidget(self.ASCheckBox, 14, 0, 1, 1)
 
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
