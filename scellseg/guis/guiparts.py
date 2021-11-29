@@ -627,6 +627,7 @@ class RangeSlider(QtGui.QSlider):
             
     def mousePressEvent(self, event):
         event.accept()
+        self.parent.autobtn.setChecked(False)
 
         style = QtGui.QApplication.style()
         print('style', style.CC_Slider)
@@ -658,6 +659,9 @@ class RangeSlider(QtGui.QSlider):
             event.ignore()
 
     def mouseMoveEvent(self, event):
+        self.parent.autobtn.setChecked(False)
+
+
         if self.pressed_control != QtGui.QStyle.SC_SliderHandle:
             event.ignore()
             return
@@ -692,6 +696,7 @@ class RangeSlider(QtGui.QSlider):
         self.update()
 
     def mouseReleaseEvent(self, event):
+        self.parent.autobtn.setChecked(False)
         self.level_change()
 
     def __pick(self, pt):

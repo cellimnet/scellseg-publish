@@ -7,6 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 import numpy as np
 import sys, os, pathlib, warnings, datetime, tempfile, glob, time, threading
+
+from PyQt5.QtWidgets import QApplication
 from natsort import natsorted
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 import pyqtgraph as pg
@@ -113,7 +115,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.listView.verticalHeader().setVisible(False)
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
-
 
         self.listView.setMaximumWidth(120)
         self.listView.setModel(self.listmodel)
@@ -251,6 +252,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.autobtn = QtGui.QCheckBox('Auto-adjust')
         self.autobtn.setChecked(True)
+        self.autobtn.toggled.connect(self.toggle_autosaturation)
         self.gridLayout.addWidget(self.autobtn, 0, 1, 1, 1)
 
         self.currentZ = 0
@@ -412,6 +414,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.label_7, 12, 0, 1, 1)
         self.threshold = 0.4
         self.threshslider = QtWidgets.QSlider(self.page_2)
+        self.threshslider.setToolTip("Value: " + str(self.threshold))
         self.threshslider.setOrientation(QtCore.Qt.Horizontal)
         self.threshslider.setObjectName("threshslider")
         self.threshslider.setMinimum(1.0)
@@ -436,6 +439,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.cellprob = 0.0
         self.probslider.valueChanged.connect(self.compute_cprob)
         self.probslider.setEnabled(False)
+        self.probslider.setToolTip("Value: " + str(self.cellprob))
 
         self.label_batchseg = QtWidgets.QLabel("Batch segmentation")
         self.label_batchseg.setObjectName('label_batchseg')
@@ -592,7 +596,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.useGPU.setText(_translate("MainWindow", "Use GPU"))
         self.SCheckBox.setText(_translate("MainWindow", "Scale disk on [S]"))
-        self.ASCheckBox.setText(_translate("MainWindow", "Autosave [Y]"))
+        self.ASCheckBox.setText(_translate("MainWindow", "Autosave [P]"))
         self.SSCheckBox.setText(_translate("MainWindow", "Single stroke"))
         self.eraser_button.setText(_translate("MainWindow", "Edit mask [E]"))
         self.ModelChoose.setItemText(0, _translate("MainWindow", "scellseg"))
@@ -771,6 +775,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:
             self.sstroke_On = False
         print('self.sstroke_On', self.sstroke_On)
+
+    def toggle_autosaturation(self):
+        if self.autobtn.isChecked():
+            self.compute_saturation()
+            self.update_plot()
 
     def cross_hairs(self):
         if self.CHCheckBox.isChecked():
@@ -1001,9 +1010,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def compute_saturation(self):
         # compute percentiles from stack
         self.saturation = []
+        self.slider._low = np.percentile(self.stack[0].astype(np.float32), 1)
+        self.slider._high = np.percentile(self.stack[0].astype(np.float32), 99)
+
         for n in range(len(self.stack)):
+            print('n,', n)
             self.saturation.append([np.percentile(self.stack[n].astype(np.float32), 1),
                                     np.percentile(self.stack[n].astype(np.float32), 99)])
+
 
     def keyPressEvent(self, event):
         if self.loaded:
@@ -1034,8 +1048,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     if event.key() == QtCore.Qt.Key_E:
                         self.eraser_button.toggle()
                         self.toolBox.setCurrentIndex(0)
-                    if event.key() == QtCore.Qt.Key_Y:
+                    if event.key() == QtCore.Qt.Key_P:
                         self.ASCheckBox.toggle()
+                    if event.modifiers() == QtCore.Qt.ControlModifier:
+                        self.toolBox.setCurrentIndex(0)
+
+
 
                     # if event.key() == QtCore.Qt.Key_Left:
                     #     if self.NZ == 1:
@@ -1098,6 +1116,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
                         self.undo_action()
                     if event.key() == QtCore.Qt.Key_0:
                         self.clear_all()
+        if event.modifiers() == QtCore.Qt.ControlModifier:
+            if event.key() == QtCore.Qt.Key_1:
+                self.toolBox.setCurrentIndex(0)
+            if event.key() == QtCore.Qt.Key_2:
+                self.toolBox.setCurrentIndex(1)
+            if event.key() == QtCore.Qt.Key_3:
+                self.toolBox.setCurrentIndex(2)
         if event.key() == QtCore.Qt.Key_Minus or event.key() == QtCore.Qt.Key_Equal:
             self.p0.keyPressEvent(event)
 
@@ -1227,6 +1252,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def batch_inference(self):
         self.progress.setValue(0)
+        # print('threshold', self.threshold, self.cellprob)
         # self.update_plot()
 
         if True:
@@ -1289,11 +1315,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
                 self.state_label.setText("Running...", color='#969696')
                 QtWidgets.qApp.processEvents()  # force update gui
+
+                # flow_threshold was set to 0.4, and cellprob_threshold was set to 0.5
                 masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=False,
                                                        query_image_names=query_image_names, channel=channels,
                                                        diameter=diameter,
-                                                       resample=False, flow_threshold=self.threshold,
-                                                       cellprob_threshold=self.cellprob,
+                                                       resample=False, flow_threshold=0.4,
+                                                       cellprob_threshold=0.5,
                                                        min_size=min_size, eval_batch_size=8,
                                                        postproc_mode=self.model.postproc_mode,
                                                        progress=self.progress)
@@ -1385,7 +1413,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.BrushChoose.setCurrentIndex(1)
         self.CHCheckBox.setChecked(False)
         self.OCheckBox.setEnabled(True)
-        # self.SCheckBox.setChecked(True)
+        self.SSCheckBox.setChecked(True)
 
         # -- zero out image stack -- #
         self.opacity = 200  # how opaque masks should be
@@ -1518,7 +1546,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.cellcolors = [np.array([255, 255, 255])]
         self.ncells = 0
         self.initialize_listView()
-        # print('removed all cells')
+        print('removed all cells')
         self.toggle_removals()
         self.update_plot()
 

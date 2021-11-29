@@ -45,6 +45,7 @@ if __name__ == "__main__":
     ListColor = '#F0F0F0'
     SliderColor = '#0078D7'
     LabelColor = '#7A581E'
+    BlackColor = '#000000'
 
     BtnColor = '#0066FF'
 

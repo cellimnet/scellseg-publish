@@ -406,6 +406,8 @@ def _load_image(parent, filename=None):
 def _initialize_images(parent, image, resize, X2):
     """ format image for GUI """
     parent.onechan=False
+    parent.autobtn.setChecked(True)
+
     if image.ndim > 3:
         # make tiff Z x channels x W x H
         if image.shape[0]<4:
@@ -481,6 +483,7 @@ def _initialize_images(parent, image, resize, X2):
 def _initialize_image_portable(parent, image, resize, X2):
     """ format image for GUI """
     # print(image.shape)
+    parent.saturation = [[0, 255]]
     parent.onechan=False
     if image.ndim > 3:
         # make tiff Z x channels x W x H
@@ -546,7 +549,7 @@ def _initialize_image_portable(parent, image, resize, X2):
     parent.layers = 0*np.ones((parent.NZ,parent.Ly,parent.Lx,4), np.uint8)
     # if parent.autobtn.isChecked() or len(parent.saturation)!=parent.NZ:
     #     parent.compute_saturation()
-    # print(parent.saturation)
+
     parent.compute_scale()
     parent.currentZ = int(np.floor(parent.NZ/2))
     parent.scroll.setValue(parent.currentZ)
