@@ -791,14 +791,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if event.double():
             if event.button() == QtCore.Qt.LeftButton:
                 print("will initialize the range")
-                # if (event.modifiers() != QtCore.Qt.ShiftModifier and
-                #     event.modifiers() != QtCore.Qt.AltModifier):
-                #
-                #     try:
-                #         self.p0.setYRange(0,self.Ly+self.pr)
-                #     except:
-                #         self.p0.setYRange(0,self.Ly)
-                #     self.p0.setXRange(0,self.Lx)
+                if (event.modifiers() != QtCore.Qt.ShiftModifier and
+                    event.modifiers() != QtCore.Qt.AltModifier):
+                    try:
+                        self.p0.setYRange(0,self.Ly+self.pr)
+                    except:
+                        self.p0.setYRange(0,self.Ly)
+                    self.p0.setXRange(0,self.Lx)
 
     def mouse_moved(self, pos):
         # print('moved')
@@ -1050,38 +1049,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
                         self.ASCheckBox.toggle()
                     if event.modifiers() == QtCore.Qt.ControlModifier:
                         self.toolBox.setCurrentIndex(0)
-
-
-
-                    # if event.key() == QtCore.Qt.Key_Left:
-                    #     if self.NZ == 1:
-                    #         self.get_prev_image()
-                    #     else:
-                    #         self.currentZ = max(0, self.currentZ - 1)
-                    #         self.scroll.setValue(self.currentZ)
-                    #         updated = True
-                    # elif event.key() == QtCore.Qt.Key_Right:
-                    #     if self.NZ == 1:
-                    #         self.get_next_image()
-                    #     else:
-                    #         self.currentZ = min(self.NZ - 1, self.currentZ + 1)
-                    #         self.scroll.setValue(self.currentZ)
-                    #         updated = True
-                    # elif event.key() == QtCore.Qt.Key_A:
-                    #     if self.NZ == 1:
-                    #         self.get_prev_image()
-                    #     else:
-                    #         self.currentZ = max(0, self.currentZ - 1)
-                    #         self.scroll.setValue(self.currentZ)
-                    #         updated = True
-                    # elif event.key() == QtCore.Qt.Key_D:
-                    #     if self.NZ == 1:
-                    #         self.get_next_image()
-                    #     else:
-                    #         self.currentZ = min(self.NZ - 1, self.currentZ + 1)
-                    #         self.scroll.setValue(self.currentZ)
-                    #         updated = True
-
                     elif event.key() == QtCore.Qt.Key_PageDown:
                         self.view = (self.view + 1) % (len(self.RGBChoose.bstr))
                         self.RGBChoose.button(self.view).setChecked(True)

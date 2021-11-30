@@ -69,8 +69,9 @@ def horizontal_slider_style():
 class ExampleGUI(QtGui.QDialog):
     def __init__(self, parent=None):
         super(ExampleGUI, self).__init__(parent)
-        self.setGeometry(100,100,1300,900)
+        self.setGeometry(345,65,1300,900)
         self.setWindowTitle('GUI layout')
+        self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint)
         self.win = QtGui.QWidget(self)
         layout = QtGui.QGridLayout()
         self.win.setLayout(layout)
@@ -84,15 +85,10 @@ class ExampleGUI(QtGui.QDialog):
 
 class HelpWindow(QtGui.QDialog):
     def __init__(self, parent=None):
-        super(HelpWindow, self).__init__(parent)
-        self.setGeometry(100,100,700,800)
-        self.setWindowTitle('cellpose help')
-        self.win = QtGui.QWidget(self)
-        layout = QtGui.QGridLayout()
-        self.win.setLayout(layout)
-        
         text = ('''
+            <p class="has-line-data" data-line-start="5" data-line-end="6"> <b>Declartion:</b> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a></p>
             <p class="has-line-data" data-line-start="5" data-line-end="6">Main GUI mouse controls:</p>
+            
             <ul>
             <li class="has-line-data" data-line-start="7" data-line-end="8">Pan  = left-click  + drag</li>
             <li class="has-line-data" data-line-start="8" data-line-end="9">Zoom = scroll wheel (or +/= and - buttons) </li>
@@ -187,10 +183,33 @@ class HelpWindow(QtGui.QDialog):
             <p class="has-line-data" data-line-start="44" data-line-end="45">CHAN TO SEG: this is the channel in which the cytoplasm or nuclei exist</p>
             <p class="has-line-data" data-line-start="46" data-line-end="47">CHAN2 (OPT): if <em>cytoplasm</em> model is chosen, then choose the nuclear channel for this option</p>
             ''')
-        label = QtGui.QLabel(text)
+
+        super(HelpWindow, self).__init__(parent)
+        self.setGeometry(100,50,767,525)
+        self.setWindowTitle('Scellseg help')
+        self.win = QtGui.QWidget(self)
+        self.win.setContentsMargins(0, 0, 0, 0)
+
+        self.scrollText = QtWidgets.QScrollArea(self.win)
+        self.scrollTextWidgetContents = QtWidgets.QWidget()
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollTextWidgetContents)
+
+        label = QtWidgets.QLabel(self.scrollTextWidgetContents)
+        label.setText(text)
+        label.setOpenExternalLinks(True)
         label.setFont(QtGui.QFont("Arial", 8))
         label.setWordWrap(True)
-        layout.addWidget(label, 0, 0, 1, 1)
+        label.setAlignment(Qt.AlignTop)
+
+        self.verticalLayout.addWidget(label)
+        self.scrollText.setWidget(self.scrollTextWidgetContents)
+
+        layout = QtWidgets.QHBoxLayout(self.win)
+        layout.setGeometry(QtCore.QRect(0, 0, 400, 400))
+        layout.addWidget(self.scrollText)
+
+        self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint)
+        self.setFixedSize(767,525)
         self.show()
 
 class TypeRadioButtons(QtGui.QButtonGroup):
