@@ -184,10 +184,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.brush_size = 3
         self.BrushChoose = QtWidgets.QComboBox()
-        self.BrushChoose.addItems(["1", "3", "5", "7", "9"])
+        self.BrushChoose.addItems(["1", "3", "5", "7", "9", "11", "13", "15", "17", "19"])
         self.BrushChoose.currentIndexChanged.connect(self.brush_choose)
         self.gridLayout.addWidget(self.BrushChoose, 7, 1, 1, 1)
-
 
         # turn on single stroke mode
         self.sstroke_On = True
