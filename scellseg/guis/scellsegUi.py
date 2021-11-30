@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'cellPoseUI.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
+
 import numpy as np
 import sys, os, pathlib, warnings, datetime, tempfile, glob, time, threading
 
@@ -70,7 +67,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.splitter2.setOrientation(QtCore.Qt.Horizontal)
         self.splitter2.setObjectName("splitter2")
 
-
         self.scrollArea = QtWidgets.QScrollArea(self.splitter)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
@@ -101,7 +97,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.previous_button.clicked.connect(self.PreImBntClicked)
         self.next_button.clicked.connect(self.NextImBntClicked)
         self.load_folder.clicked.connect(self.OpenDirBntClicked)
-
 
         # leftside cell list widget
         self.listView = QtWidgets.QTableView()
@@ -619,6 +614,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.CurFolder = os.getcwd()
         self.DefaultImFolder = self.CurFolder
+
+    def setWinTop(self):
+        print('get')
 
     def OpenDirDropped(self, curFile=None):
         # dir dropped callback func

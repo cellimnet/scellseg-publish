@@ -90,17 +90,17 @@ class HelpWindow(QtGui.QDialog):
             <p class="has-line-data" data-line-start="5" data-line-end="6">Main GUI mouse controls:</p>
             
             <ul>
-            <li class="has-line-data" data-line-start="7" data-line-end="8">Pan  = left-click  + drag</li>
-            <li class="has-line-data" data-line-start="8" data-line-end="9">Zoom = scroll wheel (or +/= and - buttons) </li>
-            <li class="has-line-data" data-line-start="9" data-line-end="10">Full view = double left-click</li>
-            <li class="has-line-data" data-line-start="10" data-line-end="11">Select mask = left-click on mask</li>
-            <li class="has-line-data" data-line-start="11" data-line-end="12">Delete mask = Ctrl (or COMMAND on Mac) + left-click</li>
-            <li class="has-line-data" data-line-start="11" data-line-end="12">Merge masks = Alt + left-click (will merge last two)</li>
-            <li class="has-line-data" data-line-start="12" data-line-end="13">Start draw mask = right-click</li>
-            <li class="has-line-data" data-line-start="13" data-line-end="15">End draw mask = right-click, or return to circle at beginning</li>
+            <li class="has-line-data">Pan  = left-click  + drag</li>
+            <li class="has-line-data">Zoom = scroll wheel (or +/= and - buttons) </li>
+            <li class="has-line-data">Full view = double left-click</li>
+            <li class="has-line-data">Select mask = left-click on mask</li>
+            <li class="has-line-data">Delete mask = Ctrl (or COMMAND on Mac) + left-click</li>
+            <li class="has-line-data">Merge masks = Alt + left-click (will merge last two)</li>
+            <li class="has-line-data">Start draw mask = right-click</li>
+            <li class="has-line-data">End draw mask = right-click, or return to circle at beginning</li>
             </ul>
-            <p class="has-line-data" data-line-start="15" data-line-end="16">Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
-            <p class="has-line-data" data-line-start="17" data-line-end="18">!NOTE!: The GUI automatically saves after you draw a mask in 2D but NOT after 3D mask drawing and NOT after segmentation. Save in the file menu or with Ctrl+S. The output file is in the same folder as the loaded image with <code>_seg.npy</code> appended.</p>
+            <p class="has-line-data">Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
+            <p class="has-line-data">!NOTE!: The GUI automatically saves after you draw a mask in 2D but NOT after 3D mask drawing and NOT after segmentation. Save in the file menu or with Ctrl+S. The output file is in the same folder as the loaded image with <code>_seg.npy</code> appended.</p>
             <table class="table table-striped table-bordered">
             <br><br>
             <thead>
@@ -176,12 +176,12 @@ class HelpWindow(QtGui.QDialog):
             </tr>
             </tbody>
             </table>
-            <p class="has-line-data" data-line-start="36" data-line-end="37"><strong>Segmentation options (2D only) </strong></p>
-            <p class="has-line-data" data-line-start="38" data-line-end="39">SIZE: you can manually enter the approximate diameter for your cells, or press “calibrate” to let the model estimate it. The size is represented by a disk at the bottom of the view window (can turn this disk of by unchecking “scale disk on”).</p>
-            <p class="has-line-data" data-line-start="40" data-line-end="41">use GPU: if you have specially installed the cuda version of mxnet, then you can activate this, but it won’t give huge speedups when running single 2D images in the GUI.</p>
-            <p class="has-line-data" data-line-start="42" data-line-end="43">MODEL: there is a <em>cytoplasm</em> model and a <em>nuclei</em> model, choose what you want to segment</p>
-            <p class="has-line-data" data-line-start="44" data-line-end="45">CHAN TO SEG: this is the channel in which the cytoplasm or nuclei exist</p>
-            <p class="has-line-data" data-line-start="46" data-line-end="47">CHAN2 (OPT): if <em>cytoplasm</em> model is chosen, then choose the nuclear channel for this option</p>
+            <p class="has-line-data"><strong>Segmentation options (2D only) </strong></p>
+            <p class="has-line-data">SIZE: you can manually enter the approximate diameter for your cells, or press “calibrate” to let the model estimate it. The size is represented by a disk at the bottom of the view window (can turn this disk of by unchecking “scale disk on”).</p>
+            <p class="has-line-data">use GPU: if you have specially installed the cuda version of mxnet, then you can activate this, but it won’t give huge speedups when running single 2D images in the GUI.</p>
+            <p class="has-line-data">MODEL: there is a <em>cytoplasm</em> model and a <em>nuclei</em> model, choose what you want to segment</p>
+            <p class="has-line-data">CHAN TO SEG: this is the channel in which the cytoplasm or nuclei exist</p>
+            <p class="has-line-data">CHAN2 (OPT): if <em>cytoplasm</em> model is chosen, then choose the nuclear channel for this option</p>
             ''')
 
         super(HelpWindow, self).__init__(parent)
@@ -205,10 +205,11 @@ class HelpWindow(QtGui.QDialog):
         self.scrollText.setWidget(self.scrollTextWidgetContents)
 
         layout = QtWidgets.QHBoxLayout(self.win)
-        layout.setGeometry(QtCore.QRect(0, 0, 400, 400))
+        # layout.setGeometry(QtCore.QRect(0, 0, 400, 400))
         layout.addWidget(self.scrollText)
 
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint)
+        self.setWindowModality(Qt.NonModal)
         self.setFixedSize(767,525)
         self.show()
 
@@ -228,7 +229,7 @@ class TypeRadioButtons(QtGui.QButtonGroup):
             button.toggled.connect(lambda: self.btnpress(parent))
             self.parent.l0.addWidget(button, row+b,col,1,2)
         self.setExclusive(True)
-        #self.buttons.
+
 
     def btnpress(self, parent):
        b = self.checkedId()
