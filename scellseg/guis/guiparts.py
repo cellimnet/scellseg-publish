@@ -125,32 +125,11 @@ class HelpWindow(QtGui.QDialog):
             <td>CTRL+0</td>
             <td>clear all masks</td>
             </tr>
-            <tr>
-            <td>CTRL+L</td>
-            <td>load image (can alternatively drag and drop image)</td>
-            </tr>
-            <tr>
-            <td>CTRL+S</td>
-            <td>SAVE MASKS IN IMAGE to <code>_seg.npy</code> file</td>
-            </tr>
-            <tr>
-            <td>CTRL+P</td>
-            <td>load <code>_seg.npy</code> file (note: it will load automatically with image if it exists)</td>
-            </tr>
-            <tr>
-            <td>CTRL+M</td>
-            <td>load masks file (must be same size as image with 0 for NO mask, and 1,2,3… for masks)</td>
-            </tr>
-            <tr>
-            <td>CTRL+N</td>
-            <td>load numpy stack (NOT WORKING ATM)</td>
-            </tr>
-            <tr>
-            <td>A/D or LEFT/RIGHT</td>
+            <td>Ctrl + LEFT/RIGHT</td>
             <td>cycle through images in current directory</td>
             </tr>
             <tr>
-            <td>W/S or UP/DOWN</td>
+            <td>UP/DOWN</td>
             <td>change color (RGB/gray/red/green/blue)</td>
             </tr>
             <tr>
@@ -199,6 +178,7 @@ class HelpWindow(QtGui.QDialog):
         label.setFont(QtGui.QFont("Arial", 8))
         label.setWordWrap(True)
         label.setAlignment(Qt.AlignTop)
+        # label.setTextFormat(QtCore.Qt.AutoText)
 
         self.verticalLayout.addWidget(label)
         self.scrollText.setWidget(self.scrollTextWidgetContents)

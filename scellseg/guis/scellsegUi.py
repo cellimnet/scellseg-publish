@@ -172,7 +172,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.splitter2.addWidget(self.win)
         self.mainLayout.addWidget(self.splitter2,0,1,1,3)
 
-
         self.label_2 = QtWidgets.QLabel(self.page)
         self.label_2.setObjectName("label_2")
         self.gridLayout.addWidget(self.label_2, 7, 0, 1, 1)
@@ -544,6 +543,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.retranslateUi(MainWindow)
         self.toolBox.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.centralwidget.setFocusPolicy(QtCore.Qt.StrongFocus)
+
         self.reset()
 
     def show_menu(self, point):
@@ -1014,7 +1015,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                     np.percentile(self.stack[n].astype(np.float32), 99)])
 
 
-    def keyPressEvent(self, event):
+    def keyReleaseEvent(self, event):
+        print('self.loaded', self.loaded)
         if self.loaded:
             # self.p0.setMouseEnabled(x=True, y=True)
             if (event.modifiers() != QtCore.Qt.ControlModifier and
@@ -1045,23 +1047,28 @@ class Ui_MainWindow(QtGui.QMainWindow):
                         self.toolBox.setCurrentIndex(0)
                     if event.key() == QtCore.Qt.Key_P:
                         self.ASCheckBox.toggle()
-                    if event.modifiers() == QtCore.Qt.ControlModifier:
-                        self.toolBox.setCurrentIndex(0)
-                    elif event.key() == QtCore.Qt.Key_PageDown:
-                        self.view = (self.view + 1) % (len(self.RGBChoose.bstr))
-                        self.RGBChoose.button(self.view).setChecked(True)
-                    elif event.key() == QtCore.Qt.Key_PageUp:
-                        self.view = (self.view - 1) % (len(self.RGBChoose.bstr))
-                        self.RGBChoose.button(self.view).setChecked(True)
+
+                if event.key() == QtCore.Qt.Key_PageDown:
+                    self.view = (self.view + 1) % (len(self.RGBChoose.bstr))
+                    print('self.view ', self.view)
+                    self.RGBChoose.button(self.view).setChecked(True)
+                elif event.key() == QtCore.Qt.Key_PageUp:
+                    self.view = (self.view - 1) % (len(self.RGBChoose.bstr))
+                    print('self.view ', self.view)
+
+                    self.RGBChoose.button(self.view).setChecked(True)
 
                 # can change background or stroke size if cell not finished
                 if event.key() == QtCore.Qt.Key_Up:
                     self.color = (self.color - 1) % (6)
+                    print('self.color', self.color)
                     self.RGBDropDown.setCurrentIndex(self.color)
                 elif event.key() == QtCore.Qt.Key_Down:
                     self.color = (self.color + 1) % (6)
+                    print('self.color', self.color)
                     self.RGBDropDown.setCurrentIndex(self.color)
-                elif (event.key() == QtCore.Qt.Key_BracketLeft or
+
+                if (event.key() == QtCore.Qt.Key_BracketLeft or
                       event.key() == QtCore.Qt.Key_BracketRight):
                     count = self.BrushChoose.count()
                     gci = self.BrushChoose.currentIndex()
