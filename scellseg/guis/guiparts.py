@@ -86,9 +86,8 @@ class ExampleGUI(QtGui.QDialog):
 class HelpWindow(QtGui.QDialog):
     def __init__(self, parent=None):
         text = ('''
-            <p class="has-line-data" data-line-start="5" data-line-end="6"> <b>Declartion:</b> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a></p>
-            <p class="has-line-data" data-line-start="5" data-line-end="6">Main GUI mouse controls:</p>
-            
+            <p class="has-line-data"> <b>Declartion:</b> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a>. Some operations are same as it, and their description are directly copied from Cellpose.</p>
+            <p class="has-line-data">Main GUI mouse controls:</p>
             <ul>
             <li class="has-line-data">Pan  = left-click  + drag</li>
             <li class="has-line-data">Zoom = scroll wheel (or +/= and - buttons) </li>
@@ -100,7 +99,7 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data">End draw mask = right-click, or return to circle at beginning</li>
             </ul>
             <p class="has-line-data">Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
-            <p class="has-line-data">!NOTE!: The GUI automatically saves after you draw a mask in 2D but NOT after 3D mask drawing and NOT after segmentation. Save in the file menu or with Ctrl+S. The output file is in the same folder as the loaded image with <code>_seg.npy</code> appended.</p>
+            <p class="has-line-data"><b>!NOTE!:</b> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw</p>
             <table class="table table-striped table-bordered">
             <br><br>
             <thead>
@@ -203,9 +202,16 @@ class HelpWindow(QtGui.QDialog):
 
         self.verticalLayout.addWidget(label)
         self.scrollText.setWidget(self.scrollTextWidgetContents)
+        self.scrollText.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+        scroll_sheet = [
+        'QScrollBar::handle:vertical {'
+            'background: #6589c2'
+        '}'
+]
+        self.scrollText.setStyleSheet('\n'.join(scroll_sheet))
 
         layout = QtWidgets.QHBoxLayout(self.win)
-        # layout.setGeometry(QtCore.QRect(0, 0, 400, 400))
         layout.addWidget(self.scrollText)
 
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint)
