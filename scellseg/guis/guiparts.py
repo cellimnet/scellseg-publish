@@ -86,7 +86,7 @@ class ExampleGUI(QtGui.QDialog):
 class HelpWindow(QtGui.QDialog):
     def __init__(self, parent=None):
         text = ('''
-            <p class="has-line-data"> <b>Declartion:</b> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a>. Some operations are same as it, and their description are directly copied from Cellpose.</p>
+            <p class="has-line-data"> <b>Declartion:</b> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a>. Some operations are same as Cellpose, and their description are directly copied from it.</p>
             <p class="has-line-data">Main GUI mouse controls:</p>
             <ul>
             <li class="has-line-data">Pan  = left-click  + drag</li>
