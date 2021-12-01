@@ -416,7 +416,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.label_7, page2_l, 0, 1, 1)
         self.threshold = 0.4
         self.threshslider = QtWidgets.QSlider(self.page_2)
-        self.threshslider.setToolTip("Value: " + str(self.threshold))
         self.threshslider.setOrientation(QtCore.Qt.Horizontal)
         self.threshslider.setObjectName("threshslider")
         self.threshslider.setMinimum(1.0)
@@ -426,6 +425,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.threshslider.setEnabled(False)
         self.threshslider.setStyleSheet('\n'.join(self.sliderSheet))
         self.gridLayout_2.addWidget(self.threshslider, page2_l, 1, 1, 1)
+        self.threshslider.setToolTip("Value: " + str(self.threshold))
 
         page2_l += 1
         self.label_8 = QtWidgets.QLabel(self.page_2)
@@ -1383,6 +1383,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
             maski = maski[np.newaxis, ...]
         print('%d cells found' % (len(np.unique(maski)[1:])))
         iopart._masks_to_gui(self, maski, outlines=None)
+        self.threshslider.setToolTip("Value: " + str(self.threshold))
+        self.probslider.setToolTip("Value: " + str(self.cellprob))
+
         self.first_load_listView()
         self.show()
 
