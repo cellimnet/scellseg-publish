@@ -275,75 +275,56 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_2.setObjectName("gridLayout_2")
 
-        self.label_3 = QtWidgets.QLabel(self.page_2)
-        self.label_3.setObjectName("label_3")
-        self.gridLayout_2.addWidget(self.label_3, 0, 0, 1, 2)
-
-        self.prev_selected = 0
-        self.diameter = 30
-        # self.Diameter = QtWidgets.QSpinBox(self.page_2)
-        self.Diameter = QtWidgets.QLineEdit(self.page_2)
-        self.Diameter.setObjectName("Diameter")
-        self.Diameter.setText(str(self.diameter))
-        self.Diameter.setFixedWidth(80)
-        self.Diameter.editingFinished.connect(self.compute_scale)
-        self.gridLayout_2.addWidget(self.Diameter, 1, 0, 1, 1)
-
-        self.SizeButton = QtWidgets.QPushButton(self.page_2)
-        self.SizeButton.setObjectName("SizeButton")
-        self.gridLayout_2.addWidget(self.SizeButton, 1, 1, 1, 1)
-        self.SizeButton.clicked.connect(self.calibrate_size)
-        self.SizeButton.setEnabled(False)
-
-        self.NetAvg = QtWidgets.QComboBox(self.page_2)
-        self.NetAvg.setObjectName("NetAvg")
-        self.NetAvg.addItems(["run 1 net (fast)", "+ resample (slow)"])
-        self.gridLayout_2.addWidget(self.NetAvg, 3, 1, 1, 1)
-
+        page2_l = 0
         self.useGPU = QtWidgets.QCheckBox(self.page_2)
         self.useGPU.setObjectName("useGPU")
-        self.gridLayout_2.addWidget(self.useGPU, 3, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.useGPU, page2_l, 0, 1, 1)
         self.check_gpu()
 
+        page2_l += 1
+        self.label_4 = QtWidgets.QLabel(self.page_2)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout_2.addWidget(self.label_4, page2_l, 0, 1, 1)
         self.ModelChoose = QtWidgets.QComboBox(self.page_2)
         self.ModelChoose.setObjectName("ModelChoose")
-
         self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
         self.model_dir = os.path.join(self.project_path, 'assets', 'pretrained_models')
+        self.ModelChoose.addItem("")
+        self.ModelChoose.addItem("")
+        self.ModelChoose.addItem("")
+        self.gridLayout_2.addWidget(self.ModelChoose, page2_l, 1, 1, 1)
 
-        self.ModelChoose.addItem("")
-        self.ModelChoose.addItem("")
-        self.ModelChoose.addItem("")
-        self.gridLayout_2.addWidget(self.ModelChoose, 4, 1, 1, 1)
-
+        page2_l += 1
+        self.label_5 = QtWidgets.QLabel(self.page_2)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout_2.addWidget(self.label_5, page2_l, 0, 1, 1)
         self.jCBChanToSegment = QtWidgets.QComboBox(self.page_2)
         self.jCBChanToSegment.setObjectName("jCBChanToSegment")
         self.jCBChanToSegment.addItems(["gray", "red", "green", "blue"])
-        self.jCBChanToSegment.setCurrentIndex(2)
-        self.gridLayout_2.addWidget(self.jCBChanToSegment, 5, 1, 1, 1)
+        self.jCBChanToSegment.setCurrentIndex(0)
+        self.gridLayout_2.addWidget(self.jCBChanToSegment, page2_l, 1, 1, 1)
 
+        page2_l += 1
+        self.label_6 = QtWidgets.QLabel(self.page_2)
+        self.label_6.setObjectName("label_6")
+        self.gridLayout_2.addWidget(self.label_6, page2_l, 0, 1, 1)
         self.jCBChan2 = QtWidgets.QComboBox(self.page_2)
         self.jCBChan2.setObjectName("jCBChan2")
         self.jCBChan2.addItems(["none", "red", "green", "blue"])
-        self.jCBChan2.setCurrentIndex(1)
-        self.gridLayout_2.addWidget(self.jCBChan2, 6, 1, 1, 1)
+        self.jCBChan2.setCurrentIndex(0)
+        self.gridLayout_2.addWidget(self.jCBChan2, page2_l, 1, 1, 1)
 
-        self.label_4 = QtWidgets.QLabel(self.page_2)
-        self.label_4.setObjectName("label_4")
-        self.gridLayout_2.addWidget(self.label_4, 4, 0, 1, 1)
+        page2_l += 1
+        self.model_choose_btn = QtWidgets.QPushButton("Model File")
+        self.model_choose_btn.clicked.connect(self.model_file_dir_choose)
+        self.gridLayout_2.addWidget(self.model_choose_btn, page2_l, 0, 1, 1)
+        self.model_choose_btn = QtWidgets.QPushButton("Reset pre-trained")
+        self.model_choose_btn.clicked.connect(self.reset_pretrain_model)
+        self.gridLayout_2.addWidget(self.model_choose_btn, page2_l, 1, 1, 1)
 
-        self.label_5 = QtWidgets.QLabel(self.page_2)
-        self.label_5.setObjectName("label_5")
-        self.gridLayout_2.addWidget(self.label_5, 5, 0, 1, 1)
-
-        self.label_6 = QtWidgets.QLabel(self.page_2)
-        self.label_6.setObjectName("label_6")
-        self.gridLayout_2.addWidget(self.label_6, 6, 0, 1, 1)
-
-        self.invert = QtWidgets.QCheckBox(self.page_2)
-        self.invert.setObjectName("invert")
-        self.gridLayout_2.addWidget(self.invert, 7, 0, 1, 1)
-
+        page2_l += 1
+        self.label_null = QtWidgets.QLabel("")
+        self.gridLayout_2.addWidget(self.label_null, page2_l, 0, 1, 1)
         self.sliderSheet = [
         'QSlider::groove:vertical {',
         'background-color: #D3D3D3;',
@@ -384,30 +365,55 @@ class Ui_MainWindow(QtGui.QMainWindow):
         '}',
 
 ]
-
-        self.model_choose_btn = QtWidgets.QPushButton("Model File")
-        self.model_choose_btn.clicked.connect(self.model_file_dir_choose)
-        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 0, 1, 1)
-
-        self.model_choose_btn = QtWidgets.QPushButton("Reset pre-trained")
-        self.model_choose_btn.clicked.connect(self.reset_pretrain_model)
-        self.gridLayout_2.addWidget(self.model_choose_btn, 8, 1, 1, 1)
-
-        self.label_null = QtWidgets.QLabel("")
-        self.gridLayout_2.addWidget(self.label_null, 9, 0, 1, 1)
-
-        self.label_seg = QtWidgets.QLabel("Run seg for img in window")
-        self.gridLayout_2.addWidget(self.label_seg, 10, 0, 1, 4)
+        page2_l += 1
+        self.label_seg = QtWidgets.QLabel("Run seg for image in window")
+        self.gridLayout_2.addWidget(self.label_seg, page2_l, 0, 1, 4)
         self.label_seg.setObjectName('label_seg')
+
+        page2_l += 1
+        self.label_3 = QtWidgets.QLabel(self.page_2)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout_2.addWidget(self.label_3, page2_l, 0, 1, 4)
+
+        page2_l += 1
+        self.prev_selected = 0
+        self.diameter = 30
+        # self.Diameter = QtWidgets.QSpinBox(self.page_2)
+        self.Diameter = QtWidgets.QLineEdit(self.page_2)
+        self.Diameter.setObjectName("Diameter")
+        self.Diameter.setText(str(self.diameter))
+        self.Diameter.setFixedWidth(100)
+        self.Diameter.editingFinished.connect(self.compute_scale)
+        self.gridLayout_2.addWidget(self.Diameter, page2_l, 0, 1, 2)
+        self.SizeButton = QtWidgets.QPushButton(self.page_2)
+        self.SizeButton.setObjectName("SizeButton")
+        self.gridLayout_2.addWidget(self.SizeButton, page2_l, 1, 1, 1)
+        self.SizeButton.clicked.connect(self.calibrate_size)
+        self.SizeButton.setEnabled(False)
+
+        page2_l += 1
+        self.label_mode = QtWidgets.QLabel("Inference mode")
+        self.gridLayout_2.addWidget(self.label_mode, page2_l, 0, 1, 1)
+        self.NetAvg = QtWidgets.QComboBox(self.page_2)
+        self.NetAvg.setObjectName("NetAvg")
+        self.NetAvg.addItems(["run 1 net (fast)", "+ resample (slow)"])
+        self.gridLayout_2.addWidget(self.NetAvg, page2_l, 1, 1, 1)
+        page2_l += 1
+        self.invert = QtWidgets.QCheckBox(self.page_2)
+        self.invert.setObjectName("invert")
+        self.gridLayout_2.addWidget(self.invert, page2_l, 0, 1, 1)
+
+        page2_l += 1
         self.ModelButton = QtWidgets.QPushButton(' Run segmentation ')
         self.ModelButton.setObjectName("runsegbtn")
         self.ModelButton.clicked.connect(self.compute_model)
-        self.gridLayout_2.addWidget(self.ModelButton, 11, 0, 1, 2)
+        self.gridLayout_2.addWidget(self.ModelButton, page2_l, 0, 1, 2)
         self.ModelButton.setEnabled(False)
 
+        page2_l += 1
         self.label_7 = QtWidgets.QLabel(self.page_2)
         self.label_7.setObjectName("label_7")
-        self.gridLayout_2.addWidget(self.label_7, 12, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_7, page2_l, 0, 1, 1)
         self.threshold = 0.4
         self.threshslider = QtWidgets.QSlider(self.page_2)
         self.threshslider.setToolTip("Value: " + str(self.threshold))
@@ -419,16 +425,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.threshslider.valueChanged.connect(self.compute_cprob)
         self.threshslider.setEnabled(False)
         self.threshslider.setStyleSheet('\n'.join(self.sliderSheet))
-        self.gridLayout_2.addWidget(self.threshslider, 12, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.threshslider, page2_l, 1, 1, 1)
 
+        page2_l += 1
         self.label_8 = QtWidgets.QLabel(self.page_2)
         self.label_8.setObjectName("label_8")
-        self.gridLayout_2.addWidget(self.label_8, 13, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.label_8, page2_l, 0, 1, 1)
         self.probslider = QtWidgets.QSlider(self.page_2)
         self.probslider.setOrientation(QtCore.Qt.Horizontal)
         self.probslider.setObjectName("probslider")
         self.probslider.setStyleSheet('\n'.join(self.sliderSheet))
-        self.gridLayout_2.addWidget(self.probslider, 13, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.probslider, page2_l, 1, 1, 1)
         self.probslider.setMinimum(-6.0)
         self.probslider.setMaximum(6.0)
         self.probslider.setValue(0.0)
@@ -437,32 +444,37 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.probslider.setEnabled(False)
         self.probslider.setToolTip("Value: " + str(self.cellprob))
 
+        page2_l += 1
         self.label_batchseg = QtWidgets.QLabel("Batch segmentation")
         self.label_batchseg.setObjectName('label_batchseg')
-        self.gridLayout_2.addWidget(self.label_batchseg, 14, 0, 1, 4)
+        self.gridLayout_2.addWidget(self.label_batchseg, page2_l, 0, 1, 4)
+        page2_l += 1
         self.dataset_inference_bnt = QtWidgets.QPushButton("Data path")
-        self.gridLayout_2.addWidget(self.dataset_inference_bnt, 15, 0, 1, 1)
+        self.gridLayout_2.addWidget(self.dataset_inference_bnt, page2_l, 0, 1, 1)
         self.dataset_inference_bnt.clicked.connect(self.batch_inference_dir_choose)
         self.batch_inference_bnt = QtWidgets.QPushButton("Run batch")
         self.batch_inference_bnt.setObjectName("binferbnt")
         self.batch_inference_bnt.clicked.connect(self.batch_inference)
-        self.gridLayout_2.addWidget(self.batch_inference_bnt, 15, 1, 1, 1)
+        self.gridLayout_2.addWidget(self.batch_inference_bnt, page2_l, 1, 1, 1)
         self.batch_inference_bnt.setEnabled(False)
 
+        page2_l += 1
         self.label_getsingle = QtWidgets.QLabel("Get single instance")
         self.label_getsingle.setObjectName('label_getsingle')
-        self.gridLayout_2.addWidget(self.label_getsingle,16,0,1,2)
+        self.gridLayout_2.addWidget(self.label_getsingle, page2_l,0,1,2)
+        page2_l += 1
         self.single_dir_bnt = QtWidgets.QPushButton("Data path")
         self.single_dir_bnt.clicked.connect(self.single_dir_choose)
-        self.gridLayout_2.addWidget(self.single_dir_bnt,17,0,1,1)
+        self.gridLayout_2.addWidget(self.single_dir_bnt, page2_l,0,1,1)
         self.single_cell_btn = QtWidgets.QPushButton("Run batch")
         self.single_cell_btn.setObjectName('single_cell_btn')
         self.single_cell_btn.clicked.connect(self.get_single_cell)
-        self.gridLayout_2.addWidget(self.single_cell_btn,17,1,1,1)
+        self.gridLayout_2.addWidget(self.single_cell_btn, page2_l,1,1,1)
         self.single_cell_btn.setEnabled(False)
 
+        page2_l += 1
         spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_2.addItem(spacerItem2, 18, 0, 1, 2)
+        self.gridLayout_2.addItem(spacerItem2, page2_l, 0, 1, 2)
 
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setFixedWidth(340)
@@ -477,11 +489,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_3.setContentsMargins(0, 0, 0, 0)
         self.gridLayout_3.setObjectName("gridLayout_3")
 
+        self.ftuseGPU = QtWidgets.QCheckBox("Use GPU")
+        self.ftuseGPU.setObjectName("ftuseGPU")
+        self.gridLayout_3.addWidget(self.ftuseGPU, 0, 0, 1, 2)
+        self.check_ftgpu()
         self.ftdirbtn = QtWidgets.QPushButton("Dataset path")
         self.ftdirbtn.clicked.connect(self.fine_tune_dir_choose)
-        self.gridLayout_3.addWidget(self.ftdirbtn, 0, 0, 1, 4)
+        self.gridLayout_3.addWidget(self.ftdirbtn, 0, 2, 1, 2)
 
-        self.label_10 = QtWidgets.QLabel("Model:")
+        self.label_10 = QtWidgets.QLabel("Model architecture")
         self.gridLayout_3.addWidget(self.label_10, 1, 0, 1, 2)
 
         self.ftmodelchooseBnt = QtWidgets.QComboBox()
@@ -493,7 +509,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.chan1chooseBnt = QtWidgets.QComboBox()
         self.chan1chooseBnt.addItems(["gray", "red", "green", "blue"])
-        self.chan1chooseBnt.setCurrentIndex(2)
+        self.chan1chooseBnt.setCurrentIndex(0)
         self.gridLayout_3.addWidget(self.chan1chooseBnt, 2, 2, 1, 2)
 
         self.label_12 = QtWidgets.QLabel("Chan2 (optional)")
@@ -501,7 +517,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.chan2chooseBnt = QtWidgets.QComboBox()
         self.chan2chooseBnt.addItems(["none", "red", "green", "blue"])
-        self.chan2chooseBnt.setCurrentIndex(1)
+        self.chan2chooseBnt.setCurrentIndex(0)
         self.gridLayout_3.addWidget(self.chan2chooseBnt, 3, 2, 1, 2)
 
         self.label_13 = QtWidgets.QLabel("Fine-tune strategy")
@@ -585,8 +601,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.OCheckBox.setText(_translate("MainWindow", "Outlines on [Z]"))
         # self.ServerButton.setText(_translate("MainWindow", "send manual seg. to server"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page), _translate("MainWindow", "View and Draw"))
-        self.SizeButton.setText(_translate("MainWindow", "Calibrate"))
-        self.label_3.setText(_translate("MainWindow", "Cell diameter (pixels)"))
+        self.SizeButton.setText(_translate("MainWindow", "Calibrate diam"))
+        self.label_3.setText(_translate("MainWindow", "Cell diameter (pixels):"))
 
         self.useGPU.setText(_translate("MainWindow", "Use GPU"))
         self.SCheckBox.setText(_translate("MainWindow", "Scale disk on [S]"))
@@ -598,7 +614,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ModelChoose.setItemText(2, _translate("MainWindow", "hover"))
 
         self.invert.setText(_translate("MainWindow", "Invert grayscale"))
-        self.label_4.setText(_translate("MainWindow", "Model"))
+        self.label_4.setText(_translate("MainWindow", "Model architecture"))
         self.label_5.setText(_translate("MainWindow", "Chan to segment"))
         self.label_6.setText(_translate("MainWindow", "Chan2 (optional)"))
         self.toolBox.setItemText(self.toolBox.indexOf(self.page_2), _translate("MainWindow", "Inference"))
@@ -828,7 +844,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.scroll.setValue(self.currentZ)
 
     def calibrate_size(self):
-        self.initialize_model()
+        model_type = self.ModelChoose.currentText()
+        pretrained_model = os.path.join(self.model_dir, model_type)
+        self.initialize_model(pretrained_model=pretrained_model, gpu=self.useGPU.isChecked(),
+                              model_type=model_type)
         diams, _ = self.model.sz.eval(self.stack[self.currentZ].copy(), invert=self.invert.isChecked(),
                                       channels=self.get_channels(), progress=self.progress)
         diams = np.maximum(5.0, diams)
@@ -998,9 +1017,6 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
     def get_channels(self):
         channels = [self.jCBChanToSegment.currentIndex(), self.jCBChan2.currentIndex()]
-        # print('get_channel', channels)
-        if self.current_model == 'nuclei':
-            channels[1] = 0
         return channels
 
     def compute_saturation(self):
@@ -1107,10 +1123,17 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 image = image[:, :, chanid].astype(np.float32)
         return image
 
-    def initialize_model(self):
-        self.current_model = self.ModelChoose.currentText()
-        print(self.current_model)
-        self.model = models.sCellSeg(model_type=self.current_model, gpu=self.useGPU.isChecked())
+    def initialize_model(self, gpu=False, pretrained_model=False, model_type='scellseg',
+                 diam_mean=30., net_avg=False, device=None, nclasses=3,
+                 residual_on=True, style_on=True, concatenation=False, update_step=1,
+                 last_conv_on=True, attn_on=False, dense_on=False, style_scale_on=True,
+                 task_mode='cellpose', model=None):
+        self.current_model = model_type
+        self.model = models.sCellSeg(gpu=gpu, pretrained_model=pretrained_model, model_type=model_type,
+                 diam_mean=diam_mean, net_avg=net_avg, device=device, nclasses=nclasses,
+                 residual_on=residual_on, style_on=style_on, concatenation=concatenation, update_step=update_step,
+                 last_conv_on=last_conv_on, attn_on=attn_on, dense_on=dense_on, style_scale_on=style_scale_on,
+                 task_mode=task_mode, model=model)
 
 
     def set_compute_thread(self):
@@ -1128,7 +1151,9 @@ class Ui_MainWindow(QtGui.QMainWindow):
             tic = time.time()
             self.clear_all()
             self.flows = [[], [], []]
-            self.initialize_model()
+            pretrained_model = os.path.join(self.model_dir, self.ModelChoose.currentText())
+            self.initialize_model(pretrained_model=pretrained_model, gpu=self.useGPU.isChecked(),
+                            model_type=self.ModelChoose.currentText())
 
             print('using model %s' % self.current_model)
             self.progress.setValue(10)
@@ -1229,7 +1254,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
             tic = time.time()
             self.clear_all()
 
-            self.initialize_model()
+            model_type =self.ModelChoose.currentText()
+            pretrained_model = os.path.join(self.model_dir, model_type)
+            self.initialize_model(pretrained_model=pretrained_model, gpu=self.useGPU.isChecked(),
+                                  model_type=model_type)
             print('using model %s' % self.current_model)
             self.progress.setValue(10)
 
@@ -1517,6 +1545,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.useGPU.setEnabled(True)
             self.useGPU.setChecked(True)
 
+    def check_ftgpu(self, torch=True):
+        # also decide whether or not to use torch
+        self.ftuseGPU.setChecked(False)
+        self.ftuseGPU.setEnabled(False)
+        if models.use_gpu():
+            self.ftuseGPU.setEnabled(True)
+            self.ftuseGPU.setChecked(True)
+
     def clear_all(self):
         self.prev_selected = 0
         self.selected = 0
@@ -1669,12 +1705,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
             print('dataset_dir is not provided')
 
         train_epoch = 100 if self.epoch_line.text() == '' else self.epoch_line.text()
-        contrast_on = 1 if self.stmodelchooseBnt.currentText() == 'Contrastive' else 0
+        contrast_on = 1 if self.stmodelchooseBnt.currentText() == 'contrastive' else 0
         model_type = self.ftmodelchooseBnt.currentText()
         task_mode, postproc_mode, attn_on, dense_on, style_scale_on = utils.process_different_model(model_type)  # task_mode mean different instance representation
         pretrained_model = os.path.join(self.model_dir, model_type)
-        print(dataset_dir, train_epoch)
         channels = [self.chan1chooseBnt.currentIndex(), self.chan2chooseBnt.currentIndex()]
+        print(dataset_dir, train_epoch, channels)
         utils.set_manual_seed(5)
         try:
             shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
@@ -1708,35 +1744,31 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         step_size = int(train_epoch * 0.25)
         print('step_size', step_size)
-        model = models.sCellSeg(pretrained_model=pretrained_model, gpu=self.useGPU, update_step=1, nclasses=3,
-                                task_mode=task_mode, net_avg=False,
-                                attn_on=attn_on, dense_on=dense_on, style_scale_on=style_scale_on,
-                                last_conv_on=True, model=None)
-
-        # model_dict = model.net.state_dict()
-        model.net.pretrained_model = pretrained_model
+        self.initialize_model(pretrained_model=pretrained_model, gpu=self.ftuseGPU.isChecked(), model_type=model_type)
+        self.model.net.pretrained_model = pretrained_model
 
         save_name = model_type + '_' + os.path.basename(dataset_dir)
 
-        model.net.contrast_on = contrast_on
+        self.model.net.contrast_on = contrast_on
         if contrast_on:
-            model.net.pair_gen = DatasetPairEval(positive_dir=dataset_dir, use_negative_masks=False, gpu=self.useGPU,
+            self.model.net.pair_gen = DatasetPairEval(positive_dir=dataset_dir, use_negative_masks=False, gpu=self.useGPU,
                                                  rescale=True)
-            model.net.save_name = save_name + '-cft'
+            self.model.net.save_name = save_name + '-cft'
         else:
-            model.net.save_name = save_name + '-ft'
+            self.model.net.save_name = save_name + '-ft'
 
         print('Now is fine-tuning...Please Wait')
         self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
         self.state_label.setText("Running...", color='#969696')
         QtWidgets.qApp.processEvents()  # force update gui
 
-        model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size)
+        self.model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size)
 
         print('Finished fine-tuning')
         self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
-        self.state_label.setText("Finished in %0.3fs, model saved at ./output/fine-tune/%s" %(time.time()-tic, model.net.save_name), color='#39B54A')
-        self.ftbnt.setEnabled(True)
+        self.state_label.setText("Finished in %0.3fs, model saved at ./output/fine-tune/%s" %(time.time()-tic, self.model.net.save_name), color='#39B54A')
+        self.ftbnt.setEnabled(False)
+        self.fine_tune_dir = ''
 
 
     def get_single_cell(self):

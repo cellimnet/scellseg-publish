@@ -65,7 +65,7 @@ class sCellSeg(UnetModel):
 
     """
     def __init__(self, gpu=False, pretrained_model=False, model_type='scellseg',
-                 diam_mean=30., net_avg=True, device=None, nclasses=3,
+                 diam_mean=30., net_avg=False, device=None, nclasses=3,
                  residual_on=True, style_on=True, concatenation=False, update_step=1,
                  last_conv_on=True, attn_on=False, dense_on=False, style_scale_on=True,
                  task_mode='cellpose', model=None):

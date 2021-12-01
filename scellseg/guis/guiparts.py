@@ -87,7 +87,7 @@ class HelpWindow(QtGui.QDialog):
     def __init__(self, parent=None):
         text = ('''
             <p class="has-line-data"> <b>Declartion:</b> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a>. Some operations are same as Cellpose, and their description are directly copied from it.</p>
-            <p class="has-line-data">Main GUI mouse controls:</p>
+            <p class="has-line-data"> <b>Main GUI mouse controls:</b> </p>
             <ul>
             <li class="has-line-data">Pan  = left-click  + drag</li>
             <li class="has-line-data">Zoom = scroll wheel (or +/= and - buttons) </li>
@@ -98,68 +98,98 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data">Start draw mask = right-click</li>
             <li class="has-line-data">End draw mask = right-click, or return to circle at beginning</li>
             </ul>
-            <p class="has-line-data">Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
-            <p class="has-line-data"><b>!NOTE!:</b> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw</p>
+            <p class="has-line-data"><b>!NOTE1!:</b> Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
+            <p class="has-line-data"><b>!NOTE2!:</b> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw</p>
+            <p class="has-line-data"><b>!NOTE3!:</b> Drag a image/mask or a folder is supported, for a image, we autoload its parent directory, for a mask, we autoload its corresponding image and its parent directory</p>
             <table class="table table-striped table-bordered">
             <br><br>
             <thead>
             <tr>
-            <th>Keyboard shortcuts</th>
-            <th>Description</th>
+            <th align='left'>Keyboard shortcuts</th>
+            <th align='left'>  </th>
+            <th align='left'>Description</th>
             </tr>
             </thead>
             <tbody>
             <tr>
-            <td>=/+  button // - button</td>
+            <td>E</td>
+            <td> </td>
+            <td>turn edit mask ON, in this mode, you need firstly select a mask you wanted to edit, the selected mask will be highlighted, use right-click to add pixels add Shift+right-click to delete pixels</td>
+            </tr>
+            <tr>
+            <td>+ / -</td>
+            <td> </td>
             <td>zoom in // zoom out</td>
             </tr>
             <tr>
-            <td>CTRL+Z</td>
+            <td>Ctrl+Z</td>
+            <td> </td>
             <td>undo previously drawn mask/stroke</td>
             </tr>
             <tr>
-            <td>CTRL+Y</td>
+            <td>Ctrl+Y</td>
+            <td> </td>
             <td>undo remove mask</td>
             </tr>
             <tr>
-            <td>CTRL+0</td>
+            <td>Ctrl+0</td>
+            <td> </td>
             <td>clear all masks</td>
             </tr>
-            <td>Ctrl + LEFT/RIGHT</td>
+            <tr>
+            <td>Ctrl + ←/→</td>
+            <td> </td>
             <td>cycle through images in current directory</td>
             </tr>
             <tr>
-            <td>UP/DOWN</td>
+            <td>↑ / ↓</td>
+            <td> </td>
             <td>change color (RGB/gray/red/green/blue)</td>
             </tr>
             <tr>
             <td>PAGE-UP / PAGE-DOWN</td>
+            <td> </td>
             <td>change to flows and cell prob views (if segmentation computed)</td>
             </tr>
             <tr>
-            <td>, / .</td>
+            <td>[ / ]</td>
+            <td> </td>
             <td>increase / decrease brush size for drawing masks</td>
             </tr>
             <tr>
             <td>X</td>
+            <td> </td>
             <td>turn masks ON or OFF</td>
             </tr>
             <tr>
             <td>Z</td>
-            <td>toggle outlines ON or OFF</td>
+            <td> </td>
+            <td>turn outlines ON or OFF</td>
             </tr>
             <tr>
-            <td>C</td>
-            <td>cycle through labels for image type (saved to <code>_seg.npy</code>)</td>
+            <td>S</td>
+            <td> </td>
+            <td>turn scale disk ON or OFF</td>
+            </tr>
+            <tr>
+            <td>P</td>
+            <td> </td>
+            <td>turn autosave ON</td>
+            </tr>
+            <tr>
+            <td>See Menu-File</td>
+            <td> </td>
+            <td>some load and save operations are also set shotcuts, see corresponding shotcut in the file menu</td>
             </tr>
             </tbody>
             </table>
             <p class="has-line-data"><strong>Segmentation options (2D only) </strong></p>
             <p class="has-line-data">SIZE: you can manually enter the approximate diameter for your cells, or press “calibrate” to let the model estimate it. The size is represented by a disk at the bottom of the view window (can turn this disk of by unchecking “scale disk on”).</p>
-            <p class="has-line-data">use GPU: if you have specially installed the cuda version of mxnet, then you can activate this, but it won’t give huge speedups when running single 2D images in the GUI.</p>
-            <p class="has-line-data">MODEL: there is a <em>cytoplasm</em> model and a <em>nuclei</em> model, choose what you want to segment</p>
-            <p class="has-line-data">CHAN TO SEG: this is the channel in which the cytoplasm or nuclei exist</p>
-            <p class="has-line-data">CHAN2 (OPT): if <em>cytoplasm</em> model is chosen, then choose the nuclear channel for this option</p>
+            <p class="has-line-data">use GPU: if you have specially installed the cuda version of pytorch, then you can activate this, but it won’t give huge speedups when running single 2D images in the GUI.</p>
+            <p class="has-line-data">MODEL: we provided three type of pre-trained model: Scellseg, Cellpose and Hover. Try different model if you need.</p>
+            <p class="has-line-data">CHAN TO SEG: this is the channel in which the instance exist</p>
+            <p class="has-line-data">CHAN2 (OPT): you can provide anothor channel to help segmenting the instance</p>
+            <p class="has-line-data"><b>!NOTE4!:</b> The pre-trained model you chose when fine-tuning should same as the model you use in inference. For example, if you use Scellseg model in fine-tuning, when inference, if you load this pre-trained model file, the corresponding model you choose should also be Scellseg. The channels should also be same as settings when fine-tuning</p>
             ''')
 
         super(HelpWindow, self).__init__(parent)
