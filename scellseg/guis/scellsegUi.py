@@ -315,7 +315,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.jCBChan2, page2_l, 1, 1, 1)
 
         page2_l += 1
-        self.model_choose_btn = QtWidgets.QPushButton("Model File")
+        self.model_choose_btn = QtWidgets.QPushButton("Model file")
         self.model_choose_btn.clicked.connect(self.model_file_dir_choose)
         self.gridLayout_2.addWidget(self.model_choose_btn, page2_l, 0, 1, 1)
         self.model_choose_btn = QtWidgets.QPushButton("Reset pre-trained")
@@ -439,7 +439,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.probslider.setMinimum(-6.0)
         self.probslider.setMaximum(6.0)
         self.probslider.setValue(0.0)
-        self.cellprob = 0.0
+        self.cellprob = 0.5
         self.probslider.valueChanged.connect(self.compute_cprob)
         self.probslider.setEnabled(False)
         self.probslider.setToolTip("Value: " + str(self.cellprob))
@@ -533,7 +533,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.epoch_line.setPlaceholderText('Default: 100')
         self.gridLayout_3.addWidget(self.epoch_line, 5, 2, 1, 2)
 
-        self.ftbnt = QtWidgets.QPushButton("Fine-tune")
+        self.ftbnt = QtWidgets.QPushButton("Start fine-tuning")
         self.ftbnt.setObjectName('ftbnt')
         self.ftbnt.clicked.connect(self.fine_tune)
         self.gridLayout_3.addWidget(self.ftbnt, 6, 0, 1, 4)

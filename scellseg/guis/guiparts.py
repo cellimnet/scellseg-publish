@@ -86,8 +86,9 @@ class ExampleGUI(QtGui.QDialog):
 class HelpWindow(QtGui.QDialog):
     def __init__(self, parent=None):
         text = ('''
-            <p class="has-line-data"> <b>Declartion:</b> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a>. Some operations are same as Cellpose, and their description are directly copied from it.</p>
-            <p class="has-line-data"> <b>Main GUI mouse controls:</b> </p>
+            <p class="has-line-data"> <span style="color: #5b0f00"><b>Declartion:</b></span> This software is heavily based on <a href="https://github.com/MouseLand/cellpose">Cellpose</a>. Some operations are same as Cellpose, and their description are directly copied from it.</p>
+            <p class="has-line-data" style="color: #5b0f00"> <strong>View and Draw options</strong> </p>
+            <p class="has-line-data"> <b>Main GUI mouse controls</b> </p>
             <ul>
             <li class="has-line-data">Pan  = left-click  + drag</li>
             <li class="has-line-data">Zoom = scroll wheel (or +/= and - buttons) </li>
@@ -98,15 +99,15 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data">Start draw mask = right-click</li>
             <li class="has-line-data">End draw mask = right-click, or return to circle at beginning</li>
             </ul>
-            <p class="has-line-data"><b>!NOTE1!:</b> Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
-            <p class="has-line-data"><b>!NOTE2!:</b> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw</p>
-            <p class="has-line-data"><b>!NOTE3!:</b> Drag a image/mask or a folder is supported, for a image, we autoload its parent directory, for a mask, we autoload its corresponding image and its parent directory</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE1!: </b></span> Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE2!: </b></span> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE3!: </b></span> Drag a image/mask or a folder is supported, for a image, we autoload its parent directory, for a mask, we autoload its corresponding image and its parent directory</p>
+            <p class="has-line-data"> </p>
             <table class="table table-striped table-bordered">
-            <br><br>
             <thead>
             <tr>
             <th align='left'>Keyboard shortcuts</th>
-            <th align='left'>  </th>
+            <th align='left'>  &nbsp;  </th>
             <th align='left'>Description</th>
             </tr>
             </thead>
@@ -119,7 +120,7 @@ class HelpWindow(QtGui.QDialog):
             <tr>
             <td>+ / -</td>
             <td> </td>
-            <td>zoom in // zoom out</td>
+            <td>zoom in / out</td>
             </tr>
             <tr>
             <td>Ctrl+Z</td>
@@ -183,13 +184,44 @@ class HelpWindow(QtGui.QDialog):
             </tr>
             </tbody>
             </table>
-            <p class="has-line-data"><strong>Segmentation options (2D only) </strong></p>
-            <p class="has-line-data">SIZE: you can manually enter the approximate diameter for your cells, or press “calibrate” to let the model estimate it. The size is represented by a disk at the bottom of the view window (can turn this disk of by unchecking “scale disk on”).</p>
-            <p class="has-line-data">use GPU: if you have specially installed the cuda version of pytorch, then you can activate this, but it won’t give huge speedups when running single 2D images in the GUI.</p>
-            <p class="has-line-data">MODEL: we provided three type of pre-trained model: Scellseg, Cellpose and Hover. Try different model if you need.</p>
-            <p class="has-line-data">CHAN TO SEG: this is the channel in which the instance exist</p>
-            <p class="has-line-data">CHAN2 (OPT): you can provide anothor channel to help segmenting the instance</p>
-            <p class="has-line-data"><b>!NOTE4!:</b> The pre-trained model you chose when fine-tuning should same as the model you use in inference. For example, if you use Scellseg model in fine-tuning, when inference, if you load this pre-trained model file, the corresponding model you choose should also be Scellseg. The channels should also be same as settings when fine-tuning</p>
+            
+            <p class="has-line-data" style="color: #5b0f00"><strong>Data organization </strong></p>
+            <p class="has-line-data"> You should prepare your data in one folder with your experiment name like "mito-20211116", here we call it <b>parent folder</b>. Into this folder, it should contain a <b>shot subfolder</b> and a <b>query subfolder</b>. The shot subfolder contains images and the corresponding labelled masks, the query subfolder contains the images you want to segment. Into the shot subfolder, images should be named with <b>"_img" suffix</b> and labels should be named as <b>"_masks" suffix.</b> Into the query subfolder, images should be named with <b>"_img" suffix</b></p>
+            
+            <p class="has-line-data" style="color: #5b0f00"><strong>Fine-tune options (2D only) </strong></p>
+            <ul>
+            <li class="has-line-data"><em>Use GPU:</em> &nbsp; If you have specially installed the cuda version of pytorch, you can activate this.</li>
+            <li class="has-line-data"><em>Model architecture:</em> &nbsp; We provided three type of pre-trained model: Scellseg, Cellpose and Hover. Try different model if you need.</li>
+            <li class="has-line-data"><em>Chan to segment:</em> &nbsp; This is the channel in which the instance exist.</li>
+            <li class="has-line-data"><em>Chan2 (optional):</em> &nbsp; You can provide anothor channel to help segmenting the instance.</li>
+            <li class="has-line-data"><em>Fine-tune strategy:</em> &nbsp; We provide both contrastive and classic fine-tuning strageties, try different stragety if you need.</li>
+            <li class="has-line-data"><em>Epoch:</em> &nbsp; The default epoch for fine-tuning is 100, which used in our paper, you can input the appropriate according to your own data.</li>
+            </ul>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE4!: </b></span> The saved path of model file after fine-tuning is shown in the bottom of display window</p>
+            
+            <p class="has-line-data" style="color: #5b0f00"><strong>Inference options (2D only) </strong></p>
+            <ul>
+            <li class="has-line-data"><em>Dataset path button:</em> &nbsp; Click this button to choose the parent folder for fine-tuning.</li>
+            <li class="has-line-data"><em>Use GPU:</em> &nbsp; If you have specially installed the cuda version of pytorch, you can activate this, but it won’t give huge speedups when running single 2D images in the GUI.</li>
+            <li class="has-line-data"><em>Model architecture:</em> &nbsp; We provided three type of pre-trained model: Scellseg, Cellpose and Hover. Try different model if you need.</li>
+            <li class="has-line-data"><em>Chan to segment:</em> &nbsp; This is the channel in which the instance exist.</li>
+            <li class="has-line-data"><em>Chan2 (optional):</em> &nbsp; You can provide anothor channel to help segmenting the instance.</li>
+            <li class="has-line-data"><em>Model file button:</em> &nbsp; The default model file is the corresponding pre-trained model file, you can use your own model file after fin-tuning by click the button.</li>
+            <li class="has-line-data"><em>Reset pre-trained button:</em> &nbsp; You can reset to the corresponding pre-trained model file by click the button.</li>
+            </ul>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE5!: </b></span> The model architecture you chose should same as the model file used when fine-tuning. For example, when inference, if you load a model file of Scellseg model (choose this model architecture when fine-tuning), the corresponding model architecture you choose should also be Scellseg. The channels should also be same as settings when fine-tuning</p>
+
+            <p class="has-line-data"><strong>Run seg for image in window </strong></p>
+            <ul>
+            <li class="has-line-data"><em>Cell diameter:</em> &nbsp; You can manually enter the approximate diameter for your cells, or press “calibrate” to let the model estimate it. The size is represented by a disk at the bottom of the view window (can turn this disk of by unchecking “scale disk on”).</li>
+            <li class="has-line-data"><em>Inference mode:</em> &nbsp; You can select whether using resample which may improve the performance but slower.</li>
+            <li class="has-line-data"><em>Invert grayscale:</em> &nbsp; You can select whether using invert grayscale.</li>
+            <li class="has-line-data"><em>Model match TH:</em> &nbsp; After running segmentation, you can slide it for better performance, you can get the value by hoving on the slider. Default value is 0.4</li>
+            <li class="has-line-data"><em>Cell prob TH:</em> &nbsp; After running segmentation, you can slide it for better performance, you can get the value by hoving on the slider. Default value is 0.5</li>
+            </ul>
+
+            <p class="has-line-data"><strong>Batch segmentation / Get single instance: </strong> You can conduct batch segmentation or get single instance by providing the right data path (Parent folder for "batch segmentation" and query folder for "get single instance").</p>
+            <p class="has-line-data"> <span style="color: #366c1a"><b>!NOTE6!: </b></span> We did not do any experiments on 3D images, there may be some bugs.</p>
             ''')
 
         super(HelpWindow, self).__init__(parent)
@@ -209,6 +241,12 @@ class HelpWindow(QtGui.QDialog):
         label.setWordWrap(True)
         label.setAlignment(Qt.AlignTop)
         # label.setTextFormat(QtCore.Qt.AutoText)
+        # string_sheet = [
+        # 'QString {'
+        #     'text-indent: 16px'
+        # '}'
+        # ]
+        # label.setStyleSheet('\n'.join(string_sheet))
 
         self.verticalLayout.addWidget(label)
         self.scrollText.setWidget(self.scrollTextWidgetContents)
