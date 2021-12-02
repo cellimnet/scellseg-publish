@@ -138,6 +138,21 @@ class HelpWindow(QtGui.QDialog):
             <td>clear all masks</td>
             </tr>
             <tr>
+            <td>Ctrl+1</td>
+            <td> </td>
+            <td>Focus View and Draw box</td>
+            </tr>
+            <tr>
+            <td>Ctrl+2</td>
+            <td> </td>
+            <td>Focus Fine-tune box</td>
+            </tr>
+            <tr>
+            <td>Ctrl+3</td>
+            <td> </td>
+            <td>Focus Inference box</td>
+            </tr>
+            <tr>
             <td>Ctrl + ←/→</td>
             <td> </td>
             <td>cycle through images in current directory</td>

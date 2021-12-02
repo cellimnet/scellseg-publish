@@ -1037,7 +1037,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
 
     def keyReleaseEvent(self, event):
-        print('self.loaded', self.loaded)
+        # print('self.loaded', self.loaded)
         if self.loaded:
             # self.p0.setMouseEnabled(x=True, y=True)
             if (event.modifiers() != QtCore.Qt.ControlModifier and
@@ -1107,6 +1107,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
                         self.undo_action()
                     if event.key() == QtCore.Qt.Key_0:
                         self.clear_all()
+
+    def keyPressEvent(self, event):
         if event.modifiers() == QtCore.Qt.ControlModifier:
             if event.key() == QtCore.Qt.Key_1:
                 self.toolBox.setCurrentIndex(0)
@@ -2036,7 +2038,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if os.path.isdir(files[0]):
             print("loading a folder")
             self.ImFolder = files[0]
-            self.OpenDirDropped()
+            try:
+                self.OpenDirDropped()
+            except:
+                iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
+                self.state_label.setText("No image found, please choose right data path",
+                                         color='#FF6A56')
         else:
             # print(len(files))
             # print(files[0])
