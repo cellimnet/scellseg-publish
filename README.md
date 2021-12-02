@@ -23,7 +23,7 @@ This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out
 
 #### 1. Annotation
 
-​	Except the  basic function of Cellpose,
+​	Besides the  basic function of Cellpose,
 
 ​	a) You can modify the mask of instance directly in pixel level without deleting it and drawing it from scratch (check "Edit mask" or [E],  in this mode, you need firstly select a mask you wanted to edit, the selected mask will be highlighted, use right-click to add pixels add Shift+right-click to delete pixels)
 

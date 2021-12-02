@@ -866,10 +866,15 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ModelButton.setEnabled(True)
         self.SizeButton.setEnabled(True)
 
-        self.loadMasks.setEnabled(True)
         self.saveSet.setEnabled(True)
         self.savePNG.setEnabled(True)
         self.saveOutlines.setEnabled(True)
+        self.saveCellList.setEnabled(True)
+
+        self.loadMasks.setEnabled(True)
+        self.loadManual.setEnabled(True)
+        self.loadCellList.setEnabled(True)
+
         self.toggle_mask_ops()
 
         self.update_plot()
