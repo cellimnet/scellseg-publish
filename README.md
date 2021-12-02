@@ -31,7 +31,7 @@ This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out
 
 ​	c) Drag a image/mask or a folder is supported, for a image, we autoload its parent directory, for a mask, we autoload its corresponding image and its parent directory. You can use [ctrl+←/→]  to cycle through images in current directory
 
-​	b) You can save the mask in ".png" format
+​	d) You can save the mask in ".png" format
 
 #### 2. Fine-tuning
 
@@ -53,11 +53,11 @@ This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out
 
 ​	b) If you want conduct batch segmentation, click "Data path" to choose the parent folder of your dataset, such as "mito-20211116" 
 
-​	b) You can choose your own model file for inference, the default is the pre-trained Scellseg model file
+​	c) You can choose your own model file for inference, the default is the pre-trained Scellseg model file
 
-​	c) The default "model match threshold" is set to 0.4 and "cellprob threshold" is set to 0.5, which is used in our paper, you can change it for better performance
+​	d) The default "model match threshold" is set to 0.4 and "cellprob threshold" is set to 0.5, which is used in our paper, you can change it for better performance
 
-​	d) Set the channel you want to segment, you can also provide a chan2 like nuclei channel for better learning, you should set the same setting as fine-tuning process
+​	e) Set the channel you want to segment, you can also provide a chan2 like nuclei channel for better learning, you should set the same setting as fine-tuning process
 
 ​	f) You can get each instance image, click "Data path" to choose the query folder of your dataset, such as "mito-20211116/query" , the output files will be saved at a subfolder in parent folder named "single", mito-20211116/single"
 
