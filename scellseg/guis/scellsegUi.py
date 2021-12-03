@@ -2224,7 +2224,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.save_cell_list()
         iopart._save_sets(self)
         iopart._save_png(self)
-        self.state_label.setText('Saved masks/npy/list successfully', color='#39B54A')
+        self.state_label.setText('Save masks/npy/list successfully', color='#39B54A')
 
 
 def make_cmap(cm=0):
