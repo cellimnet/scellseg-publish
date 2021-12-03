@@ -756,6 +756,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.myCellList.append(data)
         self.cell_list_name = os.path.splitext(self.filename)[0] + "_instance_list.txt"
         np.savetxt(self.cell_list_name, np.array(self.myCellList), fmt="%s")
+        self.listView.clearSelection()
 
     def save_cell_list_menu(self):
         self.listView.selectAll()
@@ -766,6 +767,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.cell_list_name = os.path.splitext(self.filename)[0] + "_instance_list.txt"
         np.savetxt(self.cell_list_name, np.array(self.myCellList), fmt="%s")
         self.state_label.setText("Saved outlines", color='#39B54A')
+        self.listView.clearSelection()
 
     def help_window(self):
         HW = guiparts.HelpWindow(self)
