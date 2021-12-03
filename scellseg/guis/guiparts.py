@@ -98,10 +98,11 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data">Merge masks = Alt + left-click (will merge last two)</li>
             <li class="has-line-data">Start draw mask = right-click</li>
             <li class="has-line-data">End draw mask = right-click, or return to circle at beginning</li>
+            <li class="has-line-data">End draw mask = right-click, or return to circle at beginning</li>
             </ul>
             <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE1!: </b></span> Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
-            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE2!: </b></span> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw. You can save masks/npy/list manully with shotcut Ctrl+S </p>
-            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE3!: </b></span> Drag a image/mask or a folder is supported, for a image, we autoload its parent directory, for a mask, we autoload its corresponding image and its parent directory</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE2!: </b></span> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw. You can save masks/npy/list manully with shotcut Ctrl+S.</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE3!: </b></span> Drag a image/mask or a folder is supported, for a image, we autoload its parent directory, for a mask, we autoload its corresponding image and its parent directory.</p>
             <p class="has-line-data"> </p>
             <table class="table table-striped table-bordered">
             <thead>
@@ -212,7 +213,7 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data"><em>Fine-tune strategy:</em> &nbsp; We provide both contrastive and classic fine-tuning strageties, try different stragety if you need.</li>
             <li class="has-line-data"><em>Epoch:</em> &nbsp; The default epoch for fine-tuning is 100, which used in our paper, you can input the appropriate according to your own data.</li>
             </ul>
-            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE4!: </b></span> The saved path of model file after fine-tuning is shown in the bottom of display window</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE4!: </b></span> The saved path of model file after fine-tuning is shown in the bottom of display window.</p>
             
             <p class="has-line-data" style="color: #5b0f00"><strong>Inference options (2D only) </strong></p>
             <ul>
@@ -224,7 +225,7 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data"><em>Model file button:</em> &nbsp; The default model file is the corresponding pre-trained model file, you can use your own model file after fin-tuning by click the button.</li>
             <li class="has-line-data"><em>Reset pre-trained button:</em> &nbsp; You can reset to the corresponding pre-trained model file by click the button.</li>
             </ul>
-            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE5!: </b></span> The model architecture you chose should same as the model file used when fine-tuning. For example, when inference, if you load a model file of Scellseg model (choose this model architecture when fine-tuning), the corresponding model architecture you choose should also be Scellseg. The channels should also be same as settings when fine-tuning</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE5!: </b></span> The model architecture you chose should same as the model file used when fine-tuning. For example, when inference, if you load a model file of Scellseg model (choose this model architecture when fine-tuning), the corresponding model architecture you choose should also be Scellseg. The channels should also be same as settings when fine-tuning.</p>
 
             <p class="has-line-data"><strong>Run seg for image in window </strong></p>
             <ul>
