@@ -12,23 +12,29 @@ def mainmenu(parent):
     file_menu.addAction(parent.savePNG)
     parent.savePNG.setEnabled(False)
 
-    parent.saveOutlines = QtGui.QAction("Save &outlines for imageJ (*_cp_outlines.txt)", parent)
+    parent.saveOutlines = QtGui.QAction("Save outlines for imageJ (*_cp_outlines.txt)", parent)
     parent.saveOutlines.setShortcut("Ctrl+O")
     parent.saveOutlines.triggered.connect(lambda: io._save_outlines_menu(parent))
     file_menu.addAction(parent.saveOutlines)
     parent.saveOutlines.setEnabled(False)
 
-    parent.saveSet = QtGui.QAction("&Save npy for image&&masks (*_seg.npy)", parent)
+    parent.saveSet = QtGui.QAction("Save npy for image&&masks (*_seg.npy)", parent)
     parent.saveSet.setShortcut("Ctrl+N")
     parent.saveSet.triggered.connect(lambda: io._save_sets_menu(parent))
     file_menu.addAction(parent.saveSet)
     parent.saveSet.setEnabled(False)
 
-    parent.saveCellList = QtGui.QAction("Save &instance list (*_instance_list.txt)", parent)
+    parent.saveCellList = QtGui.QAction("Save instance list (*_instance_list.txt)", parent)
     parent.saveCellList.setShortcut("Ctrl+L")
     parent.saveCellList.triggered.connect(lambda:parent.save_cell_list_menu())
     file_menu.addAction(parent.saveCellList)
     parent.saveCellList.setEnabled(False)
+
+    parent.saveAll = QtGui.QAction("Save masks/npy/list manully", parent)
+    parent.saveAll.setShortcut("Ctrl+S")
+    parent.saveAll.triggered.connect(lambda:parent.save_all())
+    file_menu.addAction(parent.saveAll)
+    parent.saveAll.setEnabled(False)
 
     # load processed data
     loadImg = QtGui.QAction("&Load image (*.tif, *.png, *.jpg)", parent)

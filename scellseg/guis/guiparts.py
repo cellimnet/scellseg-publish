@@ -100,7 +100,7 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data">End draw mask = right-click, or return to circle at beginning</li>
             </ul>
             <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE1!: </b></span> Overlaps in masks are NOT allowed. If you draw a mask on top of another mask, it is cropped so that it doesn’t overlap with the old mask. Masks in 2D should be single strokes (single stroke is checked). If you want to draw masks in 3D (experimental), then you can turn this option off and draw a stroke on each plane with the cell and then press ENTER. 3D labelling will fill in planes that you have not labelled so that you do not have to as densely label.</p>
-            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE2!: </b></span> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw</p>
+            <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE2!: </b></span> The default save mode is autosaving masks/npy/list in the same folder as the loaded image when you switched to next image, you can close this mode with shotcut (P) or finding the checkbox in View & Draw. You can save masks/npy/list manully with shotcut Ctrl+S </p>
             <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE3!: </b></span> Drag a image/mask or a folder is supported, for a image, we autoload its parent directory, for a mask, we autoload its corresponding image and its parent directory</p>
             <p class="has-line-data"> </p>
             <table class="table table-striped table-bordered">
@@ -429,10 +429,8 @@ class ImageDraw(pg.ImageItem):
         self.autoDownsample = False
         self.axisOrder = 'row-major'
         self.removable = False
-
-
-
         self.parent = parent
+        self.parent.eraser_selected = 0
 
         self.setDrawKernel(kernel_size=self.parent.brush_size)
         self.parent.current_stroke = []
@@ -441,8 +439,8 @@ class ImageDraw(pg.ImageItem):
     def mouseClickEvent(self, ev):
         self.eraser_model = self.parent.eraser_button.isChecked()
 
-        if not self.eraser_model:
-            if self.parent.masksOn or self.parent.outlinesOn:
+        if self.parent.masksOn or self.parent.outlinesOn:
+            if not self.eraser_model:
                 if  self.parent.loaded and (ev.button()==QtCore.Qt.RightButton):
                     if not self.parent.in_stroke:
                         ev.accept()
@@ -450,59 +448,56 @@ class ImageDraw(pg.ImageItem):
                         self.parent.stroke_appended = False
                         self.parent.in_stroke = True
                         self.drawAt(ev.pos(), ev)
-
                     else:
                         ev.accept()
                         self.end_stroke()
                         self.parent.in_stroke = False
 
+            else:
+                y, x = int(ev.pos().y()), int(ev.pos().x())
+                size = int(self.parent.brush_size / 2)
+                if self.parent.loaded:
+                    if ev.button() == QtCore.Qt.RightButton:
+                        if ev.modifiers() == QtCore.Qt.ShiftModifier:
+                            print(self.parent.selected)
 
-        if self.eraser_model:
-            size = int(self.parent.brush_size / 2)
-            if self.parent.loaded and ev.button() == QtCore.Qt.RightButton:
-                if ev.modifiers() == QtCore.Qt.ShiftModifier:
-                    print(self.parent.selected)
+                            if self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] == self.parent.selected:
+                                for i in range(y- size, y+size+1):
+                                    for j in range(x-size,x+size+1):
+                                        if self.parent.cellpix[0][i,j] == self.parent.selected:
+                                            self.parent.cellpix[0][i,j] = 0
+                                            self.parent.layers[0][i,j] = 0
+                                self.parent.update_plot()
 
+                        elif self.parent.selected>0:
+                            print(self.parent.selected)
+                            for i in range(y - size, y + size + 1):
+                                for j in range(x - size, x + size + 1):
+                                    if self.parent.layers[0][i,j,-1] == 0:
+                                        self.parent.cellpix[0][i,j]=self.parent.selected
+                                        self.parent.layers[0][i,j,0:3] =self.parent.cellcolors[self.parent.selected].tolist()
+                                        self.parent.layers[0][i, j, -1] =255
+                            self.parent.update_plot()
 
-                    if self.parent.cellpix[0][int(ev.pos().y()), int(ev.pos().x())] == self.parent.selected:
-                        for i in range(int(ev.pos().y())- size, int(ev.pos().y())+size+1):
-                            for j in range(int(ev.pos().x())-size,int(ev.pos().x())+size+1):
-                                if self.parent.cellpix[0][i,j] == self.parent.selected:
-                                    self.parent.cellpix[0][i,j] = 0
-                                    self.parent.layers[0][i,j] = 0
-                        self.parent.update_plot()
-
-                elif self.parent.selected>0:
-                    for i in range(int(ev.pos().y()) - size, int(ev.pos().y()) + size + 1):
-                        for j in range(int(ev.pos().x()) - size, int(ev.pos().x()) + size + 1):
-                            if self.parent.layers[0][i,j,-1] == 0:
-                                self.parent.cellpix[0][i,j]=self.parent.selected
-                                self.parent.layers[0][i,j,0:3] =self.parent.cellcolors[self.parent.selected].tolist()
-                                self.parent.layers[0][i, j, -1] =255
-                    self.parent.update_plot()
-
-
-
-
-        if not self.parent.in_stroke:
-            y, x = int(ev.pos().y()), int(ev.pos().x())
-            if y >= 0 and y < self.parent.Ly and x >= 0 and x < self.parent.Lx:
-                if ev.button() == QtCore.Qt.LeftButton and not ev.double():
-                    idx = self.parent.cellpix[self.parent.currentZ][y, x]
-                    if idx > 0:
-                        if ev.modifiers() == QtCore.Qt.ControlModifier:
-                            # delete mask selected
-                            self.parent.remove_cell(idx)
-                        elif ev.modifiers() == QtCore.Qt.AltModifier:
-                            self.parent.merge_cells(idx)
+            if not self.parent.in_stroke:
+                y, x = int(ev.pos().y()), int(ev.pos().x())
+                if y >= 0 and y < self.parent.Ly and x >= 0 and x < self.parent.Lx:
+                    if ev.button() == QtCore.Qt.LeftButton and not ev.double():
+                        idx = self.parent.cellpix[self.parent.currentZ][y, x]
+                        if idx > 0:
+                            if ev.modifiers() == QtCore.Qt.ControlModifier:
+                                # delete mask selected
+                                self.parent.remove_cell(idx)
+                            elif ev.modifiers() == QtCore.Qt.AltModifier:
+                                self.parent.merge_cells(idx)
+                            elif self.parent.masksOn:
+                                self.parent.unselect_cell()
+                                self.parent.select_cell(idx)
                         elif self.parent.masksOn:
                             self.parent.unselect_cell()
-                            self.parent.select_cell(idx)
-                    elif self.parent.masksOn:
-                        self.parent.unselect_cell()
-                else:
-                    ev.ignore()
-                    return
+                    else:
+                        ev.ignore()
+                        return
 
 
     def mouseDragEvent(self, ev):

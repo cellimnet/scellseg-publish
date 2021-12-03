@@ -710,7 +710,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         if self.CurImId < 0:
             self.CurImId = 0
-            self.state_label.setText("It's the first image", color='#FF6A56')
+            self.state_label.setText("This is the first image", color='#FF6A56')
 
     def NextImBntClicked(self):
         self.auto_save()
@@ -726,7 +726,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.initialize_listView()
             self.CurImId = self.CurImId + 1
         else:
-            self.state_label.setText("It's the last image", color='#FF6A56')
+            self.state_label.setText("This is the last image", color='#FF6A56')
 
     def eraser_model_change(self):
         if self.eraser_button.isChecked() == True:
@@ -870,6 +870,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.savePNG.setEnabled(True)
         self.saveOutlines.setEnabled(True)
         self.saveCellList.setEnabled(True)
+        self.saveAll.setEnabled(True)
 
         self.loadMasks.setEnabled(True)
         self.loadManual.setEnabled(True)
@@ -1424,7 +1425,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.SSCheckBox.setChecked(True)
 
         # -- zero out image stack -- #
-        self.opacity = 200  # how opaque masks should be
+        self.opacity = 128  # how opaque masks should be
         self.outcolor = [200, 200, 255, 200]
         self.NZ, self.Ly, self.Lx = 1, 512, 512
         if self.autobtn.isChecked():
@@ -1599,7 +1600,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         # print('the prev-selected is ', self.prev_selected)
         if self.selected > 0:
-            self.layers[self.cellpix == idx] = np.array([255, 255, 255, 255])
+            self.layers[self.cellpix == idx] = np.array([255, 255, 255, self.opacity])
 
             print('idx', self.prev_selected, idx)
             if idx < self.ncells + 1 and self.prev_selected > 0 and self.prev_selected != idx:
@@ -1618,7 +1619,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     self.layers[self.outpix == idx] = np.array(self.outcolor).astype(np.uint8)
                     # [0,0,0,self.opacity])
                 self.update_plot()
-        # self.selected = 0
+        self.selected = 0
 
     def remove_cell(self, idx):
         # remove from manual array
@@ -2216,6 +2217,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.save_cell_list()
             iopart._save_sets(self)
             iopart._save_png(self)
+
+    def save_all(self):
+        self.save_cell_list()
+        iopart._save_sets(self)
+        iopart._save_png(self)
+        self.state_label.setText('Saved masks/npy/list successfully', color='#39B54A')
 
 
 def make_cmap(cm=0):
