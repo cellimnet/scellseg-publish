@@ -1,12 +1,12 @@
-# Scellseg
+# Scellseg 
 
-A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning strategy
+A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning<img src="scellseg/guis/Resource/logo.svg" width="200" title="scellseg" alt="scellseg" align="right" vspace = "50">
 
-## **Description**
+### **Description**
 
 We proposed a "pre-trained + fine-tuning" pipeline for cell instance segmentation. To make Scellseg easy to use, we also developed a graphical user interface integrated with functions of annotation, fine-tuning and inference. Biologists can specialize their own cell segmentation model to conduct single-cell image analysis.
 
-## Install
+### Install
 
 Operating system: It has been tested on Windows 10. Theoretically, it can work on any system that can run Python.
 
@@ -18,10 +18,9 @@ Our Environment: Python --3.7.4，CUDA --10.1.243， GPU：Nvidia 2080Ti
 
 This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out if you don't have them, you can install them with conda or pip.
 
+### How to use GUI
 
-## How to use GUI
-
-#### 1. Annotation
+#### **1. Annotation**
 
 ​	Besides the  basic function of Cellpose,
 

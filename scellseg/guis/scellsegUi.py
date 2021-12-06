@@ -43,7 +43,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1420, 800)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("Resource/back.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("Resource/logo.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
 
