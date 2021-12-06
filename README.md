@@ -1,6 +1,6 @@
-# Scellseg <img src="https://github.com/cellimnet/scellseg-publish/raw/main/logo.svg" width="160" title="scellseg" alt="scellseg" align="right" vspace = "30">
+# Scellseg 
 
-A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning
+A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning<img src="logo.svg" width="160" title="scellseg" alt="scellseg" align="right" vspace = "30">
 
 ### **Description**
 
