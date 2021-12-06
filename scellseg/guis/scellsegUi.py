@@ -5,7 +5,6 @@
 import numpy as np
 import sys, os, pathlib, warnings, datetime, tempfile, glob, time, threading
 
-from PyQt5.QtWidgets import QApplication
 from natsort import natsorted
 from PyQt5 import QtCore, QtGui, QtWidgets, Qt
 import pyqtgraph as pg
