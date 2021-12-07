@@ -69,19 +69,21 @@ def horizontal_slider_style():
 class ExampleGUI(QtGui.QDialog):
     def __init__(self, parent=None):
         super(ExampleGUI, self).__init__(parent)
-        self.setGeometry(345,65,1300,900)
+        # self.setGeometry(345,65,1300,900)
+        self.setFixedSize(1300,900)
         self.setWindowTitle('GUI layout')
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint)
-        self.win = QtGui.QWidget(self)
-        layout = QtGui.QGridLayout()
-        self.win.setLayout(layout)
-        guip_path = pathlib.Path.home().joinpath('.cellpose', 'cellpose_gui.png')
-        guip_path = str(guip_path.resolve())
-        pixmap = QtGui.QPixmap(guip_path)
-        label = QtGui.QLabel(self)
+
+        layout = QtGui.QVBoxLayout(self)
+        self.setLayout(layout)
+
+        label = QtGui.QLabel()
+        label.setScaledContents(True)
+        pixmap = QtGui.QPixmap("Resource/GUI.png")
+        # pixmap = pixmap.scaled(pixmap.width()/3, pixmap.height()/3)
         label.setPixmap(pixmap)
-        pixmap.scaled
-        layout.addWidget(label, 0, 0, 1, 1)
+        # label.resize(pixmap.width()/3, pixmap.height()/3)
+        layout.addWidget(label)
 
 class HelpWindow(QtGui.QDialog):
     def __init__(self, parent=None):
