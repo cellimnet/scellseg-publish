@@ -111,9 +111,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         for i in range(len(self.myCellList)):
             self.listmodel.setItem(i,Qt.QStandardItem(self.myCellList[i]))
 
+        self.listView.horizontalHeader().setDefaultSectionSize(140)
         self.listView.setMaximumWidth(120)
         self.listView.setModel(self.listmodel)
         self.listView.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.listView.AdjustToContents
         self.listView.customContextMenuRequested.connect(self.show_menu)
         # self.listView.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         self.listView.clicked.connect(self.showChoosen)

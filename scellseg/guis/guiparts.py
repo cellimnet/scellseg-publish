@@ -6,6 +6,7 @@ import pyqtgraph as pg
 from pyqtgraph import functions as fn
 from pyqtgraph import Point
 import numpy as np
+import os
 import pathlib
 
 def horizontal_slider_style():
@@ -79,7 +80,7 @@ class ExampleGUI(QtGui.QDialog):
 
         label = QtGui.QLabel()
         label.setScaledContents(True)
-        pixmap = QtGui.QPixmap("assets/GUI.png")
+        pixmap = QtGui.QPixmap(os.path.dirname(os.path.abspath(__file__)).replace('\\', '/') + "/assets/GUI.png")
         # pixmap = pixmap.scaled(pixmap.width()/3, pixmap.height()/3)
         label.setPixmap(pixmap)
         # label.resize(pixmap.width()/3, pixmap.height()/3)
