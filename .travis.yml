@@ -59,7 +59,7 @@ install:
 - pip install matplotlib
 - pip install coveralls
 script:
-- coverage run --source=scellseg --omit=scellseg/guis.py,scellseg/guiparts.py,scellseg/menus.py,scellseg/__main__.py
+- coverage run --source=scellseg --omit=scellseg/guis/scellsegGui.py, scellseg/__main__.py
   setup.py test
 after_success: coveralls
 deploy:

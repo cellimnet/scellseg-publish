@@ -1,4 +1,3 @@
-include cellpose/logo/logo.png
-include cellpose/key/cellpose-data-writer.json
+include scellseg/guis/Resource/logo.svg
 include README.md
 include LICENSE

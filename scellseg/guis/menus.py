@@ -1,6 +1,6 @@
 from PyQt5 import QtGui, QtCore, Qt, QtWidgets
 from scellseg import models
-import iopart as io
+from scellseg.guis import iopart as io
 
 def mainmenu(parent):
     main_menu = parent.menuBar()

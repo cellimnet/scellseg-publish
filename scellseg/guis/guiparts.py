@@ -69,8 +69,8 @@ def horizontal_slider_style():
 class ExampleGUI(QtGui.QDialog):
     def __init__(self, parent=None):
         super(ExampleGUI, self).__init__(parent)
-        # self.setGeometry(345,65,1300,900)
-        self.setFixedSize(1300,900)
+        self.setGeometry(375,200,1420,800)
+        self.setFixedSize(1420,800)
         self.setWindowTitle('GUI layout')
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint)
 
@@ -79,7 +79,7 @@ class ExampleGUI(QtGui.QDialog):
 
         label = QtGui.QLabel()
         label.setScaledContents(True)
-        pixmap = QtGui.QPixmap("Resource/GUI.png")
+        pixmap = QtGui.QPixmap("assets/GUI.png")
         # pixmap = pixmap.scaled(pixmap.width()/3, pixmap.height()/3)
         label.setPixmap(pixmap)
         # label.resize(pixmap.width()/3, pixmap.height()/3)

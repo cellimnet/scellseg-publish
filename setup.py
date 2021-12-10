@@ -20,13 +20,13 @@ with open("README.md", "r") as fh:
 
 setup(
     name="scellseg",
-    license="BSD",
-    author="Marius Pachitariu and Carsen Stringer",
-    author_email="stringerc@janelia.hhmi.org",
-    description="anatomical segmentation algorithm",
+    license="BSD-3-Clause License",
+    author="Dejin Xun & Deheng Chen",
+    author_email="xundejin@zju.edu.cn",
+    description="a specializable cell segmentation tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/MouseLand/cellpose",
+    url="https://github.com/cellimnet/scellseg-publish",
     setup_requires=[
       'pytest-runner',
       'setuptools_scm',
@@ -46,13 +46,12 @@ setup(
       'guis': [
         'pyqtgraph==0.11.0rc0', 
         'pyqt5', 
-        'google-cloud-storage'
         ]
     },
     include_package_data=True,
     classifiers=(
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD License",
+        "License :: OSI Approved :: BSD-3-Clause License",
         "Operating System :: OS Independent",
     ),
      entry_points = {

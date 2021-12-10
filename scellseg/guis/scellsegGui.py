@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
-import os
-
-# -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'cellPoseUI.ui'
-#
 # Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
 
-import os, platform, ctypes
+
+import os, platform, ctypes, sys
 from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QFontDatabase
 
-from scellsegUi  import Ui_MainWindow
+from scellseg.guis.scellsegUi import Ui_MainWindow
 
 
 class scellsegGui(Ui_MainWindow):
@@ -36,9 +31,7 @@ class scellsegGui(Ui_MainWindow):
             event.ignore()
 
 
-if __name__ == "__main__":
-    import sys
-
+def start_gui():
     Translucent = 'rgba(255,255,255,0)'
     Primary = '#fafafa'
     PrimaryLight = '#C0C0C0'
@@ -53,6 +46,7 @@ if __name__ == "__main__":
     SecondaryLight = '#D3D3D3'
     SecondaryDark = '#D3D3D3'
     SecondaryText = '#000000'
+    border_image_path = os.path.dirname(os.path.abspath(__file__)).replace('\\', '/') + '/assets/slider_handle.png'
     sheet = [
         'QWidget',
         '{',
@@ -64,7 +58,7 @@ if __name__ == "__main__":
 
         'QSlider::handle:horizontal#rangeslider'
         '{',
-        'border-image: url(./Resource/slider_handle.png);'
+        'border-image: url({0:s});'.format(border_image_path),
         '}',
 
         'QLabel#label_seg',
@@ -180,7 +174,7 @@ if __name__ == "__main__":
         'QWidget#page,QWidget#page_2,QWidget#page_3',
         '{',
         'backgroundcolor:#F0F0F0;',
-        # 'background-image: url(./Resource/background.jpg);',
+        # 'background-image: url(./assets/background.jpg);',
         '}',
 
         'QProgressBar {',
@@ -232,8 +226,7 @@ if __name__ == "__main__":
     ]
     app = QtWidgets.QApplication(sys.argv)
     loadedFontID = QFontDatabase.addApplicationFont(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)), "Resource", "Font", "wqy-microhei.ttc"))
-
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "assets", "Font", "wqy-microhei.ttc"))
 
     print('operating system: ', platform.system())
     if platform.system() == 'Windows':
@@ -244,3 +237,6 @@ if __name__ == "__main__":
     gui.show()
 
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    start_gui()

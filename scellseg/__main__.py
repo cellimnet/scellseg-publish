@@ -4,10 +4,10 @@ import numpy as np
 from natsort import natsorted
 from tqdm import tqdm
 
-from . import utils, models_cellpose, io
+from scellseg import utils, models, io, core
 
 try:
-    from scellseg import guis
+    from scellseg.guis import scellsegGui
     GUI_ENABLED = True 
 except ImportError as err:
     GUI_ERROR = err
@@ -79,7 +79,7 @@ def main():
     args = parser.parse_args()
 
     if args.check_mkl:
-        mkl_enabled = models_cellpose.check_mkl((not args.mxnet))
+        mkl_enabled = models.check_mkl()
     else:
         mkl_enabled = True
 
@@ -93,9 +93,9 @@ def main():
             print('ERROR: %s'%GUI_ERROR)
             if GUI_IMPORT:
                 print('GUI FAILED: GUI dependencies may not be installed, to install, run')
-                print('     pip install scellseg[guis]')
+                print('pip install scellseg[guis]')
         else:
-            guis.run()
+            scellsegGui.start_gui()
 
     else:
         use_gpu = False
@@ -108,8 +108,8 @@ def main():
             imf = None
 
 
-        device, gpu = models_cellpose.assign_device((not args.mxnet), args.use_gpu)
-        model_dir = models_cellpose.model_dir
+        device, gpu = models.assign_device(args.use_gpu)
+        model_dir = models.model_dir
 
         if not args.train and not args.train_size:
             tic = time.time()
@@ -138,12 +138,11 @@ def main():
                             (nimg, cstr0[channels[0]], cstr1[channels[1]]))
                     
             if args.pretrained_model=='cyto' or args.pretrained_model=='nuclei':
-                model = models_cellpose.Cellpose(gpu=gpu, device=device, model_type=args.pretrained_model,
-                                                 torch=(not args.mxnet))
+                model = models.sCellSeg(gpu=gpu, device=device, model_type=args.pretrained_model)
             else:
                 if args.all_channels:
                     channels = None  
-                model = models_cellpose.CellposeModel(gpu=gpu, device=device,
+                model = models.CellposeModel(gpu=gpu, device=device,
                                                       pretrained_model=cpmodel_path,
                                                       torch=(not args.mxnet))
                 
@@ -214,7 +213,7 @@ def main():
                                         concatenation=args.concatenation,
                                         nclasses=args.nclasses)
             else:
-                model = models_cellpose.CellposeModel(device=device,
+                model = models.sCellSeg(device=device,
                                                       torch=(not args.mxnet),
                                                       pretrained_model=cpmodel_path,
                                                       diam_mean=szmean,
@@ -234,7 +233,7 @@ def main():
 
             # train size model
             if args.train_size:
-                sz_model = models_cellpose.SizeModel(cp_model=model, device=device)
+                sz_model = models.SizeModel(cp_model=model, device=device)
                 sz_model.train(images, labels, test_images, test_labels, channels=channels, batch_size=args.batch_size)
                 if test_images is not None:
                     predicted_diams, diams_style = sz_model.eval(test_images, channels=channels)

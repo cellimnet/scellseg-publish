@@ -11,7 +11,7 @@ import pyqtgraph as pg
 
 import cv2
 
-import guiparts, iopart, menus, plot
+from scellseg.guis import guiparts, iopart, menus, plot
 from scellseg import models, utils, transforms, dynamics, dataset, io
 from scellseg.dataset import DatasetShot, DatasetQuery
 from scellseg.contrast_learning.dataset import DatasetPairEval
@@ -37,12 +37,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         if image is not None:
             self.filename = image
             iopart._load_image(self, self.filename)
+        self.now_pyfile_path = os.path.dirname(os.path.abspath(__file__)).replace('\\', '/')
 
     def setupUi(self, MainWindow, image=None):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1420, 800)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("Resource/logo.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(self.now_pyfile_path + "/assets/logo.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
 
@@ -324,6 +325,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         page2_l += 1
         self.label_null = QtWidgets.QLabel("")
         self.gridLayout_2.addWidget(self.label_null, page2_l, 0, 1, 1)
+        slider_image_path = self.now_pyfile_path + '/assets/slider_handle.png'
         self.sliderSheet = [
         'QSlider::groove:vertical {',
         'background-color: #D3D3D3;',
@@ -346,7 +348,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         '',
         'QSlider::handle:horizontal{',
         'width: 10px;',
-        'border-image: url(./Resource/slider_handle.png);'
+        'border-image: url({0:s});'.format(slider_image_path),
         'margin: -4px 0px -4px 0px;',
         '}',
         'QSlider::sub-page:horizontal',
@@ -734,7 +736,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             # self.OCheckBox.setEnabled(False)
             QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.CrossCursor)
             # self.cur_size = self.brush_size * 6
-            # cursor = Qt.QPixmap("./Resource/eraser.png")
+            # cursor = Qt.QPixmap("./assets/eraser.png")
             # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
             # cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
             # QtWidgets.QApplication.setOverrideCursor(cursor_set)
@@ -1297,14 +1299,12 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                   mask_filter='_masks',
                                                   channels=channels, task_mode=self.model.task_mode, active_ind=None,
                                                   rescale=True)
-                    # self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
-                    iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading1.png'),
+                    iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading1.png'),
                                                       resize=self.resize, X2=0)
                     self.state_label.setText("Running...", color='#969696')
                     QtWidgets.qApp.processEvents()  # force update gui
                 except:
-                    # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
-                    iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'),
+                    iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'),
                                                       resize=self.resize, X2=0)
                     self.state_label.setText("Please choose right data path",
                                              color='#FF6A56')
@@ -1319,7 +1319,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 print('>>>> mean diameter of this style,', round(diameter, 3))
                 self.model.net.save_name = save_name
 
-                self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
+                self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading2.png'), autoLevels=False, lut=None)
                 self.state_label.setText("Running...", color='#969696')
                 QtWidgets.qApp.processEvents()  # force update gui
 
@@ -1344,8 +1344,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 self.masks_for_save = masks
 
             except:
-                # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
-                iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize,
+                iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'), resize=self.resize,
                                                   X2=0)
                 self.state_label.setText("Please choose right data path",
                                          color='#FF6A56')
@@ -1354,7 +1353,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:  # except Exception as e:
             print('ERROR: %s' % e)
 
-        self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
+        self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading3.png'), autoLevels=False, lut=None)
         self.state_label.setText('Finished inference in %0.3fs!'%(time.time() - tic), color='#39B54A')
         self.batch_inference_bnt.setEnabled(False)
 
@@ -1728,13 +1727,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
             shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
                                   channels=channels,
                                   train_num=train_epoch * num_batch, task_mode=task_mode, rescale=True)
-            # self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading1.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading1.png'), resize=self.resize, X2=0)
             self.state_label.setText("Running...", color='#969696')
             QtWidgets.qApp.processEvents()  # force update gui
         except:
-            # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
             print("Please choose right data path")
@@ -1770,14 +1767,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.model.net.save_name = save_name + '-ft'
 
         print('Now is fine-tuning...Please Wait')
-        self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
+        self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading2.png'), autoLevels=False, lut=None)
         self.state_label.setText("Running...", color='#969696')
         QtWidgets.qApp.processEvents()  # force update gui
 
         self.model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size)
 
         print('Finished fine-tuning')
-        self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
+        self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading3.png'), autoLevels=False, lut=None)
         self.state_label.setText("Finished in %0.3fs, model saved at ./output/fine-tune/%s" %(time.time()-tic, self.model.net.save_name), color='#39B54A')
         self.ftbnt.setEnabled(False)
         self.fine_tune_dir = ''
@@ -1789,8 +1786,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         try:
             data_path = self.single_cell_dir
         except:
-            # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
 
@@ -1798,13 +1794,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         try:
             image_names = io.get_image_files(data_path, '_masks', imf='_img')
             mask_names, _ = io.get_label_files(image_names, '_img_cp_masks', imf='_img')
-            # self.img.setImage(iopart.imread('./Resource/Loading1.png'), autoLevels=False, lut=None)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading1.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading1.png'), resize=self.resize, X2=0)
             self.state_label.setText("Running...", color='#969696')
             QtWidgets.qApp.processEvents()  # force update gui
         except:
-            # self.img.setImage(iopart.imread('./Resource/Loading4.png'), autoLevels=False, lut=None)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/Loading4.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
             print("Please choose right data path")
@@ -1817,7 +1811,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         imgs = [io.imread(os.path.join(data_path, image_name)) for image_name in image_names]
         masks = [io.imread(os.path.join(data_path, mask_name)) for mask_name in mask_names]
 
-        self.img.setImage(iopart.imread('./Resource/Loading2.png'), autoLevels=False, lut=None)
+        self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading2.png'), autoLevels=False, lut=None)
         self.state_label.setText("Running...", color='#969696')
         QtWidgets.qApp.processEvents()  # force update gui
 
@@ -1857,44 +1851,44 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     cv2.imwrite(save_name, imgn_single)
 
         print('Finish getting single instance')
-        self.img.setImage(iopart.imread('./Resource/Loading3.png'), autoLevels=False, lut=None)
+        self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading3.png'), autoLevels=False, lut=None)
         self.state_label.setText("Finished in %0.3fs, saved at %s"%(time.time()-tic, os.path.dirname(data_path)+'/single') , color='#39B54A')
         self.single_cell_btn.setEnabled(False)
 
     def fine_tune_dir_choose(self):
         self.fine_tune_dir = QtWidgets.QFileDialog.getExistingDirectory(None,"choose fine-tune data",self.DefaultImFolder)
         if self.fine_tune_dir =='':
-            self.state_label.setText("Choose nothing", color='#969696')
+            self.state_label.setText("Choose nothing", color='#FF6A56')
         else:
             self.state_label.setText("Choose data at %s"%str(self.fine_tune_dir), color='#969696')
             self.ftbnt.setEnabled(True)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/black.png'), resize=self.resize, X2=0)
 
     def batch_inference_dir_choose(self):
         self.batch_inference_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "choose batch segmentation data", self.DefaultImFolder)
         if self.batch_inference_dir =='':
-            self.state_label.setText("Choose nothing", color='#969696')
+            self.state_label.setText("Choose nothing", color='#FF6A56')
         else:
             self.state_label.setText("Choose data at %s"%str(self.batch_inference_dir), color='#969696')
             self.batch_inference_bnt.setEnabled(True)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/black.png'), resize=self.resize, X2=0)
 
 
     def single_dir_choose(self):
         self.single_cell_dir = QtWidgets.QFileDialog.getExistingDirectory(None, "choose get single instance data", self.DefaultImFolder)
         if self.single_cell_dir =='':
-            self.state_label.setText("Choose nothing", color='#969696')
+            self.state_label.setText("Choose nothing", color='#FF6A56')
         else:
             self.state_label.setText("Choose data at %s"%str(self.single_cell_dir), color='#969696')
             self.single_cell_btn.setEnabled(True)
-            iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/black.png'), resize=self.resize, X2=0)
 
 
     def model_file_dir_choose(self):
         """ model after fine-tuning"""
         self.model_file_path = QtWidgets.QFileDialog.getOpenFileName(None, "choose model file", self.DefaultImFolder)
         if self.model_file_path[0] =='':
-            self.state_label.setText("Choose nothing", color='#969696')
+            self.state_label.setText("Choose nothing", color='#FF6A56')
         else:
             self.state_label.setText("Choose model at %s"%str(self.model_file_path[0]), color='#969696')
 
@@ -1933,7 +1927,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         # if self.eraser_button.isChecked():
             # print("will change")
             # self.cur_size = self.brush_size * 6
-            # cursor = Qt.QPixmap("./Resource/eraser.png")
+            # cursor = Qt.QPixmap("./assets/eraser.png")
             # cursor_scaled = cursor.scaled(self.cur_size, self.cur_size)
             # cursor_set = Qt.QCursor(cursor_scaled, self.cur_size/2, self.cur_size/2)
             # QtWidgets.QApplication.setOverrideCursor(cursor_set)
@@ -2043,27 +2037,31 @@ class Ui_MainWindow(QtGui.QMainWindow):
             try:
                 self.OpenDirDropped()
             except:
-                iopart._initialize_image_portable(self, iopart.imread('./Resource/black.png'), resize=self.resize, X2=0)
+                iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/black.png'), resize=self.resize, X2=0)
                 self.state_label.setText("No image found, please choose right data path",
                                          color='#FF6A56')
         else:
             # print(len(files))
             # print(files[0])
             self.ImFolder = os.path.dirname(files[0])
-            self.OpenDirDropped(os.path.basename(files[0]))
+            try:
+                self.OpenDirDropped(os.path.basename(files[0]))
+                print(files[0], self.ImNameSet[self.CurImId])
+                self.ImPath = self.ImFolder + r'/' + self.ImNameSet[self.CurImId]
+                iopart._load_image(self, filename=self.ImPath)
+                self.initialize_listView()
 
-            print(files[0], self.ImNameSet[self.CurImId])
-            self.ImPath = self.ImFolder + r'/' + self.ImNameSet[self.CurImId]
-            iopart._load_image(self, filename=self.ImPath)
-            self.initialize_listView()
+                fname = os.path.basename(files[0])
+                fsuffix = os.path.splitext(fname)[-1]
+                if fsuffix in ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.jfif']:
+                    if '_mask' in fname:
+                        self.state_label.setText("This is a mask file, autoload corresponding image", color='#FDC460')
+                else:
+                    self.state_label.setText("This format is not supported", color='#FF6A56')
 
-            fname = os.path.basename(files[0])
-            fsuffix = os.path.splitext(fname)[-1]
-            if fsuffix in ['.png', '.jpg', '.jpeg', '.tif', '.tiff', '.jfif']:
-                if '_mask' in fname:
-                    self.state_label.setText("This is a mask file, autoload corresponding image", color='#FDC460')
-            else:
-                self.state_label.setText("This format is not supported", color='#FF6A56')
+            except ValueError:
+                iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/black.png'), resize=self.resize, X2=0)
+                self.state_label.setText("No corresponding iamge for this mask file", color='#FF6A56')
 
     def toggle_masks(self):
         if self.MCheckBox.isChecked():
