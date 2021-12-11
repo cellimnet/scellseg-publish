@@ -3,10 +3,6 @@ from natsort import natsorted
 import numpy as np
 import cv2
 import tifffile
-from pycocotools.coco import COCO
-import pycocotools
-from pycococreatortools import pycococreatortools
-from tqdm import trange
 
 from . import utils, plot, transforms
 

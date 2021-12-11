@@ -25,12 +25,12 @@ make_folder(output_path)
 output_excel_path =  os.path.join(output_path, 'excels')
 make_folder(output_excel_path)
 
-dataset_dir_root = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval'
+dataset_dir_root = r'G:\Python\9-Project\1-cellseg\scellseg\input\eval'
 dataset_names = ['BBBC010_elegans']  # 'BBBC010_elegans', 'mito', 'bv2'
 
 model_name = 'scellseg'  # unet2, unet3, hover, cellpose, scellseg, scellseg_sneuro, scellseg_sfluor, scellseg_scell, scellseg_smicro
 net_avg = False
-finetune_model = r'G:\Python\9-Project\1-flurSeg\scellseg-gui\output\fine-tune'  # TODO: you can provide the model file or folder_name of model files
+finetune_model = r'G:\Python\9-Project\1-cellseg\scellseg-gui\output\fine-tune'  # TODO: you can provide the model file or folder_name of model files
 
 pretrained_model = os.path.join(project_path, 'assets', 'pretrained_models', model_name)
 task_mode, postproc_mode, attn_on, dense_on, style_scale_on = process_different_model(model_name)  # task_mode mean different instance representation

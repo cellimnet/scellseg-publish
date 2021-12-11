@@ -19,12 +19,10 @@ channel = [2, 1]
 project_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")
 output_path = os.path.join(project_path, 'output')
 make_folder(output_path)
-output_excel_path =  os.path.join(output_path, 'excels')
-make_folder(output_excel_path)
 
 
 train_epoch = 100
-dataset_dir_root = r'G:\Python\9-Project\1-flurSeg\scellseg\input\meta_eval'
+dataset_dir_root = r'G:\Python\9-Project\1-cellseg\scellseg\input\eval'
 dataset_names = ['BBBC010_elegans']  # 'BBBC010_elegans', 'mito', 'bv2'
 contrast_on = 1
 model_name = 'scellseg'  # scellseg, cellpose, hover, unet3, unet2, scellseg_sneuro, scellseg_sfluor, scellseg_scell, scellseg_smicro

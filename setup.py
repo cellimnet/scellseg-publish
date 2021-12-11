@@ -2,8 +2,8 @@ import setuptools
 from setuptools import setup
 
 install_deps = ['numpy', 'scipy', 'natsort',
-                'tifffile', 'tqdm', 'numba', 
-                'torch>=1.6',
+                'tifffile', 'tqdm', 'numba', 'pycocotools',
+                'torch>=1.6', 'scikit-image', 'tensorflow', 'tensorboardX',
                 'opencv-python-headless']
 
 try:
@@ -34,15 +34,7 @@ setup(
     packages=setuptools.find_packages(),
     use_scm_version=True,
     install_requires = install_deps,
-    tests_require=[
-      'pytest'
-    ],
     extras_require = {
-      'docs': [
-        'sphinx>=3.0',
-        'sphinxcontrib-apidoc',
-        'sphinx_rtd_theme',
-      ],
       'guis': [
         'pyqtgraph==0.11.0rc0', 
         'pyqt5', 
