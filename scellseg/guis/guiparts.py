@@ -1,3 +1,4 @@
+import PyQt5.QtWidgets
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.Qt import *
 
@@ -244,14 +245,13 @@ class HelpWindow(QtGui.QDialog):
             ''')
 
         super(HelpWindow, self).__init__(parent)
-        self.setGeometry(100,50,767,525)
+
         self.setWindowTitle('Scellseg help')
         self.win = QtGui.QWidget(self)
         self.win.setContentsMargins(0, 0, 0, 0)
 
         self.scrollText = QtWidgets.QScrollArea(self.win)
         self.scrollTextWidgetContents = QtWidgets.QWidget()
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollTextWidgetContents)
 
         label = QtWidgets.QLabel(self.scrollTextWidgetContents)
         label.setText(text)
@@ -266,10 +266,15 @@ class HelpWindow(QtGui.QDialog):
         # '}'
         # ]
         # label.setStyleSheet('\n'.join(string_sheet))
-
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.scrollTextWidgetContents)
         self.verticalLayout.addWidget(label)
+
         self.scrollText.setWidget(self.scrollTextWidgetContents)
         self.scrollText.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+
+        # self.scrollTextWidgetContents.setSizePolicy(PyQt5.QtWidgets.QSizePolicy.Expanding, PyQt5.QtWidgets.QSizePolicy.Expanding)
+        # self.scrollText.setSizePolicy(PyQt5.QtWidgets.QSizePolicy.Expanding, PyQt5.QtWidgets.QSizePolicy.Expanding)
 
         scroll_sheet = [
         'QScrollBar::handle:vertical {'
@@ -281,9 +286,12 @@ class HelpWindow(QtGui.QDialog):
         layout = QtWidgets.QHBoxLayout(self.win)
         layout.addWidget(self.scrollText)
 
+
         self.setWindowFlags(Qt.Dialog | Qt.WindowCloseButtonHint)
         self.setWindowModality(Qt.NonModal)
-        self.setFixedSize(767,525)
+        self.setGeometry(100,50,767,525)
+        # self.setFixedSize(767,525)
+        # self.adjustSize()
         self.show()
 
 class TypeRadioButtons(QtGui.QButtonGroup):
