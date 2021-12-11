@@ -2,7 +2,7 @@
 
 A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning
 
-### **Description**<img src="logo.svg" width="160" title="scellseg" alt="scellseg" align="right" vspace = "30">
+### **Description**<img src="./logo.svg" width="160" title="scellseg" alt="scellseg" align="right" vspace = "30">
 
 We proposed a "pre-trained + fine-tuning" pipeline for cell instance segmentation. To make Scellseg easy to use, we also developed a graphical user interface integrated with functions of annotation, fine-tuning and inference. Biologists can specialize their own cell segmentation model to conduct single-cell image analysis.
 
