@@ -1,10 +1,10 @@
 import setuptools
 from setuptools import setup
 
-install_deps = ['numpy', 'scipy', 'natsort',
+install_deps = ['numpy', 'scipy', 'natsort', 'tabulate',
                 'tifffile', 'tqdm', 'numba', 'pycocotools',
                 'torch>=1.6', 'scikit-image', 'tensorflow', 'tensorboardX',
-                'opencv-python-headless']
+                'opencv-python-headless', 'pyqtgraph==0.11.0rc0', 'pyqt5',]
 
 try:
     import torch
@@ -15,7 +15,7 @@ try:
 except:
     pass
 
-with open("README.md", "r") as fh:
+with open("README.md", "r", encoding='utf-8') as fh:
     long_description = fh.read()
 
 setup(
@@ -34,12 +34,6 @@ setup(
     packages=setuptools.find_packages(),
     use_scm_version=True,
     install_requires = install_deps,
-    extras_require = {
-      'guis': [
-        'pyqtgraph==0.11.0rc0', 
-        'pyqt5', 
-        ]
-    },
     include_package_data=True,
     classifiers=(
         "Programming Language :: Python :: 3",
