@@ -301,10 +301,8 @@ class sCellSeg(UnetModel):
         tic = time.time()
         lavg, nsum = 0, 0
 
-        project_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + ".")
-        output_path = os.path.join(project_path, 'output')
-        utils.make_folder(output_path)
-        output_log_path = os.path.join(output_path, 'train_logs')
+        utils.make_folder(save_path)
+        output_log_path = os.path.join(save_path, 'train_logs')
         utils.make_folder(output_log_path)
         log_dir = os.path.join(output_log_path, d.strftime("%Y%m%d-%H%M"))
         if not os.path.isdir(log_dir):
@@ -421,7 +419,7 @@ class sCellSeg(UnetModel):
         return model_path
 
 
-    def finetune(self, shot_gen=None, lr=None, lr_schedule_gamma=None, step_size=20):
+    def finetune(self, shot_gen=None, lr=None, lr_schedule_gamma=None, step_size=20, savepath=None):
         """The function for the fine-tune phase."""
         assert shot_gen is not None, print('please provide shot images')
         self.net.train()
@@ -441,7 +439,10 @@ class sCellSeg(UnetModel):
 
         self.net.optimizer = self.set_optimizer(lr)
 
-        output_path = os.path.join(project_path, 'output')
+        if savepath is not None:
+            output_path = savepath
+        else:
+            output_path = project_path
         utils.make_folder(output_path)
         output_model_path = os.path.join(output_path, 'fine-tune')
         utils.make_folder(output_model_path)

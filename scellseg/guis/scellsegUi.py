@@ -454,6 +454,13 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.label_batchseg.setObjectName('label_batchseg')
         self.gridLayout_2.addWidget(self.label_batchseg, page2_l, 0, 1, 4)
         page2_l += 1
+        self.label_bz = QtWidgets.QLabel("Batch size")
+        self.gridLayout_2.addWidget(self.label_bz, page2_l, 0, 1, 1)
+        self.bz_line = QtWidgets.QLineEdit()
+        self.bz_line.setPlaceholderText('Default: 8')
+        self.bz_line.setFixedWidth(120)
+        self.gridLayout_2.addWidget(self.bz_line, page2_l, 1, 1, 1)
+        page2_l += 1
         self.dataset_inference_bnt = QtWidgets.QPushButton("Data path")
         self.gridLayout_2.addWidget(self.dataset_inference_bnt, page2_l, 0, 1, 1)
         self.dataset_inference_bnt.clicked.connect(self.batch_inference_dir_choose)
@@ -538,14 +545,20 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.epoch_line.setPlaceholderText('Default: 100')
         self.gridLayout_3.addWidget(self.epoch_line, 5, 2, 1, 2)
 
+        self.label_ftbz = QtWidgets.QLabel("Batch size")
+        self.gridLayout_3.addWidget(self.label_ftbz, 6, 0, 1, 2)
+        self.ftbz_line = QtWidgets.QLineEdit()
+        self.ftbz_line.setPlaceholderText('Default: 8')
+        self.gridLayout_3.addWidget(self.ftbz_line, 6, 2, 1, 2)
+
         self.ftbnt = QtWidgets.QPushButton("Start fine-tuning")
         self.ftbnt.setObjectName('ftbnt')
         self.ftbnt.clicked.connect(self.fine_tune)
-        self.gridLayout_3.addWidget(self.ftbnt, 6, 0, 1, 4)
+        self.gridLayout_3.addWidget(self.ftbnt, 7, 0, 1, 4)
         self.ftbnt.setEnabled(False)
 
         spacerItem3 = QtWidgets.QSpacerItem(20, 320, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.gridLayout_3.addItem(spacerItem3, 7, 0, 1, 1)
+        self.gridLayout_3.addItem(spacerItem3, 8, 0, 1, 1)
 
         #initialize scroll size
         self.scroll = QtGui.QScrollBar(QtCore.Qt.Horizontal)
@@ -1296,6 +1309,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                     dataset_path = None
 
                 # batch inference
+                bz = 8 if self.bz_line.text() == '' else int(self.bz_line.text())
                 save_name = self.current_model + '_' + dataset_path.split('\\')[-1]
                 utils.set_manual_seed(5)
                 try:
@@ -1333,7 +1347,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
                                                        diameter=diameter,
                                                        resample=False, flow_threshold=0.4,
                                                        cellprob_threshold=0.5,
-                                                       min_size=min_size, eval_batch_size=8,
+                                                       min_size=min_size, eval_batch_size=bz,
                                                        postproc_mode=self.model.postproc_mode,
                                                        progress=self.progress)
 
@@ -1712,14 +1726,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
     def fine_tune(self):
         tic = time.time()
 
-        num_batch = 8
         dataset_dir = self.fine_tune_dir
         self.state_label.setText("%s"%(dataset_dir), color='#969696')
 
         if not isinstance(dataset_dir, str):  # TODO: 改成警告
             print('dataset_dir is not provided')
 
-        train_epoch = 100 if self.epoch_line.text() == '' else self.epoch_line.text()
+        train_epoch = 100 if self.epoch_line.text() == '' else int(self.epoch_line.text())
+        ft_bz = 8 if self.ftbz_line.text() == '' else int(self.ftbz_line.text())
         contrast_on = 1 if self.stmodelchooseBnt.currentText() == 'contrastive' else 0
         model_type = self.ftmodelchooseBnt.currentText()
         task_mode, postproc_mode, attn_on, dense_on, style_scale_on = utils.process_different_model(model_type)  # task_mode mean different instance representation
@@ -1728,9 +1742,10 @@ class Ui_MainWindow(QtGui.QMainWindow):
         print(dataset_dir, train_epoch, channels)
         utils.set_manual_seed(5)
         try:
+            print('ft_bz', ft_bz)
             shotset = DatasetShot(eval_dir=dataset_dir, class_name=None, image_filter='_img', mask_filter='_masks',
                                   channels=channels,
-                                  train_num=train_epoch * num_batch, task_mode=task_mode, rescale=True)
+                                  train_num=train_epoch * ft_bz, task_mode=task_mode, rescale=True)
             iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading1.png'), resize=self.resize, X2=0)
             self.state_label.setText("Running...", color='#969696')
             QtWidgets.qApp.processEvents()  # force update gui
@@ -1742,12 +1757,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
             self.ftbnt.setEnabled(False)
             return
 
-        project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
-        output_path = os.path.join(project_path, 'output')
-        utils.make_folder(output_path)
-        output_excel_path = os.path.join(output_path, 'excels')
-        utils.make_folder(output_excel_path)
-        shot_gen = DataLoader(dataset=shotset, batch_size=num_batch, num_workers=0, pin_memory=True)
+        shot_gen = DataLoader(dataset=shotset, batch_size=ft_bz, num_workers=0, pin_memory=True)
 
         diameter = shotset.md
         print('>>>> mean diameter of this style,', round(diameter, 3))
@@ -1775,11 +1785,11 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.state_label.setText("Running...", color='#969696')
         QtWidgets.qApp.processEvents()  # force update gui
 
-        self.model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size)
+        self.model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size, savepath=dataset_dir)
 
         print('Finished fine-tuning')
         self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading3.png'), autoLevels=False, lut=None)
-        self.state_label.setText("Finished in %0.3fs, model saved at ./output/fine-tune/%s" %(time.time()-tic, self.model.net.save_name), color='#39B54A')
+        self.state_label.setText("Finished in %0.3fs, model saved at %s/fine-tune/%s" %(time.time()-tic, dataset_dir, self.model.net.save_name), color='#39B54A')
         self.ftbnt.setEnabled(False)
         self.fine_tune_dir = ''
 

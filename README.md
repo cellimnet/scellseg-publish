@@ -37,14 +37,12 @@ activate scellseg_env
 python -m scellseg
 ```
 
-If you have a GPU device and "Use GPU" can not be checked, you should check the version of "torch" and re-install the correct torch version suitable for your CUDA version (use "nvcc -V" to check your CUDA version), for example:
+If you have a GPU device and "Use GPU" in GUI is disabled, you should check the version of "torch" and re-install the correct torch version suitable for your CUDA version (use "nvcc -V" to check your CUDA version), for example:
 
 ```
 nvcc -V
-conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
+pip install torch==1.7.1+cu101 -f https://download.pytorch.org/whl/cu101/torch_stable.html
 ```
-
-
 
 ### How to use GUI	
 
@@ -70,15 +68,17 @@ conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
 
 ​	d) Set the epoch you want conduct, the default value is 100, which was used in our paper. You can increase the number for adequate training
 
-​	e) You can select different pre-trained model ("Scellseg", "Cellpose", or "Hover") and fine-tuning strategy ("contrastive fine-tuning" or "classic fine-tuning")
+​	e) Set the batch size according to your own GPU, the default value is 100, which was used in our paper
 
-​	f) Click "Start fine-tuning" button to start fine-tuning. After fine-tuning, it will show the saved path of the model file in the bottom of display window
+​	f) You can select different pre-trained model ("Scellseg", "Cellpose", or "Hover") and fine-tuning strategy ("contrastive fine-tuning" or "classic fine-tuning")
+
+​	g) Click "Start fine-tuning" button to start fine-tuning. After fine-tuning, it will show the saved path of the model file in the bottom of display window (saved at a subfolder in parent folder named "fine-tune", mito-20211116/fine-tune")
 
 #### 3. Inference
 
 ​	a) There are two modes for inference,  (1) run segmentation for image in window (2) batch segmentation
 
-​	b) If you want to conduct batch segmentation, click "Data path" to choose the parent folder of your dataset, such as "mito-20211116" 
+​	b) If you want to conduct batch segmentation, click "Data path" to choose the parent folder of your dataset, such as "mito-20211116" , and set the adequate batch size according to your own GPU
 
 ​	c) You can choose your own model file for inference, the default is the pre-trained Scellseg model file
 
