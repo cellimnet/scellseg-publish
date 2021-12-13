@@ -16,9 +16,28 @@ Hardware: >= 8G memory, equipped with a CPU with Core i5 or above.
 
 Our Environment: Python --3.7.4，CUDA --10.1.243， GPU：Nvidia 2080Ti
 
-This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out if you don't have them, you can install them with conda or pip.
+Please check whether you can use conda environment
 
-### How to use GUI
+```
+conda create --name scellseg_env python=3.7
+activate scellseg_env
+pip install scellseg --default-timeout=10000
+```
+
+If you get an "Timeout error", increase the number of --default-timeout and try again, for example:
+
+```
+pip install scellseg --default-timeout=100000
+```
+
+After installing scellseg successfully, you can start the GUI through:
+
+```
+activate scellseg_env
+python -m scellseg
+```
+
+### How to use GUI	
 
 #### **1. Annotation**
 

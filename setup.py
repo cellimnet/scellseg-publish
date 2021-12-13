@@ -2,7 +2,7 @@ import setuptools
 from setuptools import setup
 
 install_deps = ['numpy', 'scipy', 'natsort', 'tabulate',
-                'tifffile', 'tqdm', 'numba', 'pycocotools',
+                'tifffile', 'tqdm', 'numba',
                 'torch>=1.6', 'scikit-image', 'tensorflow', 'tensorboardX',
                 'opencv-python-headless', 'pyqtgraph==0.11.0rc0', 'pyqt5',]
 
@@ -20,7 +20,7 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 setup(
     name="scellseg",
-    version='0.1.0',
+    version='0.1.1',
     license="BSD",
     author="Dejin Xun & Deheng Chen",
     author_email="xundejin@zju.edu.cn",
