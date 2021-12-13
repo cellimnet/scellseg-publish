@@ -20,24 +20,20 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 setup(
     name="scellseg",
-    license="BSD-3-Clause License",
+    version='0.1.0',
+    license="BSD",
     author="Dejin Xun & Deheng Chen",
     author_email="xundejin@zju.edu.cn",
     description="a specializable cell segmentation tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/cellimnet/scellseg-publish",
-    setup_requires=[
-      'pytest-runner',
-      'setuptools_scm',
-    ],
     packages=setuptools.find_packages(),
-    use_scm_version=True,
     install_requires = install_deps,
     include_package_data=True,
     classifiers=(
         "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: BSD-3-Clause License",
+        "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
     ),
      entry_points = {

@@ -1,8 +1,0 @@
-<RCC>
-    <qresource prefix="icon">
-        <file>Resource/DefaultCell.jpg</file>
-        <file>Resource/Back.jpg</file>
-        <file>Resource/back.svg</file>
-        <file>Resource/Cell.svg</file>
-    </qresource>
-</RCC>
