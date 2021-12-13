@@ -119,7 +119,7 @@ def convert_images(x, channels, do_3D, normalize, invert):
         for i in range(len(x)):
             if x[i].shape[0]<4:
                 x[i] = x[i].transpose(1,2,0)
-        print('channelstest', channels)
+        # print('channelstest', channels)
         x = [transforms.reshape(x[i], channels=channels[i]) for i in range(nimg)]
     elif do_3D:
         for i in range(len(x)):

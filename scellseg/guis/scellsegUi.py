@@ -1764,7 +1764,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
 
         self.model.net.contrast_on = contrast_on
         if contrast_on:
-            self.model.net.pair_gen = DatasetPairEval(positive_dir=dataset_dir, use_negative_masks=False, gpu=self.useGPU,
+            self.model.net.pair_gen = DatasetPairEval(positive_dir=dataset_dir, use_negative_masks=False, gpu=self.ftuseGPU.isChecked(),
                                                  rescale=True)
             self.model.net.save_name = save_name + '-cft'
         else:

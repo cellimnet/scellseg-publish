@@ -1,4 +1,5 @@
 include logo.svg
 include README.md
 include LICENSE
+graft scllseg/assets
 prune run_net

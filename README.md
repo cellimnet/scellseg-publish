@@ -37,6 +37,15 @@ activate scellseg_env
 python -m scellseg
 ```
 
+If you have a GPU device and "Use GPU" can not be checked, you should check the version of "torch" and re-install the correct torch version suitable for your CUDA version (use "nvcc -V" to check your CUDA version), for example:
+
+```
+nvcc -V
+conda install pytorch torchvision torchaudio cudatoolkit=10.1 -c pytorch
+```
+
+
+
 ### How to use GUI	
 
 #### **1. Annotation**
