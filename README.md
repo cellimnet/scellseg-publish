@@ -14,9 +14,9 @@ Programing language: Python.
 
 Hardware: >= 8G memory, equipped with a CPU with Core i5 or above.
 
-Our Environment: Python --3.7.4，CUDA --10.1.243， GPU：Nvidia 2080Ti
+Our Environment: Python --3.7.4, CUDA --10.1.243, GPU：Nvidia 2080Ti.
 
-Please check whether you can use conda environment
+Before installation, please check whether you can use conda environment
 
 ```
 conda create --name scellseg_env python=3.7

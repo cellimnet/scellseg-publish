@@ -289,7 +289,7 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.gridLayout_2.addWidget(self.label_4, page2_l, 0, 1, 1)
         self.ModelChoose = QtWidgets.QComboBox(self.page_2)
         self.ModelChoose.setObjectName("ModelChoose")
-        self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
+        self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.path.sep + ".")
         self.model_dir = os.path.join(self.project_path, 'assets', 'pretrained_models')
         self.ModelChoose.addItem("")
         self.ModelChoose.addItem("")
