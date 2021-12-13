@@ -1342,14 +1342,23 @@ class Ui_MainWindow(QtGui.QMainWindow):
                 QtWidgets.qApp.processEvents()  # force update gui
 
                 # flow_threshold was set to 0.4, and cellprob_threshold was set to 0.5
-                masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=False,
-                                                       query_image_names=query_image_names, channel=channels,
-                                                       diameter=diameter,
-                                                       resample=False, flow_threshold=0.4,
-                                                       cellprob_threshold=0.5,
-                                                       min_size=min_size, eval_batch_size=bz,
-                                                       postproc_mode=self.model.postproc_mode,
-                                                       progress=self.progress)
+                try:
+                    masks, flows, _ = self.model.inference(finetune_model=finetune_model, net_avg=False,
+                                                           query_image_names=query_image_names, channel=channels,
+                                                           diameter=diameter,
+                                                           resample=False, flow_threshold=0.4,
+                                                           cellprob_threshold=0.5,
+                                                           min_size=min_size, eval_batch_size=bz,
+                                                           postproc_mode=self.model.postproc_mode,
+                                                           progress=self.progress)
+                except RuntimeError:
+                    iopart._initialize_image_portable(self,
+                                                      iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'),
+                                                      resize=self.resize, X2=0)
+                    self.state_label.setText("Batch size is too big, please set smaller",
+                                             color='#FF6A56')
+                    print("Batch size is too big, please set smaller")
+                    return
 
                 # save output images
                 diams = np.ones(len(query_image_names)) * diameter
@@ -1749,13 +1758,14 @@ class Ui_MainWindow(QtGui.QMainWindow):
             iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading1.png'), resize=self.resize, X2=0)
             self.state_label.setText("Running...", color='#969696')
             QtWidgets.qApp.processEvents()  # force update gui
-        except:
+        except ValueError:
             iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'), resize=self.resize, X2=0)
             self.state_label.setText("Please choose right data path",
                                      color='#FF6A56')
             print("Please choose right data path")
             self.ftbnt.setEnabled(False)
             return
+
 
         shot_gen = DataLoader(dataset=shotset, batch_size=ft_bz, num_workers=0, pin_memory=True)
 
@@ -1780,12 +1790,18 @@ class Ui_MainWindow(QtGui.QMainWindow):
         else:
             self.model.net.save_name = save_name + '-ft'
 
-        print('Now is fine-tuning...Please Wait')
-        self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading2.png'), autoLevels=False, lut=None)
-        self.state_label.setText("Running...", color='#969696')
-        QtWidgets.qApp.processEvents()  # force update gui
-
-        self.model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size, savepath=dataset_dir)
+        try:
+            print('Now is fine-tuning...Please Wait')
+            self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading2.png'), autoLevels=False, lut=None)
+            self.state_label.setText("Running...", color='#969696')
+            QtWidgets.qApp.processEvents()  # force update gui
+            self.model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size, savepath=dataset_dir)
+        except RuntimeError:
+            iopart._initialize_image_portable(self, iopart.imread(self.now_pyfile_path + '/assets/Loading4.png'), resize=self.resize, X2=0)
+            self.state_label.setText("Batch size is too big, please set smaller",
+                                     color='#FF6A56')
+            print("Batch size is too big, please set smaller")
+            return
 
         print('Finished fine-tuning')
         self.img.setImage(iopart.imread(self.now_pyfile_path + '/assets/Loading3.png'), autoLevels=False, lut=None)

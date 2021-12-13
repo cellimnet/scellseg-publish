@@ -20,7 +20,7 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 setup(
     name="scellseg",
-    version='0.1.6',
+    version='0.1.7',
     license="BSD",
     author="Dejin Xun & Deheng Chen",
     author_email="xundejin@zju.edu.cn",
