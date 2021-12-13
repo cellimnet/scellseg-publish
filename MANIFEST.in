@@ -1,4 +1,4 @@
-include scellseg/guis/assets/logo.svg
+include logo.svg
 include README.md
 include LICENSE
 prune run_net

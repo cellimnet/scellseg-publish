@@ -50,9 +50,7 @@ class DatasetPairEval():
 
         # negtive data, subset of cellpose train set
         if negative_dir is None:
-            project_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + ".")
-            if 'guis' in os.listdir(project_path):
-                project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
+            project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + os.path.sep + ".")
             negative_dirs = os.path.join(project_path, 'assets', 'contrast_data')
             negative_dir = [os.path.join(negative_dirs, classi) for classi in os.listdir(negative_dirs)]
         elif not isinstance(negative_dir, (list, np.ndarray)):

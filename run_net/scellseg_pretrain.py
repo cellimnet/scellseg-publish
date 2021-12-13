@@ -7,7 +7,7 @@ use_GPU = True
 
 train_dir = r'E:\3-dataset\cellpose\train-single-micro'  # Todo: you should change to your own dataset path
 test_dir = r'E:\3-dataset\cellpose\val-single-micro'
-project_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + ".")
+project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + os.path.sep + ".")
 output_path = os.path.join(project_path, 'output')
 
 model_name = 'scellseg'  # model_name： scellseg, cellpose, hover, unet3, unet2

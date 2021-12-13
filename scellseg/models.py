@@ -18,10 +18,8 @@ from tensorboardX import SummaryWriter
 from torch.utils.data import DataLoader
 
 
-project_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + ".")
-if 'guis' in os.listdir(project_path):
-    project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.getcwd())) + os.path.sep + ".")
-model_dir = os.path.join(project_path, 'assets', 'pretrained_models')
+project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + os.path.sep + ".")
+model_dir = os.path.join(project_path, 'scellseg', 'assets', 'pretrained_models')
 print('model_dir', model_dir)
 
 def dx_to_circ(dP):

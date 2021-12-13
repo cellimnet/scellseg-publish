@@ -291,6 +291,8 @@ class Ui_MainWindow(QtGui.QMainWindow):
         self.ModelChoose.setObjectName("ModelChoose")
         self.project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))) + os.path.sep + ".")
         self.model_dir = os.path.join(self.project_path, 'assets', 'pretrained_models')
+        print('self.model_dir', self.model_dir)
+
         self.ModelChoose.addItem("")
         self.ModelChoose.addItem("")
         self.ModelChoose.addItem("")
