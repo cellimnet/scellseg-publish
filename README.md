@@ -8,7 +8,7 @@ We proposed a "pre-trained + fine-tuning" pipeline for cell instance segmentatio
 
 ### Install
 
-Operating system: It has been tested on Windows 10. Theoretically, it can work on any system that can run Python.
+Operating system: It has been tested on Windows 10 and Ubuntu-18.04. Theoretically, it can work on any system that can run Python.
 
 Programing language: Python.
 
