@@ -3,6 +3,7 @@ A style-aware cell instance segmentation tool with pre-training and contrastive 
 
 ### **Citation**
 Our article of Scellseg has been accepted for publication in iScience, if any part of this code is used, please give appropriate citation to our paper.
+
 [Dejin Xun, Deheng Chen, Yitian Zhou, Volker M. Lauschke, Rui Wang, Yi Wang,
 Scellseg: a style-aware deep learning tool for adaptive cell instance segmentation by contrastive fine-tuning,
 iScience,
