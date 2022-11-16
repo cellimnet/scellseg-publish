@@ -1,4 +1,13 @@
 # Scellseg 
+Our article of Scellseg has been accepted for publication in iScience, you can read the paper in https://www.sciencedirect.com/science/article/pii/S2589004222017783.
+If any part of this code is used, please give appropriate citation to our paper.
+[Dejin Xun, Deheng Chen, Yitian Zhou, Volker M. Lauschke, Rui Wang, Yi Wang,
+Scellseg: a style-aware deep learning tool for adaptive cell instance segmentation by contrastive fine-tuning,
+iScience,
+2022,
+105506,
+ISSN 2589-0042,
+https://doi.org/10.1016/j.isci.2022.105506.]
 
 A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning
 
