@@ -1,6 +1,16 @@
 # Scellseg 
-
 A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning
+
+### **Citation**
+Our article of Scellseg has been published in iScience, if any part of this code is used, please give appropriate citation to our paper.
+
+[Dejin Xun, Deheng Chen, Yitian Zhou, Volker M. Lauschke, Rui Wang, Yi Wang,
+Scellseg: a style-aware deep learning tool for adaptive cell instance segmentation by contrastive fine-tuning,
+iScience,
+2022,
+105506,
+ISSN 2589-0042,
+https://doi.org/10.1016/j.isci.2022.105506.]
 
 ### **Description**<img src="./logo.svg" width="160" title="scellseg" alt="scellseg" align="right" vspace = "30">
 
@@ -8,17 +18,43 @@ We proposed a "pre-trained + fine-tuning" pipeline for cell instance segmentatio
 
 ### Install
 
-Operating system: It has been tested on Windows 10. Theoretically, it can work on any system that can run Python.
+Operating system: It has been tested on Windows 10 and Ubuntu-18.04. Theoretically, it can work on any system that can run Python.
 
 Programing language: Python.
 
 Hardware: >= 8G memory, equipped with a CPU with Core i5 or above.
 
-Our Environment: Python --3.7.4，CUDA --10.1.243， GPU：Nvidia 2080Ti
+Our Environment: Python --3.7.4, CUDA --10.1.243, GPU：Nvidia 2080Ti.
 
-This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out if you don't have them, you can install them with conda or pip.
+Before installation, please check whether you can use conda environment
 
-### How to use GUI
+```
+conda create --name scellseg_env python=3.7
+activate scellseg_env
+pip install scellseg --default-timeout=10000
+```
+
+If you get an "Timeout error", increase the number of --default-timeout and try again, for example:
+
+```
+pip install scellseg --default-timeout=100000
+```
+
+After installing scellseg successfully, you can start the GUI through:
+
+```
+activate scellseg_env
+python -m scellseg
+```
+
+If you have a GPU device and "Use GPU" in GUI is disabled, you should check the version of "torch" and re-install the correct torch version suitable for your CUDA version (use "nvcc -V" to check your CUDA version), for example:
+
+```
+nvcc -V
+pip install torch==1.7.1+cu101 -f https://download.pytorch.org/whl/cu101/torch_stable.html
+```
+
+### How to use GUI	
 
 #### **1. Annotation**
 
@@ -42,15 +78,17 @@ This project uses Numpy, Opencv, skimage, tqdm, pytorch, pyqt. Go check them out
 
 ​	d) Set the epoch you want conduct, the default value is 100, which was used in our paper. You can increase the number for adequate training
 
-​	e) You can select different pre-trained model ("Scellseg", "Cellpose", or "Hover") and fine-tuning strategy ("contrastive fine-tuning" or "classic fine-tuning")
+​	e) Set the batch size according to your own GPU, the default value is 100, which was used in our paper
 
-​	f) Click "Start fine-tuning" button to start fine-tuning. After fine-tuning, it will show the saved path of the model file in the bottom of display window
+​	f) You can select different pre-trained model ("Scellseg", "Cellpose", or "Hover") and fine-tuning strategy ("contrastive fine-tuning" or "classic fine-tuning")
+
+​	g) Click "Start fine-tuning" button to start fine-tuning. After fine-tuning, it will show the saved path of the model file in the bottom of display window (saved at a subfolder in parent folder named "fine-tune", mito-20211116/fine-tune")
 
 #### 3. Inference
 
 ​	a) There are two modes for inference,  (1) run segmentation for image in window (2) batch segmentation
 
-​	b) If you want to conduct batch segmentation, click "Data path" to choose the parent folder of your dataset, such as "mito-20211116" 
+​	b) If you want to conduct batch segmentation, click "Data path" to choose the parent folder of your dataset, such as "mito-20211116" , and set the adequate batch size according to your own GPU
 
 ​	c) You can choose your own model file for inference, the default is the pre-trained Scellseg model file
 

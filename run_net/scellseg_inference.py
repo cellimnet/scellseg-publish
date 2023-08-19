@@ -19,7 +19,7 @@ flow_threshold = 0.4
 cellprob_threshold = 0.5
 min_size = ((30. // 2) ** 2) * np.pi * 0.05
 
-project_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")
+project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+os.path.sep+".")
 output_path = os.path.join(project_path, 'output')
 make_folder(output_path)
 output_excel_path =  os.path.join(output_path, 'excels')

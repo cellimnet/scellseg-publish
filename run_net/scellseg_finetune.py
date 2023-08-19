@@ -16,7 +16,7 @@ use_GPU = True
 num_batch = 8
 channel = [2, 1]
 
-project_path = os.path.abspath(os.path.dirname(os.getcwd())+os.path.sep+".")
+project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+os.path.sep+".")
 output_path = os.path.join(project_path, 'output')
 make_folder(output_path)
 
@@ -65,4 +65,4 @@ for dataset_name in dataset_names:
     if contrast_on:
         model.net.pair_gen = DatasetPairEval(positive_dir=dataset_dir, use_negative_masks=False, gpu=use_GPU, rescale=True)
 
-    model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size)
+    model.finetune(shot_gen=shot_gen, lr=lr, lr_schedule_gamma=lr_schedule_gamma, step_size=step_size, savepath=dataset_dir)

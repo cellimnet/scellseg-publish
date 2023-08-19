@@ -5,11 +5,16 @@ dependencies:
   - pyqt
   - pip:
     - numpy>1.14.6,<1.19.4
-    - numba>=0.43.1
     - scipy
+    - natsort
+    - tabulate
+    - tifffile
+    - tqdm
+    - numba>=0.43.1
     - torch>=1.6
+    - scikit-image
+    - tensorflow
+    - tensorboardX
     - opencv-python-headless
     - pyqtgraph>=0.11.0rc0
-    - natsort
-    - tqdm
-    - tifffile
+    - PyQt5

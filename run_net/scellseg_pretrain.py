@@ -7,7 +7,7 @@ use_GPU = True
 
 train_dir = r'E:\3-dataset\cellpose\train-single-micro'  # Todo: you should change to your own dataset path
 test_dir = r'E:\3-dataset\cellpose\val-single-micro'
-project_path = os.path.abspath(os.path.dirname(os.getcwd()) + os.path.sep + ".")
+project_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + os.path.sep + ".")
 output_path = os.path.join(project_path, 'output')
 
 model_name = 'scellseg'  # model_name： scellseg, cellpose, hover, unet3, unet2
@@ -21,6 +21,6 @@ model = models.sCellSeg(diam_mean=30, gpu=use_GPU, pretrained_model=False, nclas
                         task_mode=task_mode)
 cpmodel_path = model.pretrain(train_data=images, train_labels=labels, train_files=files,
                            test_data=test_images, test_labels=test_labels, test_files=test_files,
-                           channels=[2, 1], save_path=output_path, n_epochs=5, learning_rate=0.2)
+                           channels=[2, 1], save_path=output_path, n_epochs=100, learning_rate=0.2)
 
 print('>>>> model trained and saved to %s'%cpmodel_path)

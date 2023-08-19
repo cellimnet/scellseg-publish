@@ -216,6 +216,7 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data"><em>Chan2 (optional):</em> &nbsp; You can provide anothor channel to help segmenting the instance.</li>
             <li class="has-line-data"><em>Fine-tune strategy:</em> &nbsp; We provide both contrastive and classic fine-tuning strageties, try different stragety if you need.</li>
             <li class="has-line-data"><em>Epoch:</em> &nbsp; The default epoch for fine-tuning is 100, which was used in our paper, you can input the appropriate epoch according to your own data.</li>
+            <li class="has-line-data"><em>Batch size:</em> &nbsp; The default batch size for fine-tuning is 8, which was used in our paper, you can input the appropriate epoch according to your own GPU.</li>
             </ul>
             <p class="has-line-data"><span style="color: #366c1a"><b>!NOTE4!: </b></span> The saved path of model file after fine-tuning is shown in the bottom of display window.</p>
             
@@ -240,7 +241,9 @@ class HelpWindow(QtGui.QDialog):
             <li class="has-line-data"><em>Cell prob TH:</em> &nbsp; After running segmentation, you can slide it for better performance, you can get the value by hoving on the slider. Default value is 0.5</li>
             </ul>
 
-            <p class="has-line-data"><strong>Batch segmentation / Get single instance: </strong> You can conduct batch segmentation or get single instance by providing the right data path, for "batch segmentation", data should be organized like parent folder, and for "get single instance", data should be organized like shot subfolder, here shot subfolder is not the specific "shot" folder, if just mean data should be organized like that.</p>
+            <p class="has-line-data"><strong>Batch segmentation / Get single instance: </strong> </p> 
+            <li class="has-line-data"><em>Batch size:</em> &nbsp; The default batch size for “Batch segmentation” is 8, which was used in our paper, you can input the appropriate epoch according to your own GPU.</li>
+            <p class="has-line-data"> You can conduct batch segmentation or get single instance by providing the right data path, for "batch segmentation", data should be organized like parent folder, and for "get single instance", data should be organized like shot subfolder, here shot subfolder is not the specific "shot" folder, if just mean data should be organized like that.</p>
             <p class="has-line-data"> <span style="color: #366c1a"><b>!NOTE6!: </b></span> We did not do any experiments on 3D images, there may be some bugs.</p>
             ''')
 
