@@ -1,4 +1,4 @@
-# Scellseg 
+![image](https://github.com/cellimnet/scellseg-publish/assets/53943533/e7dae06a-0c85-42d2-b225-1e3190dc0fce)# Scellseg 
 A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning
 
 ### **Citation**
@@ -90,13 +90,15 @@ pip install torch==1.7.1+cu101 -f https://download.pytorch.org/whl/cu101/torch_s
 
 ​	b) If you want to conduct batch segmentation, click "Data path" to choose the parent folder of your dataset, such as "mito-20211116" , and set the adequate batch size according to your own GPU
 
-​	c) You can choose your own model file for inference, the default is the pre-trained Scellseg model file
+​	c) You can choose your own model file for inference, the default is the pre-trained Scellseg model file.
 
-​	d) The default "model match threshold" is set to 0.4 and "cellprob threshold" is set to 0.5, which was used in our paper, you can change it for better performance
+  d) Please do not forget input the Cell diameter (pixels) , the value can be found in the command, for example: the text in the command is ">>>> mean diameter of this style, 212.353", so you should input the 212.353 in the input box.
 
-​	e) Set the channel you want to segment, you can also provide a chan2 like nuclei channel for better learning, you should set the same setting as fine-tuning process
+​	e) The default "model match threshold" is set to 0.4 and "cellprob threshold" is set to 0.5, which was used in our paper, you can change it for better performance
 
-​	f) You can get each instance image after inference, click "Data path" to choose the query folder of your dataset, such as "mito-20211116/query", the output files will be saved at a subfolder in parent folder named "single", mito-20211116/single"
+​	f) Set the channel you want to segment, you can also provide a chan2 like nuclei channel for better learning, you should set the same setting as fine-tuning process
+
+​	g) You can get each instance image after inference, click "Data path" to choose the query folder of your dataset, such as "mito-20211116/query", the output files will be saved at a subfolder in parent folder named "single", mito-20211116/single"
 
 ### **Declaration**
 
