@@ -1,4 +1,4 @@
-![image](https://github.com/cellimnet/scellseg-publish/assets/53943533/e7dae06a-0c85-42d2-b225-1e3190dc0fce)# Scellseg 
+# Scellseg 
 A style-aware cell instance segmentation tool with pre-training and contrastive fine-tuning
 
 ### **Citation**
